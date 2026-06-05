@@ -2,526 +2,459 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Карта техник БЖЖ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BJJ Map</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://visjs.github.io/vis-network/standalone/umd/vis-network.min.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { margin: 0; font-family: Arial, sans-serif; display: flex; }
-        /* Боковая панель */
-        .sidebar {
-            width: 280px; background: #f5f5f5; border-right: 1px solid #ccc;
-            display: flex; flex-direction: column; height: 100vh; box-sizing: border-box;
-        }
-        .tabs {
-            display: flex; border-bottom: 1px solid #ccc;
-        }
-        .tab {
-            flex: 1; text-align: center; padding: 10px 0; cursor: pointer;
-            background: #e0e0e0; font-weight: bold; font-size: 14px; user-select: none;
-        }
-        .tab.active {
-            background: #f5f5f5; border-bottom: 2px solid #00BCD4;
-        }
-        .tab-content {
-            flex: 1; overflow-y: auto; padding: 10px; font-size: 13px; line-height: 1.5;
-        }
-        .tab-content h2 { font-size: 16px; margin-top: 0; }
-        .tab-content ul { padding-left: 20px; }
-        .tab-content li { margin-bottom: 6px; }
-        .legend-color {
-            display: inline-block; width: 14px; height: 14px; border-radius: 50%;
-            margin-right: 6px; vertical-align: middle;
-        }
-        .legend-shape { font-size: 16px; margin-right: 6px; }
-        #mynetwork { flex: 1; height: 100vh; }
-        .card {
-            display: none; position: fixed; top: 20px; right: 20px;
-            background: white; padding: 15px; border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3); max-width: 320px;
-            z-index: 999; font-size: 14px;
-        }
-        .card button {
-            margin-top: 10px; padding: 8px 12px;
-            background: #4CAF50; color: white; border: none;
-            border-radius: 5px; font-size: 14px; cursor: pointer;
-        }
-        .card button.forget { background: #f44336; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #0f172a; color: #e2e8f0; margin: 0; }
+        #mynetwork { width: 100%; height: 60vh; min-height: 400px; background: #1e293b; border-radius: 16px; }
+        .node-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .filter-btn.active { background: #3b82f6; color: white; border-color: #3b82f6; }
+        .progress-btn { transition: all 0.2s; }
+        .progress-btn.active-not { background: #334155; color: #94a3b8; border-color: #475569; }
+        .progress-btn.active-progress { background: #f59e0b; color: white; border-color: #d97706; }
+        .progress-btn.active-done { background: #10b981; color: white; border-color: #059669; }
+        .fade-in { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
     </style>
 </head>
-<body>
-<!-- Боковая панель с вкладками -->
-<div class="sidebar">
-    <div class="tabs">
-        <div class="tab active" onclick="switchTab(0)">О карте</div>
-        <div class="tab" onclick="switchTab(1)">Как пользоваться</div>
-        <div class="tab" onclick="switchTab(2)">Обозначения</div>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="p-4 border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-50">
+        <div class="flex items-center justify-between mb-3">
+            <h1 class="text-xl font-bold text-white flex items-center gap-2">
+                <span class="text-2xl">🥋</span> BJJ Map
+            </h1>
+            <div class="flex gap-2 items-center">
+                <button onclick="openInfoModal()" class="w-8 h-8 bg-slate-800 rounded-full flex items-center justify-center text-slate-300 border border-slate-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                </button>
+                <div class="text-xs text-slate-400 bg-slate-800 px-3 py-1 rounded-full" id="globalProgress">
+                    Прогресс: 0%
+                </div>
+            </div>
+        </div>
+        <!-- Filters -->
+        <div class="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+            <button class="filter-btn active whitespace-nowrap px-4 py-2 rounded-full bg-slate-800 border border-slate-700 text-sm font-medium" data-filter="all">Все</button>
+            <button class="filter-btn whitespace-nowrap px-4 py-2 rounded-full bg-slate-800 border border-slate-700 text-sm font-medium" data-filter="position">Позиции</button>
+            <button class="filter-btn whitespace-nowrap px-4 py-2 rounded-full bg-slate-800 border border-slate-700 text-sm font-medium" data-filter="transition">Переходы</button>
+            <button class="filter-btn whitespace-nowrap px-4 py-2 rounded-full bg-slate-800 border border-slate-700 text-sm font-medium" data-filter="submission">Сабмишены</button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-4 flex flex-col gap-4">
+        <!-- Graph Area -->
+        <div class="relative">
+            <div id="mynetwork"></div>
+            <div class="absolute bottom-3 right-3 flex flex-col gap-2">
+                <button onclick="fitGraph()" class="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center text-white shadow-lg border border-slate-700 active:scale-95 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Interactive Node Details Card -->
+        <div id="nodeDetails" class="bg-slate-800 rounded-2xl p-5 node-card border border-slate-700 shadow-xl">
+            <div class="text-center py-4 text-slate-400">
+                <svg class="w-12 h-12 mx-auto mb-2 opacity-50" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+                </svg>
+                <p class="text-sm">Нажмите на любой узел графа,<br>чтобы увидеть детали и отметить прогресс</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Info Modal -->
+    <div id="infoModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center hidden">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl w-11/12 max-w-md max-h-[80vh] flex flex-col overflow-hidden">
+            <div class="flex border-b border-slate-700">
+                <button class="tab-btn flex-1 py-3 text-sm font-semibold text-slate-400 bg-slate-800/50" data-tab="0">О карте</button>
+                <button class="tab-btn flex-1 py-3 text-sm font-semibold text-slate-400 bg-slate-800/50" data-tab="1">Как пользоваться</button>
+                <button class="tab-btn flex-1 py-3 text-sm font-semibold text-slate-400 bg-slate-800/50" data-tab="2">Обозначения</button>
+            </div>
+            <div class="overflow-y-auto p-5 text-sm text-slate-300 space-y-4" id="modalContent"></div>
+            <button onclick="closeInfoModal()" class="m-4 py-2 bg-slate-700 rounded-xl text-white font-medium">Закрыть</button>
+        </div>
     </div>
-    <!-- Вкладка 1: О карте -->
-    <div class="tab-content" id="tab-0">
-        <h2>О карте</h2>
-        <p>Это интерактивная карта техник бразильского джиу-джитсу, построенная по принципу <b>дерева навыков</b>.</p>
-        <p>Вы отмечаете приёмы, которыми уже владеете, и карта автоматически показывает, <b>какие техники можно изучить дальше</b>, опираясь на логические связки (переходы, продолжения, защиты).</p>
-        <p>Цель — помочь планомерно расширять арсенал, видеть пробелы и выстраивать линию развития от текущих знаний к новым вершинам.</p>
-    </div>
-    <!-- Вкладка 2: Как пользоваться -->
-    <div class="tab-content" id="tab-1" style="display:none;">
-        <h2>Как пользоваться</h2>
-        <ol>
-            <li>Кликайте на узлы — справа появится карточка с названием (русский + английский) и описанием приёма.</li>
-            <li>Нажмите <b>«Знаю»</b>, если владеете техникой — узел станет зелёным.</li>
-            <li>Все соседние техники, которые из него вытекают, подсветятся <b>жёлтым</b> — это ваши ближайшие цели.</li>
-            <li>Продолжайте отмечать изученное — жёлтые узлы будут превращаться в зелёные, и карта постепенно «развернётся» вокруг ваших знаний.</li>
-            <li>Если ошиблись, нажмите <b>«Убрать из изученных»</b>.</li>
-            <li>Всё сохраняется автоматически на вашем устройстве, пока вы пользуетесь одним и тем же Telegram-приложением.</li>
-        </ol>
-    </div>
-    <!-- Вкладка 3: Обозначения -->
-    <div class="tab-content" id="tab-2" style="display:none;">
-        <h2>Условные обозначения</h2>
-        <p><b>Формы узлов (категории):</b></p>
-        <ul>
-            <li><span class="legend-shape">🔵</span> Круг — позиция (гарды, удержания)</li>
-            <li><span class="legend-shape">🔺</span> Треугольник — болевой / удушающий приём (submission)</li>
-            <li><span class="legend-shape">🟧</span> Квадрат — свип (sweep)</li>
-            <li><span class="legend-shape">🔷</span> Ромб — переход (transition)</li>
-            <li><span class="legend-shape">🟤</span> Круг (малый) — защита / выход (escape)</li>
-            <li><span class="legend-shape">⬛</span> Квадрат (малый) — тейкдаун (бросок / проход)</li>
-        </ul>
-        <p><b>Цвета узлов (режим обучения):</b></p>
-        <ul>
-            <li><span class="legend-color" style="background:#4CAF50;"></span> Зелёный — изученная вами техника</li>
-            <li><span class="legend-color" style="background:#FFC107; border:2px solid #FF9800;"></span> Жёлтый с оранжевой обводкой — доступна для изучения (прямое продолжение)</li>
-            <li><span class="legend-color" style="background:#ccc;"></span> Серый / бледный — пока не доступна (нужно сначала выучить предшествующие)</li>
-        </ul>
-        <p><b>Стрелки (типы связей):</b></p>
-        <ul>
-            <li><b>setup</b> — выход на приём из позиции (например, из гарда в рычаг локтя)</li>
-            <li><b>transition</b> — смена позиции (из сайда в маунт)</li>
-            <li><b>follow_up</b> — куда вы попадаете после выполнения техники</li>
-            <li><b>escape</b> — защита или выход из опасного положения</li>
-            <li><b>guard_pass</b> — проход гарда</li>
-        </ul>
-    </div>
-</div>
 
-<!-- Граф -->
-<div id="mynetwork"></div>
-
-<!-- Карточка узла -->
-<div class="card" id="node-card">
-    <h3 id="card-title"></h3>
-    <p id="card-cat"></p>
-    <p id="card-desc"></p>
-    <button id="learn-btn" onclick="toggleLearned()">Знаю</button>
-    <button id="forget-btn" class="forget" onclick="toggleLearned()" style="display:none;">Убрать из изученных</button>
-</div>
-
-<script>
-// ========== ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК ==========
-function switchTab(index) {
-    const tabs = document.querySelectorAll('.tab');
-    const contents = document.querySelectorAll('.tab-content');
-    tabs.forEach((t, i) => {
-        t.classList.toggle('active', i === index);
-        contents[i].style.display = i === index ? 'block' : 'none';
-    });
-}
-
-// ========== ДАННЫЕ ГРАФА ==========
-const groups = {
-    position:   { color: { background: '#00BCD4' }, shape: 'dot', size: 25 },
-    submission: { color: { background: '#f44336' }, shape: 'triangle', size: 22 },
-    sweep:      { color: { background: '#FF9800' }, shape: 'square', size: 20 },
-    guard_pass: { color: { background: '#2196F3' }, shape: 'dot', size: 20 },
-    transition: { color: { background: '#9C27B0' }, shape: 'diamond', size: 18 },
-    escape:     { color: { background: '#795548' }, shape: 'dot', size: 18 },
-    takedown:   { color: { background: '#607D8B' }, shape: 'square', size: 20 }
-};
-
-const nodes = new vis.DataSet([
-  { id: 1, label: "Закрытый гард (снизу)", group: "position", title: "Закрытый гард (снизу) — Closed Guard (bottom)", desc: "Ноги обхватывают корпус соперника, таз поднят." },
-  { id: 2, label: "Закрытый гард (сверху)", group: "position", title: "Закрытый гард (сверху) — Closed Guard (top)", desc: "Ты внутри чужого закрытого гарда, пытаешься вскрыть." },
-  { id: 3, label: "Халф гард (снизу)", group: "position", title: "Халф гард (снизу) — Half Guard (bottom)", desc: "Захвачена одна нога соперника, контроль бедра." },
-  { id: 4, label: "Халф гард (сверху)", group: "position", title: "Халф гард (сверху) — Half Guard (top)", desc: "Твоя нога захвачена, работа над проходом." },
-  { id: 5, label: "Баттерфляй гард (снизу)", group: "position", title: "Баттерфляй гард (снизу) — Butterfly Guard (bottom)", desc: "Стопы на бёдрах, колени раскрыты." },
-  { id: 6, label: "Баттерфляй гард (сверху)", group: "position", title: "Баттерфляй гард (сверху) — Butterfly Guard (top)", desc: "Противник в баттерфляе, ищешь проход." },
-  { id: 7, label: "Паук гард (снизу)", group: "position", title: "Паук гард (снизу) — Spider Guard (bottom)", desc: "Контроль рукавов и стоп на бицепсах." },
-  { id: 8, label: "Де ла Рива гард (снизу)", group: "position", title: "Де ла Рива гард (снизу) — De La Riva Guard (bottom)", desc: "Зацеп снаружи за бедро одноимённой ногой." },
-  { id: 9, label: "Обратный де ла Рива (снизу)", group: "position", title: "Обратный де ла Рива (снизу) — Reverse De La Riva (bottom)", desc: "Зацеп изнутри бедра." },
-  { id: 10, label: "X-гард (снизу)", group: "position", title: "X-гард (снизу) — X-Guard (bottom)", desc: "Ноги скрещены под противником." },
-  { id: 11, label: "50/50 (снизу)", group: "position", title: "50/50 (снизу) — 50/50 Guard (bottom)", desc: "Ноги переплетены, равные возможности." },
-  { id: 12, label: "Дип халф гард (снизу)", group: "position", title: "Дип халф гард (снизу) — Deep Half Guard (bottom)", desc: "Глубоко под корпус соперника." },
-  { id: 13, label: "Сайд контроль (снизу)", group: "position", title: "Сайд контроль (снизу) — Side Control (bottom)", desc: "Лёжа на спине, противник сбоку." },
-  { id: 14, label: "Сайд контроль (сверху)", group: "position", title: "Сайд контроль (сверху) — Side Control (top)", desc: "Удержание сбоку, давление грудью." },
-  { id: 15, label: "Маунт (снизу)", group: "position", title: "Маунт (снизу) — Mount (bottom)", desc: "Соперник верхом." },
-  { id: 16, label: "Маунт (сверху)", group: "position", title: "Маунт (сверху) — Mount (top)", desc: "Ты верхом на сопернике." },
-  { id: 17, label: "Бэк контроль (атака)", group: "position", title: "Бэк контроль (атака) — Back Mount (attacking)", desc: "Спина соперника, ноги в крючках." },
-  { id: 18, label: "Бэк контроль (защита)", group: "position", title: "Бэк контроль (защита) — Back Mount (defending)", desc: "Соперник взял твою спину." },
-  { id: 19, label: "Черепаха (сверху)", group: "position", title: "Черепаха (сверху) — Turtle (top)", desc: "Атакуешь соперника в черепахе." },
-  { id: 20, label: "Черепаха (снизу)", group: "position", title: "Черепаха (снизу) — Turtle (bottom)", desc: "Защищаешься в положении на четвереньках." },
-  { id: 21, label: "Стойка (борьба)", group: "position", title: "Стойка (борьба) — Standing", desc: "Борьба на ногах." },
-  { id: 22, label: "Север-юг (сверху)", group: "position", title: "Север-юг (сверху) — North-South (top)", desc: "Удержание голова к голове." },
-  { id: 23, label: "Север-юг (снизу)", group: "position", title: "Север-юг (снизу) — North-South (bottom)", desc: "Соперник держит в север-юг." },
-  { id: 24, label: "Колено на животе (сверху)", group: "position", title: "Колено на животе (сверху) — Knee on Belly (top)", desc: "Колено на животе, давление." },
-  { id: 25, label: "Колено на животе (снизу)", group: "position", title: "Колено на животе (снизу) — Knee on Belly (bottom)", desc: "Соперник давит коленом." },
-  { id: 30, label: "Рычаг локтя из гарда", group: "submission", title: "Рычаг локтя из гарда — Armbar from Guard", desc: "Захват руки, переворот, разгибание локтя." },
-  { id: 31, label: "Треугольник из гарда", group: "submission", title: "Треугольник из гарда — Triangle from Guard", desc: "Удушение ногами через захват шеи и руки." },
-  { id: 32, label: "Кимура из гарда", group: "submission", title: "Кимура из гарда — Kimura from Guard", desc: "Болевой на плечо с захватом руки снизу." },
-  { id: 33, label: "Омоплата из гарда", group: "submission", title: "Омоплата из гарда — Omoplata from Guard", desc: "Болевой на плечо, нога перекидывается через руку." },
-  { id: 34, label: "Гильотина из гарда", group: "submission", title: "Гильотина из гарда — Guillotine from Guard", desc: "Удушение шеи предплечьем из гарда." },
-  { id: 35, label: "Кросс-коллар чок из гарда", group: "submission", title: "Кросс-коллар чок из гарда — Cross Collar Choke from Guard", desc: "Удушение отворотами, скрещенные захваты." },
-  { id: 36, label: "Иезекиль чок из гарда", group: "submission", title: "Иезекиль чок из гарда — Ezekiel Choke from Guard", desc: "Удушение кистью рукава внутри гарда." },
-  { id: 37, label: "Рычаг локтя с маунта", group: "submission", title: "Рычаг локтя с маунта — Armbar from Mount", desc: "Разгибание локтя из верхней позиции." },
-  { id: 38, label: "Кросс-коллар чок с маунта", group: "submission", title: "Кросс-коллар чок с маунта — Cross Collar Choke from Mount", desc: "Удушение воротом из маунта." },
-  { id: 39, label: "Американа с маунта", group: "submission", title: "Американа с маунта — Americana from Mount", desc: "Болевой ключ на плечо (V‑образный)." },
-  { id: 40, label: "Треугольник руками с маунта", group: "submission", title: "Треугольник руками с маунта — Arm Triangle from Mount", desc: "Удушение плечом и рукой." },
-  { id: 41, label: "Рычаг локтя с бэка", group: "submission", title: "Рычаг локтя с бэка — Armbar from Back", desc: "Захват руки из-за спины и разгибание." },
-  { id: 42, label: "Удушение сзади (RNC)", group: "submission", title: "Удушение сзади (RNC) — Rear Naked Choke", desc: "Классическое удушение сзади локтем." },
-  { id: 43, label: "Кимура с бэка", group: "submission", title: "Кимура с бэка — Kimura from Back", desc: "Болевой на плечо из-за спины." },
-  { id: 44, label: "Рычаг локтя с сайда", group: "submission", title: "Рычаг локтя с сайда — Armbar from Side Control", desc: "Захват ближней руки, выход на рычаг." },
-  { id: 45, label: "Американа с сайда", group: "submission", title: "Американа с сайда — Americana from Side Control", desc: "Болевой на плечо ближней руки." },
-  { id: 46, label: "Кимура с сайда", group: "submission", title: "Кимура с сайда — Kimura from Side Control", desc: "Захват дальней руки и болевой." },
-  { id: 47, label: "Удушение север-юг", group: "submission", title: "Удушение север-юг — North-South Choke", desc: "Давление плечом на сонную артерию." },
-  { id: 48, label: "Гильотина стоя", group: "submission", title: "Гильотина стоя — Standing Guillotine", desc: "Удушение предплечьем в стойке." },
-  { id: 49, label: "Прямой рычаг голеностопа", group: "submission", title: "Прямой рычаг голеностопа — Straight Ankle Lock", desc: "Выпрямление стопы, давление на ахилл." },
-  { id: 50, label: "Рычаг колена", group: "submission", title: "Рычаг колена — Kneebar", desc: "Переразгибание коленного сустава." },
-  { id: 51, label: "Тое холд", group: "submission", title: "Тое холд — Toe Hold", desc: "Скручивание голеностопа." },
-  { id: 52, label: "Скручивание пятки", group: "submission", title: "Скручивание пятки — Heel Hook", desc: "Скручивание пятки, нагрузка на колено." },
-  { id: 53, label: "Эзекиэль чок с сайда", group: "submission", title: "Эзекиэль чок с сайда — Ezekiel Choke from Side", desc: "Удушение рукавом из удержания сбоку." },
-  { id: 54, label: "Ущемление бицепса", group: "submission", title: "Ущемление бицепса — Bicep Slicer", desc: "Сдавливание бицепса между голенью и бедром." },
-  { id: 55, label: "Лук и стрела", group: "submission", title: "Лук и стрела — Bow and Arrow Choke", desc: "Воротниковый чок с бэка." },
-  { id: 56, label: "Петля", group: "submission", title: "Петля — Loop Choke", desc: "Удушение отворотом, петля через голову." },
-  { id: 57, label: "Д’Арс чок", group: "submission", title: "Д’Арс чок — D’Arce Choke", desc: "Удушение рукой через подмышку и шею." },
-  { id: 58, label: "Анаконда чок", group: "submission", title: "Анаконда чок — Anaconda Choke", desc: "Удушение рукой с захватом своей руки." },
-  { id: 59, label: "Японский узел", group: "submission", title: "Японский узел — Peruvian Necktie", desc: "Удушение ногой и захватом головы." },
-  { id: 70, label: "Свип «ножницы»", group: "sweep", title: "Свип «ножницы» — Scissor Sweep", desc: "Сбивание соперника скрестным движением ног." },
-  { id: 71, label: "Свип «цветок»", group: "sweep", title: "Свип «цветок» — Flower Sweep", desc: "Переворот через плечо с захватом ноги." },
-  { id: 72, label: "Свип «хип-бамп»", group: "sweep", title: "Свип «хип-бамп» — Hip Bump Sweep", desc: "Подбив тазом и переворот." },
-  { id: 73, label: "Свип из баттерфляя", group: "sweep", title: "Свип из баттерфляя — Butterfly Sweep", desc: "Подъём таза и переворот вперёд." },
-  { id: 74, label: "Свип из X-гарда (вставание)", group: "sweep", title: "Свип из X-гарда (вставание) — Technical Stand-up Sweep", desc: "Выход в стойку из X-гарда." },
-  { id: 75, label: "Паук-свип ножницы", group: "sweep", title: "Паук-свип ножницы — Spider Scissor Sweep", desc: "Скрестный свип из паука." },
-  { id: 76, label: "Свип «тренога»", group: "sweep", title: "Свип «тренога» — Tripod Sweep", desc: "Сбивание назад через блокировку колена." },
-  { id: 77, label: "Свип из X-гарда в стойку", group: "sweep", title: "Свип из X-гарда в стойку — X-Guard Standing Sweep", desc: "Переворот с поднятием соперника." },
-  { id: 78, label: "Свип «старая школа»", group: "sweep", title: "Свип «старая школа» — Old School Sweep", desc: "Захват бедра и переворот на маунт." },
-  { id: 79, label: "Свип «поцелуй дракона»", group: "sweep", title: "Свип «поцелуй дракона» — Kiss of the Dragon", desc: "Выход на спину из RDLR." },
-  { id: 80, label: "Свип из глубокого полугарда", group: "sweep", title: "Свип из глубокого полугарда — Deep Half Sweep", desc: "Переворот Бернардо Фария." },
-  { id: 90, label: "Knee slice pass", group: "guard_pass", title: "Knee slice pass", desc: "Проход через колено в полугарде." },
-  { id: 91, label: "Double under pass", group: "guard_pass", title: "Double under pass", desc: "Проход с захватом двух ног под плечи." },
-  { id: 92, label: "Over-under pass", group: "guard_pass", title: "Over-under pass", desc: "Проход накладыванием корпуса (Сан-Паулу)." },
-  { id: 93, label: "Toreando pass", group: "guard_pass", title: "Toreando pass", desc: "Быстрый проход с разбросом ног." },
-  { id: 94, label: "Leg drag pass", group: "guard_pass", title: "Leg drag pass", desc: "Протаскивание ноги в сторону." },
-  { id: 95, label: "Long step pass", group: "guard_pass", title: "Long step pass", desc: "Проход длинным шагом." },
-  { id: 96, label: "Smash pass", group: "guard_pass", title: "Smash pass", desc: "Раздавливание полугарда." },
-  { id: 97, label: "Knee over pass", group: "guard_pass", title: "Knee over pass", desc: "Перешагивание через колено." },
-  { id: 98, label: "X-pass", group: "guard_pass", title: "X-pass", desc: "Проход с разрывом X-гарда." },
-  { id: 99, label: "Стекинг пасс", group: "guard_pass", title: "Стекинг пасс — Stacking Pass", desc: "Складывание противника и обход ног." },
-  { id: 100, label: "Backstep pass", group: "guard_pass", title: "Backstep pass", desc: "Обратный заступ в седло." },
-  { id: 110, label: "Выход в открытый гард", group: "transition", title: "Выход в открытый гард — Open Guard Transition", desc: "Постановка стоп на бёдра." },
-  { id: 111, label: "Закрытый → баттерфляй", group: "transition", title: "Закрытый → баттерфляй — Closed to Butterfly", desc: "Смена гарда на баттерфляй." },
-  { id: 112, label: "Закрытый → паук гард", group: "transition", title: "Закрытый → паук гард — Closed to Spider", desc: "Переход на паук гард." },
-  { id: 113, label: "Сайд → маунт", group: "transition", title: "Сайд → маунт — Side to Mount", desc: "Подъём колена в маунт." },
-  { id: 114, label: "Маунт → бэк (gift wrap)", group: "transition", title: "Маунт → бэк (gift wrap) — Gift Wrap to Back", desc: "Захват руки и заход за спину." },
-  { id: 115, label: "Сайд → бэк (chair sit)", group: "transition", title: "Сайд → бэк (chair sit) — Chair Sit to Back", desc: "Заход на спину из удержания сбоку." },
-  { id: 116, label: "Черепаха → бэк", group: "transition", title: "Черепаха → бэк — Turtle to Back", desc: "Забор спины из черепахи." },
-  { id: 117, label: "Спин в рычаг локтя", group: "transition", title: "Спин в рычаг локтя — Spin Under Armbar", desc: "Переворот под рычаг локтя." },
-  { id: 118, label: "Полугард → бэк", group: "transition", title: "Полугард → бэк — Half Guard to Back", desc: "Выход на спину из нижнего полугарда." },
-  { id: 119, label: "X-гард → прямой рычаг", group: "transition", title: "X-гард → прямой рычаг — X-Guard to Ankle Lock", desc: "Переход на голеностоп." },
-  { id: 130, label: "Вставание из закрытого гарда", group: "escape", title: "Вставание из закрытого гарда — Standing Break", desc: "Открытие гарда в стойке." },
-  { id: 131, label: "Upa escape из маунта", group: "escape", title: "Upa escape из маунта — Upa Escape", desc: "Мост и сброс соперника." },
-  { id: 132, label: "Локтевой выход из маунта", group: "escape", title: "Локтевой выход из маунта — Elbow Escape", desc: "Протискивание локтя, уход в полугард." },
-  { id: 133, label: "Креветка из сайда", group: "escape", title: "Креветка из сайда — Shrimp Escape", desc: "Выход креветкой, восстановление гарда." },
-  { id: 134, label: "Защита из бэка", group: "escape", title: "Защита из бэка — Back Escape", desc: "Сброс крючков, уход плечами." },
-  { id: 135, label: "Защита от треугольника", group: "escape", title: "Защита от треугольника — Triangle Defense", desc: "Стойка и складывание." },
-  { id: 136, label: "Выход из рычага локтя", group: "escape", title: "Выход из рычага локтя — Hitchhiker Escape", desc: "Вращение руки через голову." },
-  { id: 137, label: "Выход из скручивания пятки", group: "escape", title: "Выход из скручивания пятки — Heel Hook Escape", desc: "Раскрутка, уход пятки." },
-  { id: 150, label: "Двойной проход", group: "takedown", title: "Двойной проход — Double Leg Takedown", desc: "Проход в обе ноги." },
-  { id: 151, label: "Одинарный проход", group: "takedown", title: "Одинарный проход — Single Leg Takedown", desc: "Захват одной ноги." },
-  { id: 152, label: "Бросок через бедро", group: "takedown", title: "Бросок через бедро — Hip Throw (O Goshi)", desc: "Бросок через бедро." },
-  { id: 153, label: "Учи мата", group: "takedown", title: "Учи мата — Uchi Mata", desc: "Бросок подхватом изнутри." },
-  { id: 154, label: "Низкий сингл", group: "takedown", title: "Низкий сингл — Low Single", desc: "Захват голеностопа." },
-  { id: 155, label: "Бросок захватом корпуса", group: "takedown", title: "Бросок захватом корпуса — Body Lock Takedown", desc: "Бросок за счёт захвата туловища." },
-  { id: 200, label: "Иезекиль чок из маунта", group: "submission", title: "Иезекиль чок из маунта — Ezekiel Choke from Mount", desc: "Удушение рукавом из маунта." },
-  { id: 201, label: "Paper cutter choke", group: "submission", title: "Paper cutter choke", desc: "Удушение отворотом из сайда, режущее движение." },
-  { id: 202, label: "Baseball bat choke", group: "submission", title: "Baseball bat choke", desc: "Удушение отворотами с вращением." },
-  { id: 203, label: "Clock choke", group: "submission", title: "Clock choke", desc: "Удушение из черепахи с захватом ворота." },
-  { id: 204, label: "Brabo choke", group: "submission", title: "Brabo choke", desc: "Удушение отворотом из полугарда/сайда." }
-]);
-
-const edges = new vis.DataSet([
-  { from: 1, to: 30, label: "setup" },
-  { from: 1, to: 31, label: "setup" },
-  { from: 1, to: 32, label: "setup" },
-  { from: 1, to: 34, label: "setup" },
-  { from: 1, to: 35, label: "setup" },
-  { from: 1, to: 70, label: "setup" },
-  { from: 1, to: 71, label: "setup" },
-  { from: 1, to: 72, label: "setup" },
-  { from: 1, to: 110, label: "transition" },
-  { from: 1, to: 111, label: "transition" },
-  { from: 1, to: 112, label: "transition" },
-  { from: 1, to: 33, label: "setup" },
-  { from: 1, to: 36, label: "setup" },
-  { from: 1, to: 117, label: "transition" },
-  { from: 2, to: 130, label: "escape" },
-  { from: 2, to: 99, label: "guard_pass" },
-  { from: 2, to: 91, label: "guard_pass" },
-  { from: 2, to: 92, label: "guard_pass" },
-  { from: 3, to: 78, label: "setup" },
-  { from: 3, to: 79, label: "setup" },
-  { from: 3, to: 118, label: "transition" },
-  { from: 3, to: 46, label: "setup" },
-  { from: 3, to: 34, label: "setup" },
-  { from: 3, to: 80, label: "setup" },
-  { from: 4, to: 96, label: "guard_pass" },
-  { from: 4, to: 90, label: "guard_pass" },
-  { from: 4, to: 95, label: "guard_pass" },
-  { from: 4, to: 204, label: "setup" },
-  { from: 5, to: 73, label: "setup" },
-  { from: 5, to: 74, label: "transition" },
-  { from: 5, to: 30, label: "setup" },
-  { from: 5, to: 31, label: "setup" },
-  { from: 5, to: 48, label: "setup" },
-  { from: 6, to: 97, label: "guard_pass" },
-  { from: 6, to: 93, label: "guard_pass" },
-  { from: 6, to: 94, label: "guard_pass" },
-  { from: 7, to: 75, label: "setup" },
-  { from: 7, to: 31, label: "setup" },
-  { from: 7, to: 33, label: "setup" },
-  { from: 7, to: 112, label: "transition" },
-  { from: 8, to: 76, label: "setup" },
-  { from: 8, to: 17, label: "transition" },
-  { from: 8, to: 9, label: "transition" },
-  { from: 9, to: 79, label: "setup" },
-  { from: 9, to: 17, label: "transition" },
-  { from: 9, to: 49, label: "setup" },
-  { from: 10, to: 77, label: "setup" },
-  { from: 10, to: 119, label: "setup" },
-  { from: 10, to: 49, label: "setup" },
-  { from: 10, to: 50, label: "setup" },
-  { from: 10, to: 14, label: "follow_up" },
-  { from: 10, to: 16, label: "follow_up" },
-  { from: 11, to: 49, label: "setup" },
-  { from: 11, to: 50, label: "setup" },
-  { from: 11, to: 51, label: "setup" },
-  { from: 11, to: 52, label: "setup" },
-  { from: 11, to: 136, label: "escape" },
-  { from: 12, to: 80, label: "setup" },
-  { from: 12, to: 16, label: "follow_up" },
-  { from: 12, to: 14, label: "follow_up" },
-  { from: 13, to: 133, label: "escape" },
-  { from: 13, to: 3, label: "escape" },
-  { from: 13, to: 1, label: "escape" },
-  { from: 14, to: 44, label: "setup" },
-  { from: 14, to: 45, label: "setup" },
-  { from: 14, to: 46, label: "setup" },
-  { from: 14, to: 53, label: "setup" },
-  { from: 14, to: 201, label: "setup" },
-  { from: 14, to: 57, label: "setup" },
-  { from: 14, to: 58, label: "setup" },
-  { from: 14, to: 113, label: "transition" },
-  { from: 14, to: 115, label: "transition" },
-  { from: 14, to: 24, label: "transition" },
-  { from: 14, to: 22, label: "transition" },
-  { from: 15, to: 131, label: "escape" },
-  { from: 15, to: 132, label: "escape" },
-  { from: 15, to: 3, label: "escape" },
-  { from: 16, to: 37, label: "setup" },
-  { from: 16, to: 38, label: "setup" },
-  { from: 16, to: 39, label: "setup" },
-  { from: 16, to: 40, label: "setup" },
-  { from: 16, to: 200, label: "setup" },
-  { from: 16, to: 114, label: "transition" },
-  { from: 16, to: 14, label: "transition" },
-  { from: 17, to: 42, label: "setup" },
-  { from: 17, to: 41, label: "setup" },
-  { from: 17, to: 55, label: "setup" },
-  { from: 17, to: 43, label: "setup" },
-  { from: 17, to: 16, label: "transition" },
-  { from: 18, to: 134, label: "escape" },
-  { from: 18, to: 17, label: "transition" },
-  { from: 19, to: 116, label: "transition" },
-  { from: 19, to: 203, label: "setup" },
-  { from: 19, to: 24, label: "transition" },
-  { from: 20, to: 134, label: "escape" },
-  { from: 20, to: 3, label: "escape" },
-  { from: 21, to: 150, label: "setup" },
-  { from: 21, to: 151, label: "setup" },
-  { from: 21, to: 155, label: "setup" },
-  { from: 21, to: 152, label: "setup" },
-  { from: 21, to: 153, label: "setup" },
-  { from: 21, to: 154, label: "setup" },
-  { from: 21, to: 48, label: "setup" },
-  { from: 22, to: 47, label: "setup" },
-  { from: 22, to: 14, label: "transition" },
-  { from: 23, to: 133, label: "escape" },
-  { from: 23, to: 13, label: "escape" },
-  { from: 24, to: 113, label: "transition" },
-  { from: 24, to: 202, label: "setup" },
-  { from: 24, to: 14, label: "transition" },
-  { from: 25, to: 133, label: "escape" },
-  { from: 150, to: 14, label: "follow_up" },
-  { from: 151, to: 14, label: "follow_up" },
-  { from: 155, to: 14, label: "follow_up" },
-  { from: 152, to: 14, label: "follow_up" },
-  { from: 153, to: 14, label: "follow_up" },
-  { from: 154, to: 14, label: "follow_up" },
-  { from: 70, to: 16, label: "follow_up" },
-  { from: 71, to: 16, label: "follow_up" },
-  { from: 72, to: 16, label: "follow_up" },
-  { from: 73, to: 14, label: "follow_up" },
-  { from: 74, to: 14, label: "follow_up" },
-  { from: 75, to: 16, label: "follow_up" },
-  { from: 76, to: 14, label: "follow_up" },
-  { from: 77, to: 14, label: "follow_up" },
-  { from: 78, to: 16, label: "follow_up" },
-  { from: 79, to: 17, label: "follow_up" },
-  { from: 80, to: 16, label: "follow_up" },
-  { from: 110, to: 5, label: "transition" },
-  { from: 110, to: 7, label: "transition" },
-  { from: 110, to: 8, label: "transition" },
-  { from: 110, to: 9, label: "transition" },
-  { from: 116, to: 17, label: "follow_up" },
-  { from: 117, to: 30, label: "follow_up" },
-  { from: 118, to: 17, label: "follow_up" },
-  { from: 119, to: 49, label: "follow_up" },
-  { from: 31, to: 135, label: "escape" },
-  { from: 30, to: 136, label: "escape" },
-  { from: 52, to: 137, label: "escape" },
-  { from: 90, to: 14, label: "follow_up" },
-  { from: 91, to: 14, label: "follow_up" },
-  { from: 92, to: 14, label: "follow_up" },
-  { from: 93, to: 14, label: "follow_up" },
-  { from: 94, to: 14, label: "follow_up" },
-  { from: 95, to: 14, label: "follow_up" },
-  { from: 96, to: 14, label: "follow_up" },
-  { from: 97, to: 14, label: "follow_up" },
-  { from: 98, to: 14, label: "follow_up" },
-  { from: 100, to: 17, label: "follow_up" },
-  { from: 14, to: 59, label: "setup" },
-  { from: 19, to: 58, label: "setup" },
-  { from: 4, to: 57, label: "setup" },
-  { from: 1, to: 56, label: "setup" },
-  { from: 14, to: 56, label: "setup" },
-  { from: 31, to: 33, label: "transition" },
-  { from: 31, to: 30, label: "transition" },
-  { from: 33, to: 14, label: "follow_up" },
-  { from: 30, to: 14, label: "transition" },
-  { from: 37, to: 14, label: "transition" },
-  { from: 31, to: 14, label: "transition" },
-  { from: 46, to: 17, label: "setup" },
-  { from: 48, to: 1, label: "transition" },
-  { from: 49, to: 14, label: "follow_up" },
-  { from: 10, to: 11, label: "transition" },
-  { from: 12, to: 3, label: "transition" },
-  { from: 70, to: 14, label: "follow_up" },
-  { from: 71, to: 14, label: "follow_up" },
-  { from: 90, to: 16, label: "follow_up" },
-  { from: 92, to: 16, label: "follow_up" },
-  { from: 47, to: 14, label: "transition" },
-  { from: 19, to: 57, label: "setup" },
-  { from: 14, to: 204, label: "setup" },
-  { from: 18, to: 20, label: "transition" },
-  { from: 25, to: 3, label: "escape" },
-  { from: 131, to: 1, label: "follow_up" },
-  { from: 132, to: 3, label: "follow_up" },
-  { from: 133, to: 1, label: "follow_up" },
-  { from: 134, to: 1, label: "follow_up" },
-  { from: 137, to: 11, label: "transition" },
-  { from: 136, to: 13, label: "transition" },
-  { from: 130, to: 110, label: "transition" },
-  { from: 15, to: 1, label: "escape" },
-  { from: 34, to: 1, label: "transition" },
-  { from: 36, to: 14, label: "follow_up" },
-  { from: 40, to: 14, label: "transition" },
-  { from: 44, to: 16, label: "transition" },
-  { from: 53, to: 14, label: "transition" },
-  { from: 54, to: 14, label: "follow_up" },
-  { from: 59, to: 14, label: "follow_up" },
-  { from: 74, to: 16, label: "follow_up" },
-  { from: 78, to: 49, label: "setup" },
-  { from: 80, to: 14, label: "follow_up" },
-  { from: 99, to: 14, label: "follow_up" },
-  { from: 100, to: 14, label: "follow_up" }
-]);
-
-// ========== ЛОГИКА ИЗУЧЕННЫХ ТЕХНИК ==========
-const STORAGE_KEY = 'bjj_learned_techniques';
-function getLearned() {
-    const data = localStorage.getItem(STORAGE_KEY);
-    return data ? JSON.parse(data) : [];
-}
-function saveLearned(ids) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(ids));
-}
-function toggleLearnedTech(id) {
-    let learned = getLearned();
-    if (learned.includes(id)) {
-        learned = learned.filter(i => i !== id);
-    } else {
-        learned.push(id);
-    }
-    saveLearned(learned);
-    updateNodeColors();
-    updateCardButtons(id);
-}
-function updateNodeColors() {
-    const learned = getLearned();
-    const learnedSet = new Set(learned);
-    const availableSet = new Set();
-    edges.forEach(edge => {
-        if (learnedSet.has(edge.from) && !learnedSet.has(edge.to)) availableSet.add(edge.to);
-        if (learnedSet.has(edge.to) && !learnedSet.has(edge.from)) availableSet.add(edge.from);
-    });
-    nodes.forEach(node => {
-        let color;
-        if (learnedSet.has(node.id)) {
-            color = { background: '#4CAF50', border: '#2E7D32' };
-        } else if (availableSet.has(node.id)) {
-            color = { background: '#FFC107', border: '#FF9800' };
-        } else {
-            const orig = groups[node.group]?.color?.background || '#ccc';
-            color = { background: orig, opacity: 0.6 };
+    <script>
+        // Telegram Web App
+        if (window.Telegram && window.Telegram.WebApp) {
+            window.Telegram.WebApp.ready();
+            window.Telegram.WebApp.expand();
+            window.Telegram.WebApp.setHeaderColor('#0f172a');
+            window.Telegram.WebApp.setBackgroundColor('#0f172a');
         }
-        nodes.update({ id: node.id, color: color });
-    });
-}
-function updateCardButtons(nodeId) {
-    const learned = getLearned();
-    const isLearned = learned.includes(nodeId);
-    document.getElementById('learn-btn').style.display = isLearned ? 'none' : 'inline-block';
-    document.getElementById('forget-btn').style.display = isLearned ? 'inline-block' : 'none';
-}
-let selectedNodeId = null;
-function onNodeClick(params) {
-    if (params.nodes.length > 0) {
-        selectedNodeId = params.nodes[0];
-        const node = nodes.get(selectedNodeId);
-        document.getElementById('card-title').innerText = node.title;
-        document.getElementById('card-cat').innerText = 'Категория: ' + node.group;
-        document.getElementById('card-desc').innerText = node.desc || '';
-        document.getElementById('node-card').style.display = 'block';
-        updateCardButtons(selectedNodeId);
-    } else {
-        document.getElementById('node-card').style.display = 'none';
-        selectedNodeId = null;
-    }
-}
-window.toggleLearned = function() {
-    if (selectedNodeId !== null) toggleLearnedTech(selectedNodeId);
-};
 
-// Инициализация
-const container = document.getElementById('mynetwork');
-const options = {
-    groups: groups,
-    edges: { arrows: { to: { enabled: true, scaleFactor: 0.8 } }, font: { size: 10, align: 'horizontal' } },
-    physics: { solver: 'forceAtlas2Based', forceAtlas2Based: { gravitationalConstant: -50 } },
-    interaction: { hover: true }
-};
-const network = new vis.Network(container, { nodes, edges }, options);
-network.on('click', onNodeClick);
-document.getElementById('node-card').style.display = 'none';
-updateNodeColors();
-</script>
+        // Progress Tracker
+        const STORAGE_KEY = 'bjj_learned_techniques_v2'; // v2 for three states
+        const getProgress = () => JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+        const setProgress = (nodeId, status) => {
+            const progress = getProgress();
+            progress[nodeId] = status;
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+            updateGlobalProgress();
+            updateNodeColors();
+            if (window.Telegram?.WebApp?.HapticFeedback) window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+        };
+
+        // Graph Data
+        const groups = {
+            position:   { color: { background: '#00BCD4' }, shape: 'dot', size: 25 },
+            submission: { color: { background: '#f44336' }, shape: 'triangle', size: 22 },
+            sweep:      { color: { background: '#FF9800' }, shape: 'square', size: 20 },
+            guard_pass: { color: { background: '#2196F3' }, shape: 'dot', size: 20 },
+            transition: { color: { background: '#9C27B0' }, shape: 'diamond', size: 18 },
+            escape:     { color: { background: '#795548' }, shape: 'dot', size: 18 },
+            takedown:   { color: { background: '#607D8B' }, shape: 'square', size: 20 }
+        };
+
+        const bjjNodesData = [
+            { id: 1, label: "Закрытый гард (снизу)", group: "position", title: "Закрытый гард (снизу) — Closed Guard (bottom)", desc: "Ноги обхватывают корпус соперника, таз поднят.", belt: 'white' },
+            { id: 2, label: "Закрытый гард (сверху)", group: "position", title: "Закрытый гард (сверху) — Closed Guard (top)", desc: "Ты внутри чужого закрытого гарда, пытаешься вскрыть.", belt: 'white' },
+            { id: 3, label: "Халф гард (снизу)", group: "position", title: "Халф гард (снизу) — Half Guard (bottom)", desc: "Захвачена одна нога соперника, контроль бедра.", belt: 'white' },
+            { id: 4, label: "Халф гард (сверху)", group: "position", title: "Халф гард (сверху) — Half Guard (top)", desc: "Твоя нога захвачена, работа над проходом.", belt: 'white' },
+            { id: 5, label: "Баттерфляй гард (снизу)", group: "position", title: "Баттерфляй гард (снизу) — Butterfly Guard (bottom)", desc: "Стопы на бёдрах, колени раскрыты.", belt: 'blue' },
+            { id: 6, label: "Баттерфляй гард (сверху)", group: "position", title: "Баттерфляй гард (сверху) — Butterfly Guard (top)", desc: "Противник в баттерфляе, ищешь проход.", belt: 'blue' },
+            { id: 7, label: "Паук гард (снизу)", group: "position", title: "Паук гард (снизу) — Spider Guard (bottom)", desc: "Контроль рукавов и стоп на бицепсах.", belt: 'blue' },
+            { id: 8, label: "Де ла Рива гард (снизу)", group: "position", title: "Де ла Рива гард (снизу) — De La Riva Guard (bottom)", desc: "Зацеп снаружи за бедро одноимённой ногой.", belt: 'blue' },
+            { id: 9, label: "Обратный де ла Рива (снизу)", group: "position", title: "Обратный де ла Рива (снизу) — Reverse De La Riva (bottom)", desc: "Зацеп изнутри бедра.", belt: 'purple' },
+            { id: 10, label: "X-гард (снизу)", group: "position", title: "X-гард (снизу) — X-Guard (bottom)", desc: "Ноги скрещены под противником.", belt: 'purple' },
+            { id: 11, label: "50/50 (снизу)", group: "position", title: "50/50 (снизу) — 50/50 Guard (bottom)", desc: "Ноги переплетены, равные возможности.", belt: 'brown' },
+            { id: 12, label: "Дип халф гард (снизу)", group: "position", title: "Дип халф гард (снизу) — Deep Half Guard (bottom)", desc: "Глубоко под корпус соперника.", belt: 'purple' },
+            { id: 13, label: "Сайд контроль (снизу)", group: "position", title: "Сайд контроль (снизу) — Side Control (bottom)", desc: "Лёжа на спине, противник сбоку.", belt: 'white' },
+            { id: 14, label: "Сайд контроль (сверху)", group: "position", title: "Сайд контроль (сверху) — Side Control (top)", desc: "Удержание сбоку, давление грудью.", belt: 'white' },
+            { id: 15, label: "Маунт (снизу)", group: "position", title: "Маунт (снизу) — Mount (bottom)", desc: "Соперник верхом.", belt: 'white' },
+            { id: 16, label: "Маунт (сверху)", group: "position", title: "Маунт (сверху) — Mount (top)", desc: "Ты верхом на сопернике.", belt: 'white' },
+            { id: 17, label: "Бэк контроль (атака)", group: "position", title: "Бэк контроль (атака) — Back Mount (attacking)", desc: "Спина соперника, ноги в крючках.", belt: 'blue' },
+            { id: 18, label: "Бэк контроль (защита)", group: "position", title: "Бэк контроль (защита) — Back Mount (defending)", desc: "Соперник взял твою спину.", belt: 'blue' },
+            { id: 19, label: "Черепаха (сверху)", group: "position", title: "Черепаха (сверху) — Turtle (top)", desc: "Атакуешь соперника в черепахе.", belt: 'white' },
+            { id: 20, label: "Черепаха (снизу)", group: "position", title: "Черепаха (снизу) — Turtle (bottom)", desc: "Защищаешься в положении на четвереньках.", belt: 'white' },
+            { id: 21, label: "Стойка (борьба)", group: "position", title: "Стойка (борьба) — Standing", desc: "Борьба на ногах.", belt: 'white' },
+            { id: 22, label: "Север-юг (сверху)", group: "position", title: "Север-юг (сверху) — North-South (top)", desc: "Удержание голова к голове.", belt: 'white' },
+            { id: 23, label: "Север-юг (снизу)", group: "position", title: "Север-юг (снизу) — North-South (bottom)", desc: "Соперник держит в север-юг.", belt: 'white' },
+            { id: 24, label: "Колено на животе (сверху)", group: "position", title: "Колено на животе (сверху) — Knee on Belly (top)", desc: "Колено на животе, давление.", belt: 'white' },
+            { id: 25, label: "Колено на животе (снизу)", group: "position", title: "Колено на животе (снизу) — Knee on Belly (bottom)", desc: "Соперник давит коленом.", belt: 'white' },
+            { id: 30, label: "Рычаг локтя из гарда", group: "submission", title: "Рычаг локтя из гарда — Armbar from Guard", desc: "Захват руки, переворот, разгибание локтя.", belt: 'white' },
+            { id: 31, label: "Треугольник из гарда", group: "submission", title: "Треугольник из гарда — Triangle from Guard", desc: "Удушение ногами через захват шеи и руки.", belt: 'blue' },
+            { id: 32, label: "Кимура из гарда", group: "submission", title: "Кимура из гарда — Kimura from Guard", desc: "Болевой на плечо с захватом руки снизу.", belt: 'white' },
+            { id: 33, label: "Омоплата из гарда", group: "submission", title: "Омоплата из гарда — Omoplata from Guard", desc: "Болевой на плечо, нога перекидывается через руку.", belt: 'blue' },
+            { id: 34, label: "Гильотина из гарда", group: "submission", title: "Гильотина из гарда — Guillotine from Guard", desc: "Удушение шеи предплечьем из гарда.", belt: 'white' },
+            { id: 35, label: "Кросс-коллар чок из гарда", group: "submission", title: "Кросс-коллар чок из гарда — Cross Collar Choke from Guard", desc: "Удушение отворотами, скрещенные захваты.", belt: 'white' },
+            { id: 36, label: "Иезекиль чок из гарда", group: "submission", title: "Иезекиль чок из гарда — Ezekiel Choke from Guard", desc: "Удушение кистью рукава внутри гарда.", belt: 'blue' },
+            { id: 37, label: "Рычаг локтя с маунта", group: "submission", title: "Рычаг локтя с маунта — Armbar from Mount", desc: "Разгибание локтя из верхней позиции.", belt: 'white' },
+            { id: 38, label: "Кросс-коллар чок с маунта", group: "submission", title: "Кросс-коллар чок с маунта — Cross Collar Choke from Mount", desc: "Удушение воротом из маунта.", belt: 'white' },
+            { id: 39, label: "Американа с маунта", group: "submission", title: "Американа с маунта — Americana from Mount", desc: "Болевой ключ на плечо (V‑образный).", belt: 'white' },
+            { id: 40, label: "Треугольник руками с маунта", group: "submission", title: "Треугольник руками с маунта — Arm Triangle from Mount", desc: "Удушение плечом и рукой.", belt: 'blue' },
+            { id: 41, label: "Рычаг локтя с бэка", group: "submission", title: "Рычаг локтя с бэка — Armbar from Back", desc: "Захват руки из-за спины и разгибание.", belt: 'white' },
+            { id: 42, label: "Удушение сзади (RNC)", group: "submission", title: "Удушение сзади (RNC) — Rear Naked Choke", desc: "Классическое удушение сзади локтем.", belt: 'blue' },
+            { id: 43, label: "Кимура с бэка", group: "submission", title: "Кимура с бэка — Kimura from Back", desc: "Болевой на плечо из-за спины.", belt: 'blue' },
+            { id: 44, label: "Рычаг локтя с сайда", group: "submission", title: "Рычаг локтя с сайда — Armbar from Side Control", desc: "Захват ближней руки, выход на рычаг.", belt: 'white' },
+            { id: 45, label: "Американа с сайда", group: "submission", title: "Американа с сайда — Americana from Side Control", desc: "Болевой на плечо ближней руки.", belt: 'white' },
+            { id: 46, label: "Кимура с сайда", group: "submission", title: "Кимура с сайда — Kimura from Side Control", desc: "Захват дальней руки и болевой.", belt: 'white' },
+            { id: 47, label: "Удушение север-юг", group: "submission", title: "Удушение север-юг — North-South Choke", desc: "Давление плечом на сонную артерию.", belt: 'blue' },
+            { id: 48, label: "Гильотина стоя", group: "submission", title: "Гильотина стоя — Standing Guillotine", desc: "Удушение предплечьем в стойке.", belt: 'white' },
+            { id: 49, label: "Прямой рычаг голеностопа", group: "submission", title: "Прямой рычаг голеностопа — Straight Ankle Lock", desc: "Выпрямление стопы, давление на ахилл.", belt: 'white' },
+            { id: 50, label: "Рычаг колена", group: "submission", title: "Рычаг колена — Kneebar", desc: "Переразгибание коленного сустава.", belt: 'purple' },
+            { id: 51, label: "Тое холд", group: "submission", title: "Тое холд — Toe Hold", desc: "Скручивание голеностопа.", belt: 'purple' },
+            { id: 52, label: "Скручивание пятки", group: "submission", title: "Скручивание пятки — Heel Hook", desc: "Скручивание пятки, нагрузка на колено.", belt: 'brown' },
+            { id: 53, label: "Эзекиэль чок с сайда", group: "submission", title: "Эзекиэль чок с сайда — Ezekiel Choke from Side", desc: "Удушение рукавом из удержания сбоку.", belt: 'blue' },
+            { id: 54, label: "Ущемление бицепса", group: "submission", title: "Ущемление бицепса — Bicep Slicer", desc: "Сдавливание бицепса между голенью и бедром.", belt: 'brown' },
+            { id: 55, label: "Лук и стрела", group: "submission", title: "Лук и стрела — Bow and Arrow Choke", desc: "Воротниковый чок с бэка.", belt: 'blue' },
+            { id: 56, label: "Петля", group: "submission", title: "Петля — Loop Choke", desc: "Удушение отворотом, петля через голову.", belt: 'blue' },
+            { id: 57, label: "Д’Арс чок", group: "submission", title: "Д’Арс чок — D’Arce Choke", desc: "Удушение рукой через подмышку и шею.", belt: 'purple' },
+            { id: 58, label: "Анаконда чок", group: "submission", title: "Анаконда чок — Anaconda Choke", desc: "Удушение рукой с захватом своей руки.", belt: 'purple' },
+            { id: 59, label: "Японский узел", group: "submission", title: "Японский узел — Peruvian Necktie", desc: "Удушение ногой и захватом головы.", belt: 'purple' },
+            { id: 70, label: "Свип «ножницы»", group: "sweep", title: "Свип «ножницы» — Scissor Sweep", desc: "Сбивание соперника скрестным движением ног.", belt: 'white' },
+            { id: 71, label: "Свип «цветок»", group: "sweep", title: "Свип «цветок» — Flower Sweep", desc: "Переворот через плечо с захватом ноги.", belt: 'white' },
+            { id: 72, label: "Свип «хип-бамп»", group: "sweep", title: "Свип «хип-бамп» — Hip Bump Sweep", desc: "Подбив тазом и переворот.", belt: 'white' },
+            { id: 73, label: "Свип из баттерфляя", group: "sweep", title: "Свип из баттерфляя — Butterfly Sweep", desc: "Подъём таза и переворот вперёд.", belt: 'blue' },
+            { id: 74, label: "Свип из X-гарда (вставание)", group: "sweep", title: "Свип из X-гарда (вставание) — Technical Stand-up Sweep", desc: "Выход в стойку из X-гарда.", belt: 'purple' },
+            { id: 75, label: "Паук-свип ножницы", group: "sweep", title: "Паук-свип ножницы — Spider Scissor Sweep", desc: "Скрестный свип из паука.", belt: 'blue' },
+            { id: 76, label: "Свип «тренога»", group: "sweep", title: "Свип «тренога» — Tripod Sweep", desc: "Сбивание назад через блокировку колена.", belt: 'blue' },
+            { id: 77, label: "Свип из X-гарда в стойку", group: "sweep", title: "Свип из X-гарда в стойку — X-Guard Standing Sweep", desc: "Переворот с поднятием соперника.", belt: 'purple' },
+            { id: 78, label: "Свип «старая школа»", group: "sweep", title: "Свип «старая школа» — Old School Sweep", desc: "Захват бедра и переворот на маунт.", belt: 'white' },
+            { id: 79, label: "Свип «поцелуй дракона»", group: "sweep", title: "Свип «поцелуй дракона» — Kiss of the Dragon", desc: "Выход на спину из RDLR.", belt: 'purple' },
+            { id: 80, label: "Свип из глубокого полугарда", group: "sweep", title: "Свип из глубокого полугарда — Deep Half Sweep", desc: "Переворот Бернардо Фария.", belt: 'purple' },
+            { id: 90, label: "Knee slice pass", group: "guard_pass", title: "Knee slice pass", desc: "Проход через колено в полугарде.", belt: 'white' },
+            { id: 91, label: "Double under pass", group: "guard_pass", title: "Double under pass", desc: "Проход с захватом двух ног под плечи.", belt: 'white' },
+            { id: 92, label: "Over-under pass", group: "guard_pass", title: "Over-under pass", desc: "Проход накладыванием корпуса (Сан-Паулу).", belt: 'white' },
+            { id: 93, label: "Toreando pass", group: "guard_pass", title: "Toreando pass", desc: "Быстрый проход с разбросом ног.", belt: 'white' },
+            { id: 94, label: "Leg drag pass", group: "guard_pass", title: "Leg drag pass", desc: "Протаскивание ноги в сторону.", belt: 'purple' },
+            { id: 95, label: "Long step pass", group: "guard_pass", title: "Long step pass", desc: "Проход длинным шагом.", belt: 'purple' },
+            { id: 96, label: "Smash pass", group: "guard_pass", title: "Smash pass", desc: "Раздавливание полугарда.", belt: 'white' },
+            { id: 97, label: "Knee over pass", group: "guard_pass", title: "Knee over pass", desc: "Перешагивание через колено.", belt: 'blue' },
+            { id: 98, label: "X-pass", group: "guard_pass", title: "X-pass", desc: "Проход с разрывом X-гарда.", belt: 'purple' },
+            { id: 99, label: "Стекинг пасс", group: "guard_pass", title: "Стекинг пасс — Stacking Pass", desc: "Складывание противника и обход ног.", belt: 'white' },
+            { id: 100, label: "Backstep pass", group: "guard_pass", title: "Backstep pass", desc: "Обратный заступ в седло.", belt: 'brown' },
+            { id: 110, label: "Выход в открытый гард", group: "transition", title: "Выход в открытый гард — Open Guard Transition", desc: "Постановка стоп на бёдра.", belt: 'white' },
+            { id: 111, label: "Закрытый → баттерфляй", group: "transition", title: "Закрытый → баттерфляй — Closed to Butterfly", desc: "Смена гарда на баттерфляй.", belt: 'blue' },
+            { id: 112, label: "Закрытый → паук гард", group: "transition", title: "Закрытый → паук гард — Closed to Spider", desc: "Переход на паук гард.", belt: 'blue' },
+            { id: 113, label: "Сайд → маунт", group: "transition", title: "Сайд → маунт — Side to Mount", desc: "Подъём колена в маунт.", belt: 'white' },
+            { id: 114, label: "Маунт → бэк (gift wrap)", group: "transition", title: "Маунт → бэк (gift wrap) — Gift Wrap to Back", desc: "Захват руки и заход за спину.", belt: 'blue' },
+            { id: 115, label: "Сайд → бэк (chair sit)", group: "transition", title: "Сайд → бэк (chair sit) — Chair Sit to Back", desc: "Заход на спину из удержания сбоку.", belt: 'blue' },
+            { id: 116, label: "Черепаха → бэк", group: "transition", title: "Черепаха → бэк — Turtle to Back", desc: "Забор спины из черепахи.", belt: 'white' },
+            { id: 117, label: "Спин в рычаг локтя", group: "transition", title: "Спин в рычаг локтя — Spin Under Armbar", desc: "Переворот под рычаг локтя.", belt: 'blue' },
+            { id: 118, label: "Полугард → бэк", group: "transition", title: "Полугард → бэк — Half Guard to Back", desc: "Выход на спину из нижнего полугарда.", belt: 'blue' },
+            { id: 119, label: "X-гард → прямой рычаг", group: "transition", title: "X-гард → прямой рычаг — X-Guard to Ankle Lock", desc: "Переход на голеностоп.", belt: 'purple' },
+            { id: 130, label: "Вставание из закрытого гарда", group: "escape", title: "Вставание из закрытого гарда — Standing Break", desc: "Открытие гарда в стойке.", belt: 'white' },
+            { id: 131, label: "Upa escape из маунта", group: "escape", title: "Upa escape из маунта — Upa Escape", desc: "Мост и сброс соперника.", belt: 'white' },
+            { id: 132, label: "Локтевой выход из маунта", group: "escape", title: "Локтевой выход из маунта — Elbow Escape", desc: "Протискивание локтя, уход в полугард.", belt: 'white' },
+            { id: 133, label: "Креветка из сайда", group: "escape", title: "Креветка из сайда — Shrimp Escape", desc: "Выход креветкой, восстановление гарда.", belt: 'white' },
+            { id: 134, label: "Защита из бэка", group: "escape", title: "Защита из бэка — Back Escape", desc: "Сброс крючков, уход плечами.", belt: 'white' },
+            { id: 135, label: "Защита от треугольника", group: "escape", title: "Защита от треугольника — Triangle Defense", desc: "Стойка и складывание.", belt: 'white' },
+            { id: 136, label: "Выход из рычага локтя", group: "escape", title: "Выход из рычага локтя — Hitchhiker Escape", desc: "Вращение руки через голову.", belt: 'blue' },
+            { id: 137, label: "Выход из скручивания пятки", group: "escape", title: "Выход из скручивания пятки — Heel Hook Escape", desc: "Раскрутка, уход пятки.", belt: 'brown' },
+            { id: 150, label: "Двойной проход", group: "takedown", title: "Двойной проход — Double Leg Takedown", desc: "Проход в обе ноги.", belt: 'white' },
+            { id: 151, label: "Одинарный проход", group: "takedown", title: "Одинарный проход — Single Leg Takedown", desc: "Захват одной ноги.", belt: 'white' },
+            { id: 152, label: "Бросок через бедро", group: "takedown", title: "Бросок через бедро — Hip Throw (O Goshi)", desc: "Бросок через бедро.", belt: 'blue' },
+            { id: 153, label: "Учи мата", group: "takedown", title: "Учи мата — Uchi Mata", desc: "Бросок подхватом изнутри.", belt: 'blue' },
+            { id: 154, label: "Низкий сингл", group: "takedown", title: "Низкий сингл — Low Single", desc: "Захват голеностопа.", belt: 'purple' },
+            { id: 155, label: "Бросок захватом корпуса", group: "takedown", title: "Бросок захватом корпуса — Body Lock Takedown", desc: "Бросок за счёт захвата туловища.", belt: 'white' },
+            { id: 200, label: "Иезекиль чок из маунта", group: "submission", title: "Иезекиль чок из маунта — Ezekiel Choke from Mount", desc: "Удушение рукавом из маунта.", belt: 'blue' },
+            { id: 201, label: "Paper cutter choke", group: "submission", title: "Paper cutter choke", desc: "Удушение отворотом из сайда, режущее движение.", belt: 'blue' },
+            { id: 202, label: "Baseball bat choke", group: "submission", title: "Baseball bat choke", desc: "Удушение отворотами с вращением.", belt: 'purple' },
+            { id: 203, label: "Clock choke", group: "submission", title: "Clock choke", desc: "Удушение из черепахи с захватом ворота.", belt: 'blue' },
+            { id: 204, label: "Brabo choke", group: "submission", title: "Brabo choke", desc: "Удушение отворотом из полугарда/сайда.", belt: 'purple' }
+        ];
+
+        const bjjEdgesData = [
+            { from: 1, to: 30, label: "setup" }, { from: 1, to: 31, label: "setup" }, { from: 1, to: 32, label: "setup" },
+            { from: 1, to: 34, label: "setup" }, { from: 1, to: 35, label: "setup" }, { from: 1, to: 70, label: "setup" },
+            { from: 1, to: 71, label: "setup" }, { from: 1, to: 72, label: "setup" }, { from: 1, to: 110, label: "transition" },
+            { from: 1, to: 111, label: "transition" }, { from: 1, to: 112, label: "transition" }, { from: 1, to: 33, label: "setup" },
+            { from: 1, to: 36, label: "setup" }, { from: 1, to: 117, label: "transition" }, { from: 2, to: 130, label: "escape" },
+            { from: 2, to: 99, label: "guard_pass" }, { from: 2, to: 91, label: "guard_pass" }, { from: 2, to: 92, label: "guard_pass" },
+            { from: 3, to: 78, label: "setup" }, { from: 3, to: 79, label: "setup" }, { from: 3, to: 118, label: "transition" },
+            { from: 3, to: 46, label: "setup" }, { from: 3, to: 34, label: "setup" }, { from: 3, to: 80, label: "setup" },
+            { from: 4, to: 96, label: "guard_pass" }, { from: 4, to: 90, label: "guard_pass" }, { from: 4, to: 95, label: "guard_pass" },
+            { from: 4, to: 204, label: "setup" }, { from: 5, to: 73, label: "setup" }, { from: 5, to: 74, label: "transition" },
+            { from: 5, to: 30, label: "setup" }, { from: 5, to: 31, label: "setup" }, { from: 5, to: 48, label: "setup" },
+            { from: 6, to: 97, label: "guard_pass" }, { from: 6, to: 93, label: "guard_pass" }, { from: 6, to: 94, label: "guard_pass" },
+            { from: 7, to: 75, label: "setup" }, { from: 7, to: 31, label: "setup" }, { from: 7, to: 33, label: "setup" },
+            { from: 7, to: 112, label: "transition" }, { from: 8, to: 76, label: "setup" }, { from: 8, to: 17, label: "transition" },
+            { from: 8, to: 9, label: "transition" }, { from: 9, to: 79, label: "setup" }, { from: 9, to: 17, label: "transition" },
+            { from: 9, to: 49, label: "setup" }, { from: 10, to: 77, label: "setup" }, { from: 10, to: 119, label: "setup" },
+            { from: 10, to: 49, label: "setup" }, { from: 10, to: 50, label: "setup" }, { from: 10, to: 14, label: "follow_up" },
+            { from: 10, to: 16, label: "follow_up" }, { from: 11, to: 49, label: "setup" }, { from: 11, to: 50, label: "setup" },
+            { from: 11, to: 51, label: "setup" }, { from: 11, to: 52, label: "setup" }, { from: 11, to: 136, label: "escape" },
+            { from: 12, to: 80, label: "setup" }, { from: 12, to: 16, label: "follow_up" }, { from: 12, to: 14, label: "follow_up" },
+            { from: 13, to: 133, label: "escape" }, { from: 13, to: 3, label: "escape" }, { from: 13, to: 1, label: "escape" },
+            { from: 14, to: 44, label: "setup" }, { from: 14, to: 45, label: "setup" }, { from: 14, to: 46, label: "setup" },
+            { from: 14, to: 53, label: "setup" }, { from: 14, to: 201, label: "setup" }, { from: 14, to: 57, label: "setup" },
+            { from: 14, to: 58, label: "setup" }, { from: 14, to: 113, label: "transition" }, { from: 14, to: 115, label: "transition" },
+            { from: 14, to: 24, label: "transition" }, { from: 14, to: 22, label: "transition" }, { from: 15, to: 131, label: "escape" },
+            { from: 15, to: 132, label: "escape" }, { from: 15, to: 3, label: "escape" }, { from: 16, to: 37, label: "setup" },
+            { from: 16, to: 38, label: "setup" }, { from: 16, to: 39, label: "setup" }, { from: 16, to: 40, label: "setup" },
+            { from: 16, to: 200, label: "setup" }, { from: 16, to: 114, label: "transition" }, { from: 16, to: 14, label: "transition" },
+            { from: 17, to: 42, label: "setup" }, { from: 17, to: 41, label: "setup" }, { from: 17, to: 55, label: "setup" },
+            { from: 17, to: 43, label: "setup" }, { from: 17, to: 16, label: "transition" }, { from: 18, to: 134, label: "escape" },
+            { from: 18, to: 17, label: "transition" }, { from: 19, to: 116, label: "transition" }, { from: 19, to: 203, label: "setup" },
+            { from: 19, to: 24, label: "transition" }, { from: 20, to: 134, label: "escape" }, { from: 20, to: 3, label: "escape" },
+            { from: 21, to: 150, label: "setup" }, { from: 21, to: 151, label: "setup" }, { from: 21, to: 155, label: "setup" },
+            { from: 21, to: 152, label: "setup" }, { from: 21, to: 153, label: "setup" }, { from: 21, to: 154, label: "setup" },
+            { from: 21, to: 48, label: "setup" }, { from: 22, to: 47, label: "setup" }, { from: 22, to: 14, label: "transition" },
+            { from: 23, to: 133, label: "escape" }, { from: 23, to: 13, label: "escape" }, { from: 24, to: 113, label: "transition" },
+            { from: 24, to: 202, label: "setup" }, { from: 24, to: 14, label: "transition" }, { from: 25, to: 133, label: "escape" },
+            { from: 150, to: 14, label: "follow_up" }, { from: 151, to: 14, label: "follow_up" }, { from: 155, to: 14, label: "follow_up" },
+            { from: 152, to: 14, label: "follow_up" }, { from: 153, to: 14, label: "follow_up" }, { from: 154, to: 14, label: "follow_up" },
+            { from: 70, to: 16, label: "follow_up" }, { from: 71, to: 16, label: "follow_up" }, { from: 72, to: 16, label: "follow_up" },
+            { from: 73, to: 14, label: "follow_up" }, { from: 74, to: 14, label: "follow_up" }, { from: 75, to: 16, label: "follow_up" },
+            { from: 76, to: 14, label: "follow_up" }, { from: 77, to: 14, label: "follow_up" }, { from: 78, to: 16, label: "follow_up" },
+            { from: 79, to: 17, label: "follow_up" }, { from: 80, to: 16, label: "follow_up" },
+            { from: 110, to: 5, label: "transition" }, { from: 110, to: 7, label: "transition" }, { from: 110, to: 8, label: "transition" },
+            { from: 110, to: 9, label: "transition" }, { from: 116, to: 17, label: "follow_up" }, { from: 117, to: 30, label: "follow_up" },
+            { from: 118, to: 17, label: "follow_up" }, { from: 119, to: 49, label: "follow_up" },
+            { from: 31, to: 135, label: "escape" }, { from: 30, to: 136, label: "escape" }, { from: 52, to: 137, label: "escape" },
+            { from: 90, to: 14, label: "follow_up" }, { from: 91, to: 14, label: "follow_up" }, { from: 92, to: 14, label: "follow_up" },
+            { from: 93, to: 14, label: "follow_up" }, { from: 94, to: 14, label: "follow_up" }, { from: 95, to: 14, label: "follow_up" },
+            { from: 96, to: 14, label: "follow_up" }, { from: 97, to: 14, label: "follow_up" }, { from: 98, to: 14, label: "follow_up" },
+            { from: 100, to: 17, label: "follow_up" }, { from: 14, to: 59, label: "setup" }, { from: 19, to: 58, label: "setup" },
+            { from: 4, to: 57, label: "setup" }, { from: 1, to: 56, label: "setup" }, { from: 14, to: 56, label: "setup" },
+            { from: 31, to: 33, label: "transition" }, { from: 31, to: 30, label: "transition" },
+            { from: 33, to: 14, label: "follow_up" }, { from: 30, to: 14, label: "transition" }, { from: 37, to: 14, label: "transition" },
+            { from: 31, to: 14, label: "transition" }, { from: 46, to: 17, label: "setup" }, { from: 48, to: 1, label: "transition" },
+            { from: 49, to: 14, label: "follow_up" }, { from: 10, to: 11, label: "transition" }, { from: 12, to: 3, label: "transition" },
+            { from: 70, to: 14, label: "follow_up" }, { from: 71, to: 14, label: "follow_up" },
+            { from: 90, to: 16, label: "follow_up" }, { from: 92, to: 16, label: "follow_up" },
+            { from: 47, to: 14, label: "transition" }, { from: 19, to: 57, label: "setup" }, { from: 14, to: 204, label: "setup" },
+            { from: 18, to: 20, label: "transition" }, { from: 25, to: 3, label: "escape" },
+            { from: 131, to: 1, label: "follow_up" }, { from: 132, to: 3, label: "follow_up" },
+            { from: 133, to: 1, label: "follow_up" }, { from: 134, to: 1, label: "follow_up" },
+            { from: 137, to: 11, label: "transition" }, { from: 136, to: 13, label: "transition" },
+            { from: 130, to: 110, label: "transition" }, { from: 15, to: 1, label: "escape" },
+            { from: 34, to: 1, label: "transition" }, { from: 36, to: 14, label: "follow_up" },
+            { from: 40, to: 14, label: "transition" }, { from: 44, to: 16, label: "transition" },
+            { from: 53, to: 14, label: "transition" }, { from: 54, to: 14, label: "follow_up" },
+            { from: 59, to: 14, label: "follow_up" }, { from: 74, to: 16, label: "follow_up" },
+            { from: 78, to: 49, label: "setup" }, { from: 80, to: 14, label: "follow_up" },
+            { from: 99, to: 14, label: "follow_up" }, { from: 100, to: 14, label: "follow_up" }
+        ];
+
+        // Vis.js graph initialization
+        const nodes = new vis.DataSet(bjjNodesData.map(n => ({ id: n.id, label: n.label, group: n.group, title: n.title, desc: n.desc, belt: n.belt })));
+        const edges = new vis.DataSet(bjjEdgesData);
+        const container = document.getElementById('mynetwork');
+        const network = new vis.Network(container, { nodes, edges }, {
+            groups,
+            edges: { arrows: { to: { enabled: true, scaleFactor: 0.8 } }, font: { size: 10, align: 'horizontal' } },
+            physics: { solver: 'forceAtlas2Based', forceAtlas2Based: { gravitationalConstant: -50 } },
+            interaction: { hover: true }
+        });
+
+        // Node colors based on progress
+        function updateNodeColors() {
+            const progress = getProgress();
+            const learnedSet = new Set(Object.keys(progress).filter(id => progress[id] === 'done'));
+            const availableSet = new Set();
+            edges.forEach(edge => {
+                if (learnedSet.has(edge.from) && !learnedSet.has(edge.to)) availableSet.add(edge.to);
+                if (learnedSet.has(edge.to) && !learnedSet.has(edge.from)) availableSet.add(edge.from);
+            });
+            nodes.forEach(node => {
+                const status = progress[node.id] || 'not_started';
+                let color;
+                if (status === 'done') color = { background: '#4CAF50', border: '#2E7D32' };
+                else if (status === 'in_progress') color = { background: '#f59e0b', border: '#d97706' };
+                else if (availableSet.has(node.id)) color = { background: '#FFC107', border: '#FF9800' };
+                else {
+                    const orig = groups[node.group]?.color?.background || '#ccc';
+                    color = { background: orig, opacity: 0.6 };
+                }
+                nodes.update({ id: node.id, color });
+            });
+        }
+
+        // Global progress percentage
+        function updateGlobalProgress() {
+            const progress = getProgress();
+            const total = bjjNodesData.length;
+            const done = Object.values(progress).filter(v => v === 'done').length;
+            const percent = Math.round((done / total) * 100);
+            document.getElementById('globalProgress').textContent = `Прогресс: ${percent}%`;
+        }
+
+        // Node detail card
+        let selectedNodeId = null;
+        function renderNodeDetails(nodeId) {
+            const nodeData = bjjNodesData.find(n => n.id === nodeId);
+            if (!nodeData) return;
+            const progress = getProgress();
+            const currentStatus = progress[nodeId] || 'not_started';
+            const categoryLabels = { position:'Позиция', submission:'Сабмишен', sweep:'Свип', guard_pass:'Проход', transition:'Переход', escape:'Защита', takedown:'Тейкдаун' };
+            const beltIcons = { white:'⚪', blue:'🔵', purple:'🟣', brown:'🟤', black:'⚫' };
+            // Linked nodes
+            const linkedEdges = bjjEdgesData.filter(e => e.from === nodeId || e.to === nodeId);
+            const linkedHtml = linkedEdges.map(e => {
+                const relatedId = e.from === nodeId ? e.to : e.from;
+                const relatedNode = bjjNodesData.find(n => n.id === relatedId);
+                const direction = e.from === nodeId ? '→' : '←';
+                return `<button onclick="focusNode(${relatedId})" class="flex items-center gap-2 w-full text-left px-3 py-2 bg-slate-700/50 hover:bg-slate-700 rounded-lg transition text-sm">
+                    <span class="text-slate-400">${direction}</span>
+                    <span class="font-medium text-slate-200">${relatedNode ? relatedNode.label : relatedId}</span>
+                    <span class="ml-auto text-xs text-slate-500">${e.label}</span>
+                </button>`;
+            }).join('');
+            document.getElementById('nodeDetails').innerHTML = `
+                <div class="fade-in">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <h2 class="text-xl font-bold text-white mb-1">${nodeData.title}</h2>
+                            <div class="flex gap-2 flex-wrap">
+                                <span class="px-2 py-0.5 bg-slate-700 rounded text-xs text-slate-300">${categoryLabels[nodeData.group]}</span>
+                                <span class="px-2 py-0.5 bg-slate-700 rounded text-xs text-slate-300">${beltIcons[nodeData.belt]} ${nodeData.belt}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-slate-300 text-sm mb-4 leading-relaxed">${nodeData.desc}</p>
+                    <div class="mb-4">
+                        <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Прогресс</h3>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button onclick="updateProgress(${nodeId}, 'not_started')" class="progress-btn ${currentStatus==='not_started'?'active-not':'bg-slate-700/30 text-slate-500'} py-2 rounded-lg text-xs font-medium">Не начал</button>
+                            <button onclick="updateProgress(${nodeId}, 'in_progress')" class="progress-btn ${currentStatus==='in_progress'?'active-progress':'bg-slate-700/30 text-slate-500'} py-2 rounded-lg text-xs font-medium">В процессе</button>
+                            <button onclick="updateProgress(${nodeId}, 'done')" class="progress-btn ${currentStatus==='done'?'active-done':'bg-slate-700/30 text-slate-500'} py-2 rounded-lg text-xs font-medium">Изучено</button>
+                        </div>
+                    </div>
+                    ${linkedHtml ? `<div class="border-t border-slate-700 pt-3"><h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Связанные техники</h3><div class="flex flex-col gap-1 max-h-40 overflow-y-auto">${linkedHtml}</div></div>` : ''}
+                </div>`;
+        }
+        window.updateProgress = (id, status) => {
+            setProgress(id, status);
+            renderNodeDetails(id);
+        };
+        window.focusNode = (id) => {
+            network.focus(id, { scale: 1.8, animation: true });
+            setTimeout(() => {
+                network.selectNodes([id]);
+                renderNodeDetails(id);
+            }, 300);
+        };
+
+        network.on('click', function(params) {
+            if (params.nodes.length) {
+                selectedNodeId = params.nodes[0];
+                renderNodeDetails(selectedNodeId);
+            }
+        });
+
+        // Fit graph button
+        window.fitGraph = () => { network.fit({ animation: true }); };
+
+        // Filters
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                const filter = this.dataset.filter;
+                if (filter === 'all') {
+                    nodes.forEach(n => nodes.update({ id: n.id, hidden: false }));
+                } else {
+                    nodes.forEach(n => {
+                        const hidden = n.group !== filter;
+                        nodes.update({ id: n.id, hidden });
+                    });
+                }
+                // hide edges with hidden endpoints
+                edges.forEach(e => {
+                    const fromNode = nodes.get(e.from);
+                    const toNode = nodes.get(e.to);
+                    if (fromNode && toNode) {
+                        const hide = fromNode.hidden || toNode.hidden;
+                        edges.update({ id: e.id, hidden: hide });
+                    }
+                });
+                if (window.Telegram?.WebApp?.HapticFeedback) window.Telegram.WebApp.HapticFeedback.selectionChanged();
+            });
+        });
+
+        // Info Modal
+        const modalContent = {
+            0: `<h2 class="text-lg font-bold mb-2">О карте</h2><p>Это интерактивная карта техник БЖЖ по принципу дерева навыков. Отмечайте приёмы, которыми владеете, и карта покажет, какие техники можно изучить дальше. Цель — помочь планомерно расширять арсенал.</p>`,
+            1: `<h2 class="text-lg font-bold mb-2">Как пользоваться</h2><ol class="list-decimal pl-5 space-y-2"><li>Кликайте на узлы — появится карточка с названием и описанием.</li><li>Нажмите «В процессе» или «Изучено», чтобы отметить прогресс.</li><li>Доступные техники подсвечиваются жёлтым.</li><li>Нажмите на связанную технику в карточке, чтобы быстро перейти к ней.</li><li>Прогресс сохраняется автоматически на устройстве.</li></ol>`,
+            2: `<h2 class="text-lg font-bold mb-2">Обозначения</h2><p>Цвета и формы узлов обозначают категории:</p><ul class="space-y-1"><li><span style="background:#00BCD4;display:inline-block;width:12px;height:12px;border-radius:50%;"></span> Позиция</li><li><span style="background:#f44336;display:inline-block;width:12px;height:12px;border-radius:2px;"></span> Сабмишен</li><li><span style="background:#FF9800;display:inline-block;width:12px;height:12px;"></span> Свип</li><li><span style="background:#9C27B0;display:inline-block;width:12px;height:12px;"></span> Переход</li><li><span style="background:#795548;display:inline-block;width:12px;height:12px;border-radius:50%;"></span> Защита</li><li><span style="background:#607D8B;display:inline-block;width:12px;height:12px;"></span> Тейкдаун</li></ul><p class="mt-2">Стрелки: setup — выход на приём, transition — смена позиции, follow_up — продолжение, escape — защита, guard_pass — проход.</p>`
+        };
+        window.openInfoModal = () => {
+            document.getElementById('infoModal').classList.remove('hidden');
+            switchTab(0);
+        };
+        window.closeInfoModal = () => document.getElementById('infoModal').classList.add('hidden');
+        window.switchTab = (idx) => {
+            document.getElementById('modalContent').innerHTML = modalContent[idx];
+            document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('text-white', i === idx));
+        };
+
+        // Init
+        updateGlobalProgress();
+        updateNodeColors();
+    </script>
 </body>
 </html>
