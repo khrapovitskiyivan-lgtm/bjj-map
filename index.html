@@ -25,63 +25,78 @@
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
-    <!-- Header -->
     <header class="p-4 bg-white shadow-sm border-b border-slate-200 sticky top-0 z-50">
         <div class="flex items-center justify-between mb-3">
-            <h1 class="text-xl font-bold text-slate-800 flex items-center gap-2"><span class="text-2xl">🥋</span> BJJ Map</h1>
             <div class="flex items-center gap-2">
-                <button onclick="openInfoModal()" class="w-8 h-8 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center text-slate-500 transition"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></button>
-                <div class="text-xs font-medium text-slate-500 bg-slate-100 px-3 py-1 rounded-full" id="globalProgressText">0%</div>
+                <h1 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                    <span class="text-2xl">🥋</span> BJJ Map
+                </h1>
+                <button id="giToggleBtn" onclick="cycleGiFilter()" class="ml-2 px-3 py-1 rounded-full text-xs font-medium border transition bg-white border-slate-300 text-slate-700 hover:bg-slate-50">Все</button>
+            </div>
+            <div class="flex flex-col items-end gap-0.5">
+                <button onclick="openInfoModal()" class="w-8 h-8 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center text-slate-500 transition" title="Информация">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                </button>
+                <div class="text-xs font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full" id="globalProgressText">0%</div>
             </div>
         </div>
-        <!-- Filters -->
         <div class="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
             <button class="filter-btn active whitespace-nowrap px-3 py-1.5 rounded-full bg-white border border-slate-300 text-slate-700 font-medium text-sm" data-filter="all">Все</button>
             <button class="filter-btn whitespace-nowrap px-3 py-1.5 rounded-full bg-white border border-slate-300 text-slate-700 font-medium text-sm" data-filter="position">Позиции</button>
             <button class="filter-btn whitespace-nowrap px-3 py-1.5 rounded-full bg-white border border-slate-300 text-slate-700 font-medium text-sm" data-filter="transition">Переходы</button>
             <button class="filter-btn whitespace-nowrap px-3 py-1.5 rounded-full bg-white border border-slate-300 text-slate-700 font-medium text-sm" data-filter="submission">Сабмишены</button>
-            <button class="filter-btn whitespace-nowrap px-3 py-1.5 rounded-full bg-white border border-slate-300 text-slate-700 font-medium text-sm" data-filter="gi">🥋 Gi</button>
-            <button class="filter-btn whitespace-nowrap px-3 py-1.5 rounded-full bg-white border border-slate-300 text-slate-700 font-medium text-sm" data-filter="nogi">🩳 No‑Gi</button>
         </div>
-        <!-- Search -->
         <div class="relative mt-3">
             <input type="text" id="searchInput" placeholder="Поиск техники..." class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
             <svg class="absolute right-3 top-3 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
         </div>
-        <!-- Progress bar -->
         <div class="w-full h-1.5 bg-slate-200 rounded-full mt-3 overflow-hidden"><div id="progressBar" class="h-full bg-emerald-500 rounded-full transition-all duration-500" style="width: 0%;"></div></div>
     </header>
     <main class="flex-1 p-4 flex flex-col gap-4">
         <div class="relative">
             <div id="mynetwork"></div>
-            <div class="absolute bottom-3 right-3 flex flex-col gap-2">
-                <button onclick="fitGraph()" class="w-10 h-10 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-600 shadow-sm active:scale-95 transition"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg></button>
-                <button onclick="togglePathfinding()" id="pathBtn" class="w-10 h-10 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-600 shadow-sm active:scale-95 transition"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></button>
-            </div>
-            <div id="pathUI" class="hidden absolute top-3 left-3 right-3 bg-white/95 backdrop-blur rounded-xl p-3 border border-slate-200 shadow-lg z-10">
-                <div class="flex items-center justify-between mb-2"><span class="text-xs font-semibold text-blue-600 uppercase">Построение маршрута</span><button onclick="togglePathfinding()" class="text-slate-400 hover:text-slate-600"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
-                <div class="flex gap-2"><select id="pathStart" class="flex-1 bg-white border border-slate-300 rounded-lg px-2 py-2 text-xs text-slate-700 focus:outline-none focus:border-blue-500"></select><span class="text-slate-400 self-center">→</span><select id="pathEnd" class="flex-1 bg-white border border-slate-300 rounded-lg px-2 py-2 text-xs text-slate-700 focus:outline-none focus:border-blue-500"></select></div>
-                <button onclick="calculatePath()" class="w-full mt-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold py-2 rounded-lg transition">Найти путь</button>
+            <div class="absolute bottom-3 right-3">
+                <button onclick="fitGraph()" class="w-10 h-10 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-600 shadow-sm active:scale-95 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
+                </button>
             </div>
         </div>
         <div id="nodeDetails" class="bg-white rounded-2xl p-5 node-card shadow-md border border-slate-200 max-h-[35vh] overflow-y-auto">
-            <div class="text-center py-4 text-slate-400"><svg class="w-10 h-10 mx-auto mb-2 opacity-50" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"/></svg><p class="text-sm">Нажмите на узел, чтобы увидеть детали</p></div>
+            <div class="text-center py-4 text-slate-400"><svg class="w-10 h-10 mx-auto mb-2 opacity-50" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"/></svg><p class="text-sm">Нажмите на узел графа,<br>чтобы увидеть детали и отметить прогресс</p></div>
         </div>
     </main>
     <div id="infoModal" class="fixed inset-0 bg-black/20 backdrop-blur-sm z-[100] flex items-center justify-center hidden">
         <div class="bg-white border border-slate-200 rounded-2xl w-11/12 max-w-md max-h-[80vh] flex flex-col overflow-hidden shadow-xl">
-            <div class="flex border-b border-slate-200"><button class="tab-btn flex-1 py-3 text-sm font-semibold text-slate-400 hover:text-slate-600" data-tab="0">О карте</button><button class="tab-btn flex-1 py-3 text-sm font-semibold text-slate-400 hover:text-slate-600" data-tab="1">Как пользоваться</button><button class="tab-btn flex-1 py-3 text-sm font-semibold text-slate-400 hover:text-slate-600" data-tab="2">Обозначения</button></div>
+            <div class="flex border-b border-slate-200">
+                <button class="tab-btn flex-1 py-3 text-sm font-semibold text-slate-400 hover:text-slate-600" data-tab="0">О карте</button>
+                <button class="tab-btn flex-1 py-3 text-sm font-semibold text-slate-400 hover:text-slate-600" data-tab="1">Как пользоваться</button>
+                <button class="tab-btn flex-1 py-3 text-sm font-semibold text-slate-400 hover:text-slate-600" data-tab="2">Обозначения</button>
+            </div>
             <div class="overflow-y-auto p-5 text-sm text-slate-700 space-y-4" id="modalContent"></div>
             <button onclick="closeInfoModal()" class="m-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl text-slate-700 font-medium transition">Закрыть</button>
         </div>
     </div>
+
     <script>
-        if (window.Telegram?.WebApp) { window.Telegram.WebApp.ready(); window.Telegram.WebApp.expand(); window.Telegram.WebApp.setHeaderColor('#ffffff'); window.Telegram.WebApp.setBackgroundColor('#f1f5f9'); }
+        if (window.Telegram?.WebApp) {
+            window.Telegram.WebApp.ready();
+            window.Telegram.WebApp.expand();
+            window.Telegram.WebApp.setHeaderColor('#ffffff');
+            window.Telegram.WebApp.setBackgroundColor('#f1f5f9');
+        }
         const triggerHaptic = (type = 'light') => { if (window.Telegram?.WebApp?.HapticFeedback) window.Telegram.WebApp.HapticFeedback.impactOccurred(type); };
-        const STORAGE_KEY = 'bjj_learned_v3';
-        const getProgress = () => JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-        const setProgress = (id, status) => { const p = getProgress(); p[id] = status; localStorage.setItem(STORAGE_KEY, JSON.stringify(p)); updateGlobalProgress(); updateNodeColors(); triggerHaptic('light'); };
-        const groups = { position: { color: { background: '#00BCD4' }, shape: 'dot', size: 25 }, submission: { color: { background: '#f44336' }, shape: 'triangle', size: 22 }, sweep: { color: { background: '#FF9800' }, shape: 'square', size: 20 }, guard_pass: { color: { background: '#2196F3' }, shape: 'dot', size: 20 }, transition: { color: { background: '#9C27B0' }, shape: 'diamond', size: 18 }, escape: { color: { background: '#795548' }, shape: 'dot', size: 18 }, takedown: { color: { background: '#607D8B' }, shape: 'square', size: 20 } };
+
+        // ================== DATA ==================
+        const groups = {
+            position:   { color: { background: '#00BCD4' }, shape: 'dot', size: 25 },
+            submission: { color: { background: '#f44336' }, shape: 'triangle', size: 22 },
+            sweep:      { color: { background: '#FF9800' }, shape: 'square', size: 20 },
+            guard_pass: { color: { background: '#2196F3' }, shape: 'dot', size: 20 },
+            transition: { color: { background: '#9C27B0' }, shape: 'diamond', size: 18 },
+            escape:     { color: { background: '#795548' }, shape: 'dot', size: 18 },
+            takedown:   { color: { background: '#607D8B' }, shape: 'square', size: 20 }
+        };
+
         const bjjNodesData = [
             { id: 1, label: "Закрытый гард (снизу)", group: "position", title: "Закрытый гард (снизу) — Closed Guard (bottom)", desc: "Ноги обхватывают корпус соперника, таз поднят.", belt: 'white', gi: true, noGi: true },
             { id: 2, label: "Закрытый гард (сверху)", group: "position", title: "Закрытый гард (сверху) — Closed Guard (top)", desc: "Ты внутри чужого закрытого гарда, пытаешься вскрыть.", belt: 'white', gi: true, noGi: true },
@@ -189,7 +204,6 @@
             { id: 202, label: "Baseball bat choke", group: "submission", title: "Baseball bat choke", desc: "Удушение отворотами с вращением.", belt: 'purple', gi: true, noGi: false },
             { id: 203, label: "Clock choke", group: "submission", title: "Clock choke", desc: "Удушение из черепахи с захватом ворота.", belt: 'blue', gi: true, noGi: false },
             { id: 204, label: "Brabo choke", group: "submission", title: "Brabo choke", desc: "Удушение отворотом из полугарда/сайда.", belt: 'purple', gi: true, noGi: true },
-            // Новые узлы
             { id: 300, label: "Single Leg X", group: "position", title: "Single Leg X (SLX)", desc: "Контроль одной ноги с зацепом изнутри. База для атак на ноги.", belt: 'purple', gi: true, noGi: true },
             { id: 301, label: "Collar-Sleeve", group: "position", title: "Collar-Sleeve Guard", desc: "Контроль воротника и рукава. Классическая ги-база для атак.", belt: 'white', gi: true, noGi: false },
             { id: 302, label: "Worm Guard", group: "transition", title: "Worm Guard", desc: "Использование пояса для контроля и создания сложных связок и свипов.", belt: 'brown', gi: true, noGi: false },
@@ -197,6 +211,7 @@
             { id: 304, label: "Estima Lock", group: "submission", title: "Estima Lock", desc: "Узел стопы. Альтернативный финиш на ногу из 50/50 или Аши Гарами.", belt: 'brown', gi: true, noGi: true },
             { id: 305, label: "Аши Гарами", group: "transition", title: "Аши Гарами — Ashi Garami", desc: "Контроль ноги (Entanglement). Ключевая позиция для атак на пятку.", belt: 'brown', gi: true, noGi: true }
         ];
+
         const bjjEdgesData = [
             { from: 1, to: 30 }, { from: 1, to: 31 }, { from: 1, to: 32 }, { from: 1, to: 34 }, { from: 1, to: 35 }, { from: 1, to: 70 }, { from: 1, to: 71 }, { from: 1, to: 72 }, { from: 1, to: 110 }, { from: 1, to: 111 }, { from: 1, to: 112 }, { from: 1, to: 33 }, { from: 1, to: 36 }, { from: 1, to: 117 }, { from: 2, to: 130 }, { from: 2, to: 99 }, { from: 2, to: 91 }, { from: 2, to: 92 },
             { from: 3, to: 78 }, { from: 3, to: 79 }, { from: 3, to: 118 }, { from: 3, to: 46 }, { from: 3, to: 34 }, { from: 3, to: 80 }, { from: 4, to: 96 }, { from: 4, to: 90 }, { from: 4, to: 95 }, { from: 4, to: 204 },
@@ -223,19 +238,12 @@
             { from: 130, to: 110 }, { from: 15, to: 1 }, { from: 34, to: 1 }, { from: 36, to: 14 }, { from: 40, to: 14 }, { from: 44, to: 16 },
             { from: 53, to: 14 }, { from: 54, to: 14 }, { from: 59, to: 14 }, { from: 74, to: 16 }, { from: 78, to: 49 }, { from: 80, to: 14 }, { from: 99, to: 14 }, { from: 100, to: 14 },
             // Новые связки
-            { from: 300, to: 52 }, // SLX → Heel Hook
-            { from: 300, to: 49 }, // SLX → Straight Ankle
-            { from: 301, to: 302 }, // Collar-Sleeve → Worm Guard
-            { from: 302, to: 9 },   // Worm Guard → Reverse De La Riva
-            { from: 9, to: 17 },    // RDLR → Back (уже есть, но повторим)
-            { from: 90, to: 24 },   // Knee slice pass → Knee on Belly
-            { from: 24, to: 40 },   // Knee on Belly → Arm Triangle
-            { from: 303, to: 31 },  // Inverted Guard → Triangle
-            { from: 303, to: 17 },  // Inverted Guard → Back
-            { from: 11, to: 304 },  // 50/50 → Estima Lock
-            { from: 305, to: 304 }, // Ashi Garami → Estima Lock
-            { from: 11, to: 305 }   // 50/50 → Ashi Garami
+            { from: 300, to: 52 }, { from: 300, to: 49 }, { from: 301, to: 302 }, { from: 302, to: 9 }, { from: 9, to: 17 },
+            { from: 90, to: 24 }, { from: 24, to: 40 }, { from: 303, to: 31 }, { from: 303, to: 17 },
+            { from: 11, to: 304 }, { from: 305, to: 304 }, { from: 11, to: 305 }
         ];
+
+        // ================== VIS.JS ==================
         const nodes = new vis.DataSet(bjjNodesData.map(n => ({ id: n.id, label: n.label, group: n.group, title: n.title, desc: n.desc, belt: n.belt, gi: n.gi, noGi: n.noGi })));
         const edges = new vis.DataSet(bjjEdgesData);
         const container = document.getElementById('mynetwork');
@@ -245,6 +253,12 @@
             physics: { solver: 'forceAtlas2Based', forceAtlas2Based: { gravitationalConstant: -50 } },
             interaction: { hover: true }
         });
+
+        // ================== PROGRESS ==================
+        const STORAGE_KEY = 'bjj_learned_v3';
+        const getProgress = () => JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+        const setProgress = (id, status) => { const p = getProgress(); p[id] = status; localStorage.setItem(STORAGE_KEY, JSON.stringify(p)); updateGlobalProgress(); updateNodeColors(); triggerHaptic('light'); };
+
         function updateNodeColors() {
             const progress = getProgress();
             const learnedSet = new Set(Object.keys(progress).filter(id => progress[id] === 'done'));
@@ -263,6 +277,7 @@
                 nodes.update({ id: node.id, color });
             });
         }
+
         function updateGlobalProgress() {
             const progress = getProgress();
             const total = bjjNodesData.length;
@@ -271,6 +286,58 @@
             document.getElementById('globalProgressText').textContent = `${percent}%`;
             document.getElementById('progressBar').style.width = `${percent}%`;
         }
+
+        // ================== GI / NO‑GI TOGGLE ==================
+        let giFilterState = 'all';
+        const giToggleBtn = document.getElementById('giToggleBtn');
+        function updateGiButtonLabel() {
+            giToggleBtn.textContent = giFilterState === 'all' ? 'Все' : giFilterState === 'gi' ? 'Gi' : 'No‑Gi';
+            if (giFilterState !== 'all') giToggleBtn.classList.add('active');
+            else giToggleBtn.classList.remove('active');
+        }
+        window.cycleGiFilter = () => {
+            giFilterState = giFilterState === 'all' ? 'gi' : giFilterState === 'gi' ? 'nogi' : 'all';
+            updateGiButtonLabel();
+            applyAllFilters();
+            triggerHaptic('light');
+        };
+
+        // ================== FILTERS ==================
+        function applyAllFilters() {
+            const activeCategoryBtn = document.querySelector('.filter-btn.active');
+            const categoryFilter = activeCategoryBtn ? activeCategoryBtn.dataset.filter : 'all';
+            nodes.forEach(n => nodes.update({ id: n.id, hidden: true }));
+            nodes.forEach(n => {
+                if (categoryFilter === 'all' || n.group === categoryFilter) {
+                    if (giFilterState === 'all' || (giFilterState === 'gi' && n.gi) || (giFilterState === 'nogi' && n.noGi)) {
+                        nodes.update({ id: n.id, hidden: false });
+                    }
+                }
+            });
+            edges.forEach(e => {
+                const from = nodes.get(e.from);
+                const to = nodes.get(e.to);
+                if (from && to) edges.update({ id: e.id, hidden: from.hidden || to.hidden });
+            });
+        }
+
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (this.id === 'giToggleBtn') return;
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                applyAllFilters();
+                triggerHaptic('light');
+            });
+        });
+
+        document.querySelector('.filter-btn[data-filter="all"]').addEventListener('click', () => {
+            giFilterState = 'all';
+            updateGiButtonLabel();
+            applyAllFilters();
+        });
+
+        // ================== DETAILS CARD ==================
         let selectedNodeId = null;
         function renderNodeDetails(nodeId) {
             const nodeData = bjjNodesData.find(n => n.id === nodeId);
@@ -314,6 +381,7 @@
                     ${linkedHtml ? `<div class="border-t border-slate-200 pt-3"><h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Связанные техники</h3><div class="flex flex-col gap-1 max-h-40 overflow-y-auto">${linkedHtml}</div></div>` : ''}
                 </div>`;
         }
+
         window.updateProgress = (id, status) => { setProgress(id, status); renderNodeDetails(id); };
         window.focusNode = (id) => { network.focus(id, { scale: 1.8, animation: true }); setTimeout(() => { network.selectNodes([id]); renderNodeDetails(id); }, 300); };
         window.fitGraph = () => { network.fit({ animation: true }); };
@@ -328,88 +396,22 @@
             }
             triggerHaptic('medium');
         };
-        network.on('click', function(params) { if (params.nodes.length) { renderNodeDetails(params.nodes[0]); } });
-        // Поиск
+
+        network.on('click', function(params) { if (params.nodes.length) renderNodeDetails(params.nodes[0]); });
+
+        // ================== SEARCH ==================
         document.getElementById('searchInput').addEventListener('input', (e) => {
             const q = e.target.value.toLowerCase().trim();
             if (q.length < 2) return;
             const found = bjjNodesData.find(n => n.label.toLowerCase().includes(q));
             if (found) focusNode(found.id);
         });
-        // Фильтры
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                const filter = this.dataset.filter;
-                if (filter === 'all') {
-                    nodes.forEach(n => nodes.update({ id: n.id, hidden: false }));
-                } else if (filter === 'gi') {
-                    nodes.forEach(n => nodes.update({ id: n.id, hidden: !n.gi }));
-                } else if (filter === 'nogi') {
-                    nodes.forEach(n => nodes.update({ id: n.id, hidden: !n.noGi }));
-                } else {
-                    nodes.forEach(n => nodes.update({ id: n.id, hidden: n.group !== filter }));
-                }
-                edges.forEach(e => {
-                    const from = nodes.get(e.from);
-                    const to = nodes.get(e.to);
-                    if (from && to) edges.update({ id: e.id, hidden: from.hidden || to.hidden });
-                });
-                triggerHaptic('light');
-            });
-        });
-        // Маршруты
-        window.togglePathfinding = () => {
-            const ui = document.getElementById('pathUI');
-            const btn = document.getElementById('pathBtn');
-            const hidden = ui.classList.toggle('hidden');
-            if (!hidden) {
-                btn.classList.add('bg-blue-50', 'border-blue-300');
-                const startSel = document.getElementById('pathStart');
-                const endSel = document.getElementById('pathEnd');
-                startSel.innerHTML = ''; endSel.innerHTML = '';
-                bjjNodesData.forEach(n => { startSel.add(new Option(n.label, n.id)); endSel.add(new Option(n.label, n.id)); });
-                startSel.value = '1'; endSel.value = '17';
-            } else {
-                btn.classList.remove('bg-blue-50', 'border-blue-300');
-                nodes.forEach(n => nodes.update({ id: n.id, color: undefined }));
-                edges.forEach(e => edges.update({ id: e.id, color: undefined, width: undefined }));
-            }
-        };
-        window.calculatePath = () => {
-            const start = document.getElementById('pathStart').value;
-            const end = document.getElementById('pathEnd').value;
-            if (start === end) return alert('Выберите разные узлы');
-            // BFS
-            const adj = {};
-            edges.forEach(e => { if (!adj[e.from]) adj[e.from] = []; if (!adj[e.to]) adj[e.to] = []; adj[e.from].push(e.to); adj[e.to].push(e.from); });
-            const queue = [start], visited = new Set([start]), parent = {};
-            while (queue.length) {
-                const cur = queue.shift();
-                if (cur == end) break;
-                (adj[cur] || []).forEach(next => { if (!visited.has(next)) { visited.add(next); parent[next] = cur; queue.push(next); } });
-            }
-            if (!parent[end] && start != end) return alert('Путь не найден');
-            const pathNodes = []; let step = end; while (step) { pathNodes.unshift(step); step = parent[step]; }
-            // Сброс
-            nodes.forEach(n => nodes.update({ id: n.id, color: undefined }));
-            edges.forEach(e => edges.update({ id: e.id, color: undefined, width: undefined }));
-            // Подсветка
-            const pathNodeSet = new Set(pathNodes);
-            nodes.forEach(n => { if (pathNodeSet.has(n.id)) nodes.update({ id: n.id, color: { background: '#3b82f6', border: '#1e40af' } }); });
-            for (let i = 0; i < pathNodes.length - 1; i++) {
-                const edge = edges.get({ filter: e => (e.from === pathNodes[i] && e.to === pathNodes[i+1]) || (e.from === pathNodes[i+1] && e.to === pathNodes[i]) });
-                edge.forEach(e => edges.update({ id: e.id, color: '#3b82f6', width: 3 }));
-            }
-            network.fit({ nodes: pathNodes, animation: true });
-            triggerHaptic('success');
-        };
-        // Модальное окно
+
+        // ================== MODAL ==================
         const modalContent = {
-            0: `<h2 class="text-lg font-bold text-slate-800 mb-2">О карте</h2><p class="text-slate-600">Интерактивная карта техник БЖЖ. Отмечайте приёмы, которыми владеете, и карта покажет, какие техники можно изучить дальше.</p>`,
-            1: `<h2 class="text-lg font-bold text-slate-800 mb-2">Как пользоваться</h2><ol class="list-decimal pl-5 text-slate-600 space-y-2"><li>Кликайте на узлы — появится карточка с названием и описанием.</li><li>Нажмите «В процессе» или «Изучено», чтобы отметить прогресс.</li><li>Доступные техники подсвечиваются жёлтым.</li><li>Нажмите на связанную технику, чтобы быстро перейти к ней.</li><li>Прогресс сохраняется на устройстве.</li></ol>`,
-            2: `<h2 class="text-lg font-bold text-slate-800 mb-2">Обозначения</h2><p class="text-slate-600 mb-2">Цвета и формы узлов:</p><ul class="space-y-1 text-slate-600"><li><span style="background:#00BCD4;display:inline-block;width:12px;height:12px;border-radius:50%;"></span> Позиция</li><li><span style="background:#f44336;display:inline-block;width:12px;height:12px;border-radius:2px;"></span> Сабмишен</li><li><span style="background:#FF9800;display:inline-block;width:12px;height:12px;"></span> Свип</li><li><span style="background:#2196F3;display:inline-block;width:12px;height:12px;border-radius:50%;"></span> Проход</li><li><span style="background:#9C27B0;display:inline-block;width:12px;height:12px;"></span> Переход</li><li><span style="background:#795548;display:inline-block;width:12px;height:12px;border-radius:50%;"></span> Защита</li><li><span style="background:#607D8B;display:inline-block;width:12px;height:12px;"></span> Тейкдаун</li></ul><p class="text-slate-600 mt-2">Стрелки: setup, transition, follow_up, escape, guard_pass.</p>`
+            0: `<h2 class="text-lg font-bold text-slate-800 mb-2">О карте</h2><p class="text-slate-600">Интерактивная карта техник БЖЖ, построенная по принципу дерева навыков. Отмечайте приёмы, которыми уже владеете, и карта покажет, какие техники можно изучить дальше.</p>`,
+            1: `<h2 class="text-lg font-bold text-slate-800 mb-2">Как пользоваться</h2><ol class="list-decimal pl-5 text-slate-600 space-y-2"><li>Кликайте на узлы — появится карточка с названием и описанием.</li><li>Нажмите «В процессе» или «Изучено», чтобы отметить прогресс.</li><li>Доступные для изучения техники подсвечиваются жёлтым.</li><li>Нажмите на связанную технику в карточке, чтобы быстро перейти к ней.</li><li>Прогресс сохраняется на устройстве.</li></ol>`,
+            2: `<h2 class="text-lg font-bold text-slate-800 mb-2">Обозначения</h2><p class="text-slate-600 mb-2">Цвета и формы узлов обозначают категории:</p><ul class="space-y-1 text-slate-600"><li><span style="background:#00BCD4;display:inline-block;width:12px;height:12px;border-radius:50%;"></span> Позиция</li><li><span style="background:#f44336;display:inline-block;width:12px;height:12px;border-radius:2px;"></span> Сабмишен</li><li><span style="background:#FF9800;display:inline-block;width:12px;height:12px;"></span> Свип</li><li><span style="background:#2196F3;display:inline-block;width:12px;height:12px;border-radius:50%;"></span> Проход</li><li><span style="background:#9C27B0;display:inline-block;width:12px;height:12px;"></span> Переход</li><li><span style="background:#795548;display:inline-block;width:12px;height:12px;border-radius:50%;"></span> Защита</li><li><span style="background:#607D8B;display:inline-block;width:12px;height:12px;"></span> Тейкдаун</li></ul><p class="text-slate-600 mt-2">Стрелки обозначают связи: setup, transition, follow_up, escape, guard_pass.</p>`
         };
         window.openInfoModal = () => { document.getElementById('infoModal').classList.remove('hidden'); switchTab(0); };
         window.closeInfoModal = () => document.getElementById('infoModal').classList.add('hidden');
@@ -417,10 +419,12 @@
             document.getElementById('modalContent').innerHTML = modalContent[idx];
             document.querySelectorAll('.tab-btn').forEach((b, i) => { b.classList.toggle('text-blue-600', i === idx); b.classList.toggle('font-semibold', i === idx); });
         };
-        // Инициализация
+
+        // ================== INIT ==================
         updateGlobalProgress();
         updateNodeColors();
-        // Deep link
+        updateGiButtonLabel();
+        applyAllFilters();
         const urlParams = new URLSearchParams(window.location.search);
         const startNode = urlParams.get('node');
         if (startNode && bjjNodesData.find(n => n.id == startNode)) setTimeout(() => focusNode(parseInt(startNode)), 500);
