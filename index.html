@@ -6,8 +6,34 @@
     <title>Карта техник БЖЖ</title>
     <script src="https://visjs.github.io/vis-network/standalone/umd/vis-network.min.js"></script>
     <style>
-        body { margin: 0; font-family: Arial, sans-serif; }
-        #mynetwork { width: 100vw; height: 100vh; }
+        body { margin: 0; font-family: Arial, sans-serif; display: flex; }
+        /* Боковая панель */
+        .sidebar {
+            width: 280px; background: #f5f5f5; border-right: 1px solid #ccc;
+            display: flex; flex-direction: column; height: 100vh; box-sizing: border-box;
+        }
+        .tabs {
+            display: flex; border-bottom: 1px solid #ccc;
+        }
+        .tab {
+            flex: 1; text-align: center; padding: 10px 0; cursor: pointer;
+            background: #e0e0e0; font-weight: bold; font-size: 14px; user-select: none;
+        }
+        .tab.active {
+            background: #f5f5f5; border-bottom: 2px solid #00BCD4;
+        }
+        .tab-content {
+            flex: 1; overflow-y: auto; padding: 10px; font-size: 13px; line-height: 1.5;
+        }
+        .tab-content h2 { font-size: 16px; margin-top: 0; }
+        .tab-content ul { padding-left: 20px; }
+        .tab-content li { margin-bottom: 6px; }
+        .legend-color {
+            display: inline-block; width: 14px; height: 14px; border-radius: 50%;
+            margin-right: 6px; vertical-align: middle;
+        }
+        .legend-shape { font-size: 16px; margin-right: 6px; }
+        #mynetwork { flex: 1; height: 100vh; }
         .card {
             display: none; position: fixed; top: 20px; right: 20px;
             background: white; padding: 15px; border-radius: 10px;
@@ -20,17 +46,68 @@
             border-radius: 5px; font-size: 14px; cursor: pointer;
         }
         .card button.forget { background: #f44336; }
-        .legend {
-            position: fixed; bottom: 20px; left: 20px;
-            background: rgba(255,255,255,0.9); padding: 10px;
-            border-radius: 8px; font-size: 12px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-        }
-        .legend span { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 5px; }
     </style>
 </head>
 <body>
+<!-- Боковая панель с вкладками -->
+<div class="sidebar">
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab(0)">О карте</div>
+        <div class="tab" onclick="switchTab(1)">Как пользоваться</div>
+        <div class="tab" onclick="switchTab(2)">Обозначения</div>
+    </div>
+    <!-- Вкладка 1: О карте -->
+    <div class="tab-content" id="tab-0">
+        <h2>О карте</h2>
+        <p>Это интерактивная карта техник бразильского джиу-джитсу, построенная по принципу <b>дерева навыков</b>.</p>
+        <p>Вы отмечаете приёмы, которыми уже владеете, и карта автоматически показывает, <b>какие техники можно изучить дальше</b>, опираясь на логические связки (переходы, продолжения, защиты).</p>
+        <p>Цель — помочь планомерно расширять арсенал, видеть пробелы и выстраивать линию развития от текущих знаний к новым вершинам.</p>
+    </div>
+    <!-- Вкладка 2: Как пользоваться -->
+    <div class="tab-content" id="tab-1" style="display:none;">
+        <h2>Как пользоваться</h2>
+        <ol>
+            <li>Кликайте на узлы — справа появится карточка с названием (русский + английский) и описанием приёма.</li>
+            <li>Нажмите <b>«Знаю»</b>, если владеете техникой — узел станет зелёным.</li>
+            <li>Все соседние техники, которые из него вытекают, подсветятся <b>жёлтым</b> — это ваши ближайшие цели.</li>
+            <li>Продолжайте отмечать изученное — жёлтые узлы будут превращаться в зелёные, и карта постепенно «развернётся» вокруг ваших знаний.</li>
+            <li>Если ошиблись, нажмите <b>«Убрать из изученных»</b>.</li>
+            <li>Всё сохраняется автоматически на вашем устройстве, пока вы пользуетесь одним и тем же Telegram-приложением.</li>
+        </ol>
+    </div>
+    <!-- Вкладка 3: Обозначения -->
+    <div class="tab-content" id="tab-2" style="display:none;">
+        <h2>Условные обозначения</h2>
+        <p><b>Формы узлов (категории):</b></p>
+        <ul>
+            <li><span class="legend-shape">🔵</span> Круг — позиция (гарды, удержания)</li>
+            <li><span class="legend-shape">🔺</span> Треугольник — болевой / удушающий приём (submission)</li>
+            <li><span class="legend-shape">🟧</span> Квадрат — свип (sweep)</li>
+            <li><span class="legend-shape">🔷</span> Ромб — переход (transition)</li>
+            <li><span class="legend-shape">🟤</span> Круг (малый) — защита / выход (escape)</li>
+            <li><span class="legend-shape">⬛</span> Квадрат (малый) — тейкдаун (бросок / проход)</li>
+        </ul>
+        <p><b>Цвета узлов (режим обучения):</b></p>
+        <ul>
+            <li><span class="legend-color" style="background:#4CAF50;"></span> Зелёный — изученная вами техника</li>
+            <li><span class="legend-color" style="background:#FFC107; border:2px solid #FF9800;"></span> Жёлтый с оранжевой обводкой — доступна для изучения (прямое продолжение)</li>
+            <li><span class="legend-color" style="background:#ccc;"></span> Серый / бледный — пока не доступна (нужно сначала выучить предшествующие)</li>
+        </ul>
+        <p><b>Стрелки (типы связей):</b></p>
+        <ul>
+            <li><b>setup</b> — выход на приём из позиции (например, из гарда в рычаг локтя)</li>
+            <li><b>transition</b> — смена позиции (из сайда в маунт)</li>
+            <li><b>follow_up</b> — куда вы попадаете после выполнения техники</li>
+            <li><b>escape</b> — защита или выход из опасного положения</li>
+            <li><b>guard_pass</b> — проход гарда</li>
+        </ul>
+    </div>
+</div>
+
+<!-- Граф -->
 <div id="mynetwork"></div>
+
+<!-- Карточка узла -->
 <div class="card" id="node-card">
     <h3 id="card-title"></h3>
     <p id="card-cat"></p>
@@ -38,16 +115,21 @@
     <button id="learn-btn" onclick="toggleLearned()">Знаю</button>
     <button id="forget-btn" class="forget" onclick="toggleLearned()" style="display:none;">Убрать из изученных</button>
 </div>
-<div class="legend">
-    <p><span style="background:#4CAF50;"></span> Изученные</p>
-    <p><span style="background:#FFC107; border: 2px solid #FF9800;"></span> Доступны для изучения</p>
-    <p><span style="background:#ccc;"></span> Остальные</p>
-</div>
 
 <script>
+// ========== ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК ==========
+function switchTab(index) {
+    const tabs = document.querySelectorAll('.tab');
+    const contents = document.querySelectorAll('.tab-content');
+    tabs.forEach((t, i) => {
+        t.classList.toggle('active', i === index);
+        contents[i].style.display = i === index ? 'block' : 'none';
+    });
+}
+
 // ========== ДАННЫЕ ГРАФА ==========
 const groups = {
-    position:   { color: { background: '#4CAF50' }, shape: 'dot', size: 25 },
+    position:   { color: { background: '#00BCD4' }, shape: 'dot', size: 25 },
     submission: { color: { background: '#f44336' }, shape: 'triangle', size: 22 },
     sweep:      { color: { background: '#FF9800' }, shape: 'square', size: 20 },
     guard_pass: { color: { background: '#2196F3' }, shape: 'dot', size: 20 },
@@ -166,8 +248,6 @@ const nodes = new vis.DataSet([
 ]);
 
 const edges = new vis.DataSet([
-  // Существующие базовые связи (164) + новые (40) = ~204 рёбер
-  // Для краткости список объединён, все предыдущие связи сохранены
   { from: 1, to: 30, label: "setup" },
   { from: 1, to: 31, label: "setup" },
   { from: 1, to: 32, label: "setup" },
@@ -322,7 +402,6 @@ const edges = new vis.DataSet([
   { from: 4, to: 57, label: "setup" },
   { from: 1, to: 56, label: "setup" },
   { from: 14, to: 56, label: "setup" },
-  // Новые связи (около 40)
   { from: 31, to: 33, label: "transition" },
   { from: 31, to: 30, label: "transition" },
   { from: 33, to: 14, label: "follow_up" },
