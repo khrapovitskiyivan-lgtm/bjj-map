@@ -6,21 +6,45 @@
     <title>Карта техник БЖЖ</title>
     <script src="https://visjs.github.io/vis-network/standalone/umd/vis-network.min.js"></script>
     <style>
-        body { margin: 0; }
+        body { margin: 0; font-family: Arial, sans-serif; }
         #mynetwork { width: 100vw; height: 100vh; }
-        .card { display: none; position: fixed; top: 20px; right: 20px; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.3); max-width: 300px; z-index: 999; }
+        .card {
+            display: none; position: fixed; top: 20px; right: 20px;
+            background: white; padding: 15px; border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3); max-width: 300px;
+            z-index: 999; font-size: 14px;
+        }
+        .card button {
+            margin-top: 10px; padding: 8px 12px;
+            background: #4CAF50; color: white; border: none;
+            border-radius: 5px; font-size: 14px; cursor: pointer;
+        }
+        .card button.forget { background: #f44336; }
+        .legend {
+            position: fixed; bottom: 20px; left: 20px;
+            background: rgba(255,255,255,0.9); padding: 10px;
+            border-radius: 8px; font-size: 12px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+        .legend span { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 5px; }
     </style>
 </head>
 <body>
 <div id="mynetwork"></div>
 <div class="card" id="node-card">
     <h3 id="card-title"></h3>
-    <p id="card-desc"></p>
     <p id="card-cat"></p>
+    <button id="learn-btn" onclick="toggleLearned()">Знаю</button>
+    <button id="forget-btn" class="forget" onclick="toggleLearned()" style="display:none;">Убрать из изученных</button>
+</div>
+<div class="legend">
+    <p><span style="background:#4CAF50;"></span> Изученные</p>
+    <p><span style="background:#FFC107; border: 2px solid #FF9800;"></span> Доступны для изучения</p>
+    <p><span style="background:#ccc;"></span> Остальные</p>
 </div>
 
 <script>
-// Группы узлов с цветами
+// ========== ДАННЫЕ ГРАФА ==========
 const groups = {
     position:   { color: { background: '#4CAF50' }, shape: 'dot', size: 25 },
     submission: { color: { background: '#f44336' }, shape: 'triangle', size: 22 },
@@ -31,7 +55,6 @@ const groups = {
     takedown:   { color: { background: '#607D8B' }, shape: 'square', size: 20 }
 };
 
-// Все узлы (техники)
 const nodes = new vis.DataSet([
 { id: 1,  label: "Закрытый гард (снизу)", group: "position" },
 { id: 2,  label: "Закрытый гард (сверху)", group: "position" },
@@ -141,7 +164,6 @@ const nodes = new vis.DataSet([
 { id: 204, label: "Brabo choke", group: "submission" }
 ]);
 
-// Все связи (ребра)
 const edges = new vis.DataSet([
 { from: 1, to: 30, label: "setup" },
 { from: 1, to: 31, label: "setup" },
@@ -299,11 +321,104 @@ const edges = new vis.DataSet([
 { from: 14, to: 56, label: "setup" }
 ]);
 
-// Создаём граф
+// ========== ЛОГИКА ИЗУЧЕННЫХ ТЕХНИК ==========
+// Ключ для localStorage
+const STORAGE_KEY = 'bjj_learned_techniques';
+
+// Загружаем изученные техники (массив id)
+function getLearned() {
+    const data = localStorage.getItem(STORAGE_KEY);
+    return data ? JSON.parse(data) : [];
+}
+
+// Сохраняем массив id
+function saveLearned(ids) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(ids));
+}
+
+// Добавить/удалить технику из изученных
+function toggleLearnedTech(id) {
+    let learned = getLearned();
+    if (learned.includes(id)) {
+        learned = learned.filter(i => i !== id);
+    } else {
+        learned.push(id);
+    }
+    saveLearned(learned);
+    updateNodeColors();
+    updateCardButtons(id);
+}
+
+// Обновить цвета узлов в зависимости от изученных
+function updateNodeColors() {
+    const learned = getLearned();
+    const learnedSet = new Set(learned);
+
+    // Собираем соседей изученных узлов (доступные)
+    const availableSet = new Set();
+    edges.forEach(edge => {
+        if (learnedSet.has(edge.from) && !learnedSet.has(edge.to)) {
+            availableSet.add(edge.to);
+        }
+        if (learnedSet.has(edge.to) && !learnedSet.has(edge.from)) {
+            availableSet.add(edge.from);
+        }
+    });
+
+    // Проходим по всем узлам и задаём цвет
+    const allNodes = nodes.get();
+    allNodes.forEach(node => {
+        let color;
+        if (learnedSet.has(node.id)) {
+            color = { background: '#4CAF50', border: '#2E7D32' };
+        } else if (availableSet.has(node.id)) {
+            color = { background: '#FFC107', border: '#FF9800' };
+        } else {
+            // Оставляем оригинальный цвет группы, но делаем тусклее
+            const orig = groups[node.group]?.color?.background || '#ccc';
+            color = { background: orig, opacity: 0.6 };
+        }
+        nodes.update({ id: node.id, color: color });
+    });
+}
+
+// Обновляем кнопки в карточке
+function updateCardButtons(nodeId) {
+    const learned = getLearned();
+    const isLearned = learned.includes(nodeId);
+    document.getElementById('learn-btn').style.display = isLearned ? 'none' : 'inline-block';
+    document.getElementById('forget-btn').style.display = isLearned ? 'inline-block' : 'none';
+}
+
+// Глобальная переменная для текущего выбранного узла
+let selectedNodeId = null;
+
+// Обработчик клика по узлу
+function onNodeClick(params) {
+    if (params.nodes.length > 0) {
+        selectedNodeId = params.nodes[0];
+        const node = nodes.get(selectedNodeId);
+        document.getElementById('card-title').innerText = node.label;
+        document.getElementById('card-cat').innerText = 'Категория: ' + node.group;
+        document.getElementById('node-card').style.display = 'block';
+        updateCardButtons(selectedNodeId);
+    } else {
+        document.getElementById('node-card').style.display = 'none';
+        selectedNodeId = null;
+    }
+}
+
+// Привязываем глобальную функцию для кнопок
+window.toggleLearned = function() {
+    if (selectedNodeId !== null) {
+        toggleLearnedTech(selectedNodeId);
+    }
+};
+
+// ========== ИНИЦИАЛИЗАЦИЯ ГРАФА ==========
 const container = document.getElementById('mynetwork');
 const options = {
     groups: groups,
-    nodes: { shape: 'dot' },
     edges: {
         arrows: { to: { enabled: true, scaleFactor: 0.8 } },
         font: { size: 10, align: 'horizontal' }
@@ -316,20 +431,11 @@ const options = {
 };
 
 const network = new vis.Network(container, { nodes, edges }, options);
+network.on('click', onNodeClick);
 
-// При клике показываем карточку (для будущего расширения)
-network.on("click", function(params) {
-    if (params.nodes.length) {
-        const nodeId = params.nodes[0];
-        const node = nodes.get(nodeId);
-        document.getElementById('card-title').innerText = node.label;
-        document.getElementById('card-cat').innerText = node.group;
-        document.getElementById('card-desc').innerText = "";
-        document.getElementById('node-card').style.display = 'block';
-    } else {
-        document.getElementById('node-card').style.display = 'none';
-    }
-});
+// Первоначальная раскраска и скрываем карточку при клике мимо
+document.getElementById('node-card').style.display = 'none';
+updateNodeColors();
 </script>
 </body>
 </html>
