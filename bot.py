@@ -34,20 +34,26 @@ async def cmd_start(message: types.Message):
     username = message.from_user.username or "друг"
     url_with_user = f"{WEB_APP_URL}?user_id={user_id}"
     
+    # Создаем клавиатуру с кнопками команд
     keyboard = ReplyKeyboardMarkup(
-        keyboard=[[
-            KeyboardButton(
-                text="🥋 Открыть карту техник",
-                web_app=WebAppInfo(url=url_with_user)
-            )
-        ]],
-        resize_keyboard=True
+        keyboard=[
+            [
+                KeyboardButton(text="🥋 Открыть карту", web_app=WebAppInfo(url=url_with_user)),
+                KeyboardButton(text="📊 Мой прогресс")
+            ],
+            [
+                KeyboardButton(text="📖 Помощь"),
+                KeyboardButton(text="🗑️ Сбросить прогресс")
+            ]
+        ],
+        resize_keyboard=True,  # Уменьшает размер клавиатуры
+        input_field_placeholder="Выберите действие 👇"  # Подсказка в поле ввода
     )
     
     await message.answer(
         f"👋 Привет, {username}!\n\n"
         f"🥋 Добро пожаловать в <b>BJJ Map</b> — интерактивную карту техник бразильского джиу-джитсу.\n\n"
-        f"Нажми кнопку ниже, чтобы открыть приложение 👇",
+        f"Используй кнопки ниже для навигации 👇",
         reply_markup=keyboard,
         parse_mode="HTML"
     )
