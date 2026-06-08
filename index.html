@@ -181,7 +181,7 @@
             if (!supabaseEnabled) return;
             try {
                 const telegramId = (window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 'anonymous').toString();
-                const { error } = await supabase.from('bjj_progress').upsert({ 
+                const { error } = await supabaseClient.from('bjj_progress').upsert({ 
                     telegram_id: telegramId, 
                     progress: progressObj,
                     updated_at: new Date().toISOString()
@@ -194,7 +194,7 @@
             if (!supabaseEnabled) return null;
             try {
                 const telegramId = (window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 'anonymous').toString();
-                const { data, error } = await supabase.from('bjj_progress').select('progress').eq('telegram_id', telegramId).single();
+                const { data, error } = await supabaseClient.from('bjj_progress').select('progress').eq('telegram_id', telegramId).single();
                 if (error && error.code !== 'PGRST116') console.error('Supabase load error:', error);
                 return data ? data.progress : null;
             } catch (err) { console.error('Supabase load catch:', err); return null; }
