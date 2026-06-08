@@ -341,49 +341,56 @@
         };
 
         // ================== SUPABASE CONFIG ==================
-        const SUPABASE_URL = 'https://mdsbxyzzmjnbjdzdpyqo.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1kc2J4eXp6bWpuYmpkemRweXFvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxMjQwMDAsImV4cCI6MjA4MDcwMDAwMH0.JQKz8vZqZqZqZqZqZqZqZqZqZqZqZqZqZqZqZqZqZq';
-        
-        async function syncProgressToServer(progress) {
+        const SUPABASE_URL = 'https://mdsbxyzzmjnbjdzdpyqo.supabase.co'; // <-- ВСТАВЬ СВОЙ URL
+        const SUPABASE_ANON_KEY = 'твой_реальный_длинный_ключ_anon'; // <-- ВСТАВЬ СВОЙ КЛЮЧ
+
+        // Инициализация клиента Supabase
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        async function syncProgressToServer(progressObj) {
             try {
-                const telegramId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 'anonymous';
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/bjj_progress`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                        'Prefer': 'resolution=merge-duplicates'
-                    },
-                    body: JSON.stringify({
-                        telegram_id: telegramId,
-                        progress: progress,
+                // Гарантируем, что ID всегда строка (текст)
+                const telegramId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString() || 'anonymous';
+                
+                // upsert автоматически обновит запись, если telegram_id уже существует, или создаст новую
+                const { error } = await supabase
+                    .from('bjj_progress')
+                    .upsert({ 
+                        telegram_id: telegramId, 
+                        progress: progressObj,
                         updated_at: new Date().toISOString()
-                    })
-                });
-                console.log('Progress synced to server');
-            } catch (error) {
-                console.error('Failed to sync progress:', error);
+                    }, { onConflict: 'telegram_id' });
+
+                if (error) {
+                    console.error('Ошибка синхронизации с Supabase:', error);
+                } else {
+                    console.log('Прогресс успешно сохранен в облако');
+                }
+            } catch (err) {
+                console.error('Критическая ошибка при синхронизации:', err);
             }
         }
 
         async function loadProgressFromServer() {
             try {
-                const telegramId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 'anonymous';
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/bjj_progress?telegram_id=eq.${telegramId}`, {
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                    }
-                });
-                const data = await response.json();
-                if (data && data.length > 0) {
-                    return data[0].progress;
+                const telegramId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString() || 'anonymous';
+                
+                const { data, error } = await supabase
+                    .from('bjj_progress')
+                    .select('progress')
+                    .eq('telegram_id', telegramId)
+                    .single(); // Ожидаем ровно одну запись
+
+                // Если запись не найдена (код PGRST116), это нормально для нового пользователя
+                if (error && error.code !== 'PGRST116') {
+                    console.error('Ошибка загрузки из Supabase:', error);
                 }
-            } catch (error) {
-                console.error('Failed to load progress from server:', error);
+                
+                return data ? data.progress : null;
+            } catch (err) {
+                console.error('Критическая ошибка при загрузке:', err);
+                return null;
             }
-            return null;
         }
 
         // ================== DATA ==================
