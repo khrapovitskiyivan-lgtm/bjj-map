@@ -8,12 +8,12 @@ from datetime import datetime
 
 # ---------- НАСТРОЙКИ ----------
 # ⚠️ ВСТАВЬ СЮДА НОВЫЙ ТОКЕН ПОСЛЕ /revoke В BOTFATHER!
-TOKEN = "ВСТАВЬ_СЮДА_НОВЫЙ_ТОКЕН"
+TOKEN = "8861636500:AAHK3m1irqdPetr0uJREizHlw4XqoLiMaMc"
 WEB_APP_URL = "https://khrapovitskiyivan-lgtm.github.io/bjj-map/"
 
 # ⚠️ ПРАВИЛЬНЫЕ ДАННЫЕ SUPABASE (Settings → API)
 SUPABASE_URL = "https://ifrgxxcbkzuwfiuihgev.supabase.co"  # ← Твой реальный URL
-SUPABASE_KEY = "eyJhbGciOi..."  # ← Твой реальный anon ключ (длинный!)
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlmcmd4eGNia3p1d2ZpdWloZ2V2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2ODY4MDYsImV4cCI6MjA5NjI2MjgwNn0.Jn0Mp5_yKoU1wG1pFhY6-zCFl7z29L_ppvcPSSue2NU"  # ← Твой реальный anon ключ (длинный!)
 
 # ---------- ИНИЦИАЛИЗАЦИЯ ----------
 logging.basicConfig(level=logging.INFO)
