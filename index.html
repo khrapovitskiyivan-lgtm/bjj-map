@@ -10,18 +10,16 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="BJJ Map">
     <link rel="manifest" href="manifest.json">
-    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://visjs.github.io/vis-network/standalone/umd/vis-network.min.js"></script>
     <script src="https://telegram.org/js/telegram-web-app.js" onerror="console.log('Telegram Web App недоступен')"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
     <style>
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f1f5f9; color: #1e293b; margin: 0; padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
         body.dark { background-color: #0f172a; color: #e2e8f0; }
-        #mynetwork { width: 100%; height: 60vh; min-height: 400px; background: white; border-radius: 16px; border: 1px solid #e2e8f0; touch-action: none; }
-        body.dark #mynetwork { background: #1e293b; border-color: #334155; }
+        #mynetwork { width: 100%; height: calc(100vh - 140px); min-height: 400px; background: white; touch-action: none; }
+        body.dark #mynetwork { background: #1e293b; }
         .filter-btn.active { background: #3b82f6; color: white; border-color: #3b82f6; }
         .progress-btn { transition: all 0.2s; }
         .progress-btn.active-not { background: #e2e8f0; color: #475569; border: 1px solid #cbd5e1; }
@@ -36,14 +34,17 @@
         body.dark ::-webkit-scrollbar-thumb { background: #475569; }
         .rule-btn.active-rule { background: #0f172a; color: white; border-color: #0f172a; }
         body.dark .rule-btn.active-rule { background: #3b82f6; border-color: #3b82f6; }
+        
+        /* Bottom Sheet теперь 95% экрана */
         .bottom-sheet-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 998; }
         .bottom-sheet-overlay.active { opacity: 1; pointer-events: auto; }
-        .bottom-sheet { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-radius: 20px 20px 0 0; box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15); transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 999; max-height: 85vh; overflow-y: auto; padding-bottom: max(20px, env(safe-area-inset-bottom)); }
+        .bottom-sheet { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-radius: 20px 20px 0 0; box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15); transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 999; max-height: 95vh; overflow-y: auto; padding-bottom: max(20px, env(safe-area-inset-bottom)); }
         body.dark .bottom-sheet { background: #1e293b; }
         .bottom-sheet.active { transform: translateY(0); }
         .bottom-sheet-handle { width: 40px; height: 4px; background: #cbd5e0; border-radius: 2px; margin: 12px auto; cursor: grab; }
         body.dark .bottom-sheet-handle { background: #475569; }
         .bottom-sheet-content { padding: 0 20px 20px; }
+        
         body.dark header { background: #1e293b; border-color: #334155; }
         body.dark .bg-white { background: #1e293b; }
         body.dark .bg-slate-100 { background: #334155; }
@@ -56,54 +57,68 @@
         body.dark .border-slate-300 { border-color: #475569; }
         body.dark input { background: #334155; border-color: #475569; color: #e2e8f0; }
         body.dark input::placeholder { color: #64748b; }
+
+        /* Стили для поясов */
+        .belt-btn.active-belt { background: #3b82f6; color: white; border-color: #3b82f6; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
+    <!-- НОВОЕ МИНИМАЛИСТИЧНОЕ МЕНЮ -->
     <header class="p-4 bg-white shadow-sm border-b border-slate-200 sticky top-0 z-50">
         <div class="flex items-center justify-between mb-3">
+            <h1 class="text-xl font-bold text-slate-800 flex items-center gap-2"><span class="text-2xl">🥋</span> BJJ Map</h1>
             <div class="flex items-center gap-2">
-                <h1 class="text-xl font-bold text-slate-800 flex items-center gap-2"><span class="text-2xl">🥋</span> BJJ Map</h1>
-                <button id="giToggleBtn" onclick="toggleGiFilter()" class="ml-2 px-3 py-1 rounded-full text-xs font-medium border transition active">Gi</button>
-            </div>
-            <div class="flex items-center gap-2">
-                <button onclick="toggleDarkMode()" class="w-8 h-8 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center text-slate-500 transition" title="Темная тема" id="themeToggle">🌙</button>
-                <button onclick="openStyleModal()" class="text-xs px-2 py-1 rounded-full bg-slate-100 hover:bg-slate-200 transition" title="Анкета стиля">🧑‍🎤 Стиль</button>
                 <button id="globalProgressBtn" onclick="openProgressModal()" class="text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 px-2.5 py-1 rounded-full transition border border-blue-200" title="Мой прогресс">0%</button>
-                <button onclick="openInfoModal()" class="w-8 h-8 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center text-slate-500 transition" title="Информация">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                <button onclick="toggleMenu()" class="w-10 h-10 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center text-slate-500 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
                 </button>
             </div>
         </div>
-        <div class="flex gap-2 overflow-x-auto pb-1 mb-2">
-            <button class="rule-btn active-rule whitespace-nowrap px-2 py-1 rounded-full bg-white border border-slate-300 text-xs font-medium" data-rule="none">Без ограничений</button>
-            <button class="rule-btn whitespace-nowrap px-2 py-1 rounded-full bg-white border border-slate-300 text-xs font-medium" data-rule="ibjjf_gi">IBJJF Gi</button>
-            <button class="rule-btn whitespace-nowrap px-2 py-1 rounded-full bg-white border border-slate-300 text-xs font-medium" data-rule="ibjjf_nogi">IBJJF No‑Gi</button>
-            <button class="rule-btn whitespace-nowrap px-2 py-1 rounded-full bg-white border border-slate-300 text-xs font-medium" data-rule="adcc">ADCC</button>
-        </div>
-        <div class="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-            <button class="filter-btn whitespace-nowrap px-3 py-1.5 rounded-full bg-white border border-slate-300 text-slate-700 font-medium text-sm" data-filter="position">Позиции</button>
-            <button class="filter-btn whitespace-nowrap px-3 py-1.5 rounded-full bg-white border border-slate-300 text-slate-700 font-medium text-sm" data-filter="transition">Переходы</button>
-            <button class="filter-btn whitespace-nowrap px-3 py-1.5 rounded-full bg-white border border-slate-300 text-slate-700 font-medium text-sm" data-filter="submission">Сабмишены</button>
-            <button id="styleFilterBtn" class="filter-btn whitespace-nowrap px-3 py-1.5 rounded-full bg-white border border-slate-300 text-slate-700 font-medium text-sm" onclick="toggleStyleFilter()">⭐ Мой стиль</button>
-        </div>
-        <div class="relative mt-3">
+        <div class="relative">
             <input type="text" id="searchInput" placeholder="Поиск техники..." class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
             <svg class="absolute right-3 top-3 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
             <div id="searchResults" class="absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg max-h-60 overflow-y-auto hidden z-50"></div>
         </div>
-    </header>
-    
-    <main class="flex-1 p-4 flex flex-col gap-4">
-        <div class="relative">
-            <div id="mynetwork"></div>
-            <div class="absolute bottom-3 right-3">
-                <button onclick="fitGraph()" class="w-10 h-10 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-600 shadow-sm active:scale-95 transition">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
-                </button>
+
+        <!-- ВЫПАДАЮЩЕЕ МЕНЮ НАСТРОЕК -->
+        <div id="settingsMenu" class="hidden mt-3 p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-4 fade-in">
+            <div>
+                <div class="text-xs font-semibold text-slate-500 uppercase mb-2">Формат</div>
+                <div class="flex gap-2">
+                    <button id="giToggleBtn" onclick="toggleGiFilter()" class="flex-1 py-1.5 rounded-lg bg-white border border-slate-300 text-xs font-medium active">Gi</button>
+                </div>
+            </div>
+            <div>
+                <div class="text-xs font-semibold text-slate-500 uppercase mb-2">Правила</div>
+                <div class="flex gap-2 overflow-x-auto pb-1">
+                    <button class="rule-btn active-rule whitespace-nowrap px-2 py-1 rounded-full bg-white border border-slate-300 text-xs font-medium" data-rule="none">Без огр.</button>
+                    <button class="rule-btn whitespace-nowrap px-2 py-1 rounded-full bg-white border border-slate-300 text-xs font-medium" data-rule="ibjjf_gi">IBJJF Gi</button>
+                    <button class="rule-btn whitespace-nowrap px-2 py-1 rounded-full bg-white border border-slate-300 text-xs font-medium" data-rule="ibjjf_nogi">No-Gi</button>
+                    <button class="rule-btn whitespace-nowrap px-2 py-1 rounded-full bg-white border border-slate-300 text-xs font-medium" data-rule="adcc">ADCC</button>
+                </div>
+            </div>
+            <div>
+                <div class="text-xs font-semibold text-slate-500 uppercase mb-2">Категории</div>
+                <div class="flex gap-2 overflow-x-auto pb-1">
+                    <button class="filter-btn whitespace-nowrap px-3 py-1.5 rounded-full bg-white border border-slate-300 text-slate-700 font-medium text-sm" data-filter="position">Позиции</button>
+                    <button class="filter-btn whitespace-nowrap px-3 py-1.5 rounded-full bg-white border border-slate-300 text-slate-700 font-medium text-sm" data-filter="transition">Переходы</button>
+                    <button class="filter-btn whitespace-nowrap px-3 py-1.5 rounded-full bg-white border border-slate-300 text-slate-700 font-medium text-sm" data-filter="submission">Сабмишены</button>
+                    <button id="styleFilterBtn" class="filter-btn whitespace-nowrap px-3 py-1.5 rounded-full bg-white border border-slate-300 text-slate-700 font-medium text-sm" onclick="toggleStyleFilter()">⭐ Стиль</button>
+                </div>
+            </div>
+            <div class="flex gap-2 pt-2 border-t border-slate-200">
+                <button onclick="toggleDarkMode()" class="flex-1 py-2 bg-white border border-slate-300 rounded-lg text-sm font-medium flex items-center justify-center gap-2" id="themeToggle">🌙 Тема</button>
+                <button onclick="openStyleModal()" class="flex-1 py-2 bg-white border border-slate-300 rounded-lg text-sm font-medium flex items-center justify-center gap-2">🧑‍ Стиль</button>
+                <button onclick="openInfoModal()" class="flex-1 py-2 bg-white border border-slate-300 rounded-lg text-sm font-medium flex items-center justify-center gap-2">ℹ️ Инфо</button>
             </div>
         </div>
+    </header>
+    
+    <main class="flex-1 flex flex-col">
+        <div id="mynetwork"></div>
     </main>
 
+    <!-- Bottom Sheet -->
     <div class="bottom-sheet-overlay" id="bottomSheetOverlay"></div>
     <div class="bottom-sheet" id="bottomSheet">
         <div class="bottom-sheet-handle" id="bottomSheetHandle"></div>
@@ -112,8 +127,9 @@
         </div>
     </div>
 
+    <!-- Модалка Прогресса -->
     <div id="progressModal" class="fixed inset-0 bg-black/20 backdrop-blur-sm z-[100] flex items-center justify-center hidden">
-        <div class="bg-white border border-slate-200 rounded-2xl w-11/12 max-w-md max-h-[80vh] flex flex-col overflow-hidden shadow-xl">
+        <div class="bg-white border border-slate-200 rounded-2xl w-11/12 max-w-md max-h-[90vh] flex flex-col overflow-hidden shadow-xl">
             <div class="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
                 <h2 class="text-lg font-bold text-slate-800">Мой прогресс</h2>
                 <button onclick="closeProgressModal()" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-200 text-slate-500 transition">✕</button>
@@ -122,22 +138,40 @@
         </div>
     </div>
 
+    <!-- Модалка Стиля (с поясами) -->
     <div id="styleModal" class="fixed inset-0 bg-black/20 backdrop-blur-sm z-[100] flex items-center justify-center hidden">
-        <div class="bg-white border border-slate-200 rounded-2xl w-11/12 max-w-md p-5 shadow-xl">
-            <h2 class="text-lg font-bold mb-3">Ваш стиль и телосложение</h2>
-            <div class="space-y-3 text-sm">
-                <label class="flex items-center gap-2"><input type="checkbox" id="styleFlex" class="accent-blue-500"> 🧘 Высокая гибкость</label>
-                <label class="flex items-center gap-2"><input type="checkbox" id="stylePressure" class="accent-blue-500"> 🦍 Давление / тяжёлый вес</label>
-                <label class="flex items-center gap-2"><input type="checkbox" id="styleLong" class="accent-blue-500"> 🕷️ Длинные конечности</label>
-                <label class="flex items-center gap-2"><input type="checkbox" id="styleSpeed" class="accent-blue-500"> ⚡ Взрывная скорость</label>
+        <div class="bg-white border border-slate-200 rounded-2xl w-11/12 max-w-md p-5 shadow-xl max-h-[90vh] overflow-y-auto">
+            <h2 class="text-lg font-bold mb-4">Ваш стиль и уровень</h2>
+            
+            <div class="mb-5">
+                <div class="text-xs font-semibold text-slate-500 uppercase mb-2">Ваш текущий пояс</div>
+                <div class="flex gap-2 flex-wrap" id="beltSelector">
+                    <button class="belt-btn active-belt px-3 py-1.5 rounded-full bg-white border border-slate-300 text-xs font-medium" data-belt="white"> Белый</button>
+                    <button class="belt-btn px-3 py-1.5 rounded-full bg-white border border-slate-300 text-xs font-medium" data-belt="blue">🔵 Синий</button>
+                    <button class="belt-btn px-3 py-1.5 rounded-full bg-white border border-slate-300 text-xs font-medium" data-belt="purple">🟣 Фиолетовый</button>
+                    <button class="belt-btn px-3 py-1.5 rounded-full bg-white border border-slate-300 text-xs font-medium" data-belt="brown">🟤 Коричневый</button>
+                    <button class="belt-btn px-3 py-1.5 rounded-full bg-white border border-slate-300 text-xs font-medium" data-belt="black">⚫ Чёрный</button>
+                </div>
             </div>
-            <div class="flex gap-2 mt-4">
+
+            <div class="border-t border-slate-200 pt-4 mb-4">
+                <div class="text-xs font-semibold text-slate-500 uppercase mb-2">Телосложение и стиль</div>
+                <div class="space-y-3 text-sm">
+                    <label class="flex items-center gap-2"><input type="checkbox" id="styleFlex" class="accent-blue-500"> 🧘 Высокая гибкость</label>
+                    <label class="flex items-center gap-2"><input type="checkbox" id="stylePressure" class="accent-blue-500"> 🦍 Давление / тяжёлый вес</label>
+                    <label class="flex items-center gap-2"><input type="checkbox" id="styleLong" class="accent-blue-500"> 🕷️ Длинные конечности</label>
+                    <label class="flex items-center gap-2"><input type="checkbox" id="styleSpeed" class="accent-blue-500"> ⚡ Взрывная скорость</label>
+                </div>
+            </div>
+
+            <div class="flex gap-2">
                 <button onclick="saveStyleProfile()" class="flex-1 py-2 bg-blue-600 text-white rounded-xl font-medium">Сохранить</button>
                 <button onclick="closeStyleModal()" class="flex-1 py-2 bg-slate-100 rounded-xl font-medium">Отмена</button>
             </div>
         </div>
     </div>
 
+    <!-- Модалка Информации -->
     <div id="infoModal" class="fixed inset-0 bg-black/20 backdrop-blur-sm z-[100] flex items-center justify-center hidden">
         <div class="bg-white border border-slate-200 rounded-2xl w-11/12 max-w-md max-h-[80vh] flex flex-col overflow-hidden shadow-xl">
             <div class="flex border-b border-slate-200 text-xs">
@@ -163,44 +197,36 @@
 
         const SUPABASE_URL = 'https://supabase.com/dashboard/project/ifrgxxcbkzuwfiuihgev'; 
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlmcmd4eGNia3p1d2ZpdWloZ2V2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2ODY4MDYsImV4cCI6MjA5NjI2MjgwNn0.Jn0Mp5_yKoU1wG1pFhY6-zCFl7z29L_ppvcPSSue2NU';
-        
         let supabaseClient = null;
         let supabaseEnabled = false;
-
         try {
             if (typeof window.supabase !== 'undefined' && SUPABASE_URL !== 'https://supabase.com/dashboard/project/ifrgxxcbkzuwfiuihgev') {
                 supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
                 supabaseEnabled = true;
-                console.log('✅ Supabase подключен');
+
             }
-        } catch (err) { console.error('Supabase init error:', err); }
+        } catch (err) {}
 
         async function syncProgressToServer(progressObj) {
             if (!supabaseEnabled) return;
             try {
                 const telegramId = (window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 'anonymous').toString();
-                const { error } = await supabaseClient.from('bjj_progress').upsert({ 
-                    telegram_id: telegramId, 
-                    progress: progressObj,
-                    updated_at: new Date().toISOString()
-                }, { onConflict: 'telegram_id' });
-                if (error) console.error('Supabase sync error:', error);
-            } catch (err) { console.error('Supabase sync catch:', err); }
+                await supabaseClient.from('bjj_progress').upsert({ telegram_id: telegramId, progress: progressObj, updated_at: new Date().toISOString() }, { onConflict: 'telegram_id' });
+            } catch (err) {}
         }
-
         async function loadProgressFromServer() {
             if (!supabaseEnabled) return null;
             try {
                 const telegramId = (window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 'anonymous').toString();
-                const { data, error } = await supabaseClient.from('bjj_progress').select('progress').eq('telegram_id', telegramId).single();
-                if (error && error.code !== 'PGRST116') console.error('Supabase load error:', error);
+                const { data } = await supabaseClient.from('bjj_progress').select('progress').eq('telegram_id', telegramId).single();
                 return data ? data.progress : null;
-            } catch (err) { console.error('Supabase load catch:', err); return null; }
+            } catch (err) { return null; }
         }
 
         const groups = { position: { color: { background: '#00BCD4' }, shape: 'dot', size: 25 }, submission: { color: { background: '#f44336' }, shape: 'triangle', size: 22 }, sweep: { color: { background: '#FF9800' }, shape: 'square', size: 20 }, guard_pass: { color: { background: '#2196F3' }, shape: 'dot', size: 20 }, transition: { color: { background: '#9C27B0' }, shape: 'diamond', size: 18 }, escape: { color: { background: '#795548' }, shape: 'dot', size: 18 }, takedown: { color: { background: '#607D8B' }, shape: 'square', size: 20 } };
-        const groupIcons = { position: '📍', submission: '🔒', sweep: '🔄', guard_pass: '🚪', transition: '➡️', escape: '🛡️', takedown: '🤼' };
+        const groupIcons = { position: '📍', submission: '', sweep: '🔄', guard_pass: '🚪', transition: '➡️', escape: '🛡️', takedown: '' };
 
+        // ️ ВАЖНО: ВСТАВЬ СЮДА ВЕСЬ СВОЙ ПОЛНЫЙ МАССИВ bjjNodesData И bjjEdgesData ИЗ ПРЕДЫДУЩЕГО РАБОЧЕГО КОДА! 
         const bjjNodesData = [
             { id: 1, label: "Закрытый гард (снизу)", group: "position", title: "Закрытый гард (снизу) — Closed Guard (bottom)", desc: "Ноги обхватывают корпус соперника, таз поднят.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
             { id: 2, label: "Закрытый гард (сверху)", group: "position", title: "Закрытый гард (сверху) — Closed Guard (top)", desc: "Ты внутри чужого закрытого гарда, пытаешься вскрыть.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
@@ -387,10 +413,6 @@
             updateGlobalProgress();
             updateNodeColors();
             applyAllFilters();
-            
-            const urlParams = new URLSearchParams(window.location.search);
-            const startNode = urlParams.get('node');
-            if (startNode && bjjNodesData.find(n => n.id == startNode)) setTimeout(() => focusNode(parseInt(startNode)), 500);
         }
 
         const setProgress = async (id, status) => { 
@@ -425,61 +447,44 @@
             document.getElementById('globalProgressBtn').textContent = `${Math.round((done / total) * 100)}%`;
         }
 
-        class BottomSheet {
-            constructor() {
-                this.sheet = document.getElementById('bottomSheet');
-                this.content = document.getElementById('nodeDetails');
-                this.overlay = document.getElementById('bottomSheetOverlay');
-                this.handle = document.getElementById('bottomSheetHandle');
-                this.startY = 0; this.isDragging = false;
-                this.handle.addEventListener('touchstart', (e) => this.startDrag(e));
-                document.addEventListener('touchmove', (e) => this.onDrag(e));
-                document.addEventListener('touchend', () => this.endDrag());
-                this.overlay.addEventListener('click', () => this.hide());
-            }
-            show() { this.sheet.classList.add('active'); this.overlay.classList.add('active'); triggerHaptic('medium'); }
-            hide() { this.sheet.classList.remove('active'); this.overlay.classList.remove('active'); this.sheet.style.transform = ''; }
-            startDrag(e) { this.startY = e.touches[0].clientY; this.isDragging = true; }
-            onDrag(e) { if (!this.isDragging) return; const diff = e.touches[0].clientY - this.startY; if (diff > 0) this.sheet.style.transform = `translateY(${diff}px)`; }
-            endDrag() {
-                if (!this.isDragging) return; this.isDragging = false;
-                const currentTransform = this.sheet.style.transform;
-                const diff = currentTransform ? parseInt(currentTransform.replace('translateY(', '').replace('px)', '')) : 0;
-                if (diff > 100) this.hide(); else this.sheet.style.transform = '';
-            }
-        }
-        const bottomSheet = new BottomSheet();
+        // Меню
+        window.toggleMenu = () => {
+            document.getElementById('settingsMenu').classList.toggle('hidden');
+            triggerHaptic('light');
+        };
 
+        // Фильтры
         let giFilterState = 'gi', currentCategoryFilter = null, currentRule = 'none', styleFilterActive = false;
-        let styleProfile = JSON.parse(localStorage.getItem('bjj_style_profile') || '{}');
+        let styleProfile = JSON.parse(localStorage.getItem('bjj_style_profile') || '{"belt": "white"}');
+        const beltOrder = ['white', 'blue', 'purple', 'brown', 'black'];
 
         function applyAllFilters() {
-            nodes.forEach(n => nodes.update({ id: n.id, hidden: true }));
+            const userBelt = styleProfile.belt || 'white';
+            const maxBeltIndex = beltOrder.indexOf(userBelt);
+
             nodes.forEach(n => {
-                if (currentCategoryFilter !== null && n.group !== currentCategoryFilter) return;
-                if ((giFilterState === 'gi' && !n.gi) || (giFilterState === 'nogi' && !n.noGi)) return;
+                const nodeBeltIndex = beltOrder.indexOf(n.belt);
+                const passBelt = nodeBeltIndex <= maxBeltIndex; // Накопительная логика
+                
+                if (!passBelt) { nodes.update({ id: n.id, hidden: true }); return; }
+                if (currentCategoryFilter !== null && n.group !== currentCategoryFilter) { nodes.update({ id: n.id, hidden: true }); return; }
+                if ((giFilterState === 'gi' && !n.gi) || (giFilterState === 'nogi' && !n.noGi)) { nodes.update({ id: n.id, hidden: true }); return; }
+                
                 let passRule = true;
                 if (currentRule === 'ibjjf_gi') passRule = n.legal_ibjjf_gi;
                 else if (currentRule === 'ibjjf_nogi') passRule = n.legal_ibjjf_nogi;
                 else if (currentRule === 'adcc') passRule = n.legal_adcc;
+                
                 if (!passRule) { nodes.update({ id: n.id, hidden: false, opacity: 0.3 }); return; }
                 nodes.update({ id: n.id, hidden: false, opacity: 1.0 });
             });
-            if (styleFilterActive && Object.keys(styleProfile).length > 0) {
-                nodes.forEach(n => {
-                    if (n.hidden) return;
-                    const matches = (n.tags || []).some(tag => styleProfile[tag]);
-                    nodes.update({ id: n.id, borderWidth: matches ? 3 : 1, borderColor: matches ? '#f59e0b' : undefined });
-                });
-            } else {
-                nodes.forEach(n => nodes.update({ id: n.id, borderWidth: 1, borderColor: undefined }));
-            }
             edges.forEach(e => {
                 const from = nodes.get(e.from), to = nodes.get(e.to);
                 if (from && to) edges.update({ id: e.id, hidden: from.hidden || to.hidden });
             });
         }
 
+        // Обработчики кнопок меню
         document.querySelectorAll('.filter-btn').forEach(btn => {
             if (btn.id === 'styleFilterBtn') return;
             btn.addEventListener('click', function() {
@@ -504,31 +509,77 @@
 
         window.toggleGiFilter = () => {
             giFilterState = giFilterState === 'gi' ? 'nogi' : 'gi';
-            document.getElementById('giToggleBtn').textContent = giFilterState === 'gi' ? 'Gi' : 'No‑Gi';
+            document.getElementById('giToggleBtn').textContent = giFilterState === 'gi' ? 'Gi' : 'No-Gi';
             document.getElementById('giToggleBtn').classList.toggle('active', giFilterState === 'gi');
             applyAllFilters(); triggerHaptic('light');
         };
 
         window.toggleStyleFilter = () => {
-            if (Object.keys(styleProfile).length === 0) { alert('Сначала заполните анкету стиля.'); return; }
             styleFilterActive = !styleFilterActive;
             document.getElementById('styleFilterBtn').classList.toggle('active', styleFilterActive);
             applyAllFilters();
         };
 
+        // Модалка стиля и поясов
         window.openStyleModal = () => {
             document.getElementById('styleModal').classList.remove('hidden');
             document.getElementById('styleFlex').checked = !!styleProfile.flexibility;
             document.getElementById('stylePressure').checked = !!styleProfile.pressure;
             document.getElementById('styleLong').checked = !!styleProfile.long_limbs;
             document.getElementById('styleSpeed').checked = !!styleProfile.speed;
+            
+            document.querySelectorAll('.belt-btn').forEach(btn => {
+                btn.classList.toggle('active-belt', btn.dataset.belt === styleProfile.belt);
+            });
         };
         window.closeStyleModal = () => document.getElementById('styleModal').classList.add('hidden');
+        
+        document.querySelectorAll('.belt-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.belt-btn').forEach(b => b.classList.remove('active-belt'));
+                this.classList.add('active-belt');
+            });
+        });
+
         window.saveStyleProfile = () => {
-            styleProfile = { flexibility: document.getElementById('styleFlex').checked, pressure: document.getElementById('stylePressure').checked, long_limbs: document.getElementById('styleLong').checked, speed: document.getElementById('styleSpeed').checked };
+            const activeBeltBtn = document.querySelector('.belt-btn.active-belt');
+            styleProfile = { 
+                belt: activeBeltBtn ? activeBeltBtn.dataset.belt : 'white',
+                flexibility: document.getElementById('styleFlex').checked, 
+                pressure: document.getElementById('stylePressure').checked, 
+                long_limbs: document.getElementById('styleLong').checked, 
+                speed: document.getElementById('styleSpeed').checked 
+            };
             localStorage.setItem('bjj_style_profile', JSON.stringify(styleProfile));
-            closeStyleModal(); if (styleFilterActive) applyAllFilters(); triggerHaptic('medium');
+            closeStyleModal(); 
+            applyAllFilters(); 
+            triggerHaptic('medium');
         };
+
+        // Bottom Sheet и детали
+        class BottomSheet {
+            constructor() {
+                this.sheet = document.getElementById('bottomSheet');
+                this.overlay = document.getElementById('bottomSheetOverlay');
+                this.handle = document.getElementById('bottomSheetHandle');
+                this.startY = 0; this.isDragging = false;
+                this.handle.addEventListener('touchstart', (e) => this.startDrag(e));
+                document.addEventListener('touchmove', (e) => this.onDrag(e));
+                document.addEventListener('touchend', () => this.endDrag());
+                this.overlay.addEventListener('click', () => this.hide());
+            }
+            show() { this.sheet.classList.add('active'); this.overlay.classList.add('active'); triggerHaptic('medium'); }
+            hide() { this.sheet.classList.remove('active'); this.overlay.classList.remove('active'); this.sheet.style.transform = ''; }
+            startDrag(e) { this.startY = e.touches[0].clientY; this.isDragging = true; }
+            onDrag(e) { if (!this.isDragging) return; const diff = e.touches[0].clientY - this.startY; if (diff > 0) this.sheet.style.transform = `translateY(${diff}px)`; }
+            endDrag() {
+                if (!this.isDragging) return; this.isDragging = false;
+                const currentTransform = this.sheet.style.transform;
+                const diff = currentTransform ? parseInt(currentTransform.replace('translateY(', '').replace('px)', '')) : 0;
+                if (diff > 100) this.hide(); else this.sheet.style.transform = '';
+            }
+        }
+        const bottomSheet = new BottomSheet();
 
         function renderNodeDetails(nodeId) {
             const n = bjjNodesData.find(x => x.id === nodeId);
@@ -539,18 +590,18 @@
             
             let badges = [];
             if (n.gi) badges.push('<span class="px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded text-xs border border-indigo-200">🥋 Gi</span>');
-            if (n.noGi) badges.push('<span class="px-2 py-0.5 bg-cyan-50 text-cyan-600 rounded text-xs border border-cyan-200">🩳 No‑Gi</span>');
+            if (n.noGi) badges.push('<span class="px-2 py-0.5 bg-cyan-50 text-cyan-600 rounded text-xs border border-cyan-200">🩳 No-Gi</span>');
             
             let legal = [];
             legal.push(n.legal_ibjjf_gi ? '✅ IBJJF Gi' : '🚫 IBJJF Gi');
-            legal.push(n.legal_ibjjf_nogi ? '✅ IBJJF No‑Gi' : '🚫 IBJJF No‑Gi');
-            legal.push(n.legal_adcc ? '✅ ADCC' : '🚫 ADCC');
+            legal.push(n.legal_ibjjf_nogi ? '✅ IBJJF No-Gi' : '🚫 IBJJF No-Gi');
+            legal.push(n.legal_adcc ? '✅ ADCC' : ' ADCC');
             
             let tags = [];
             if (n.tags.includes('flexibility')) tags.push('🧘');
             if (n.tags.includes('pressure')) tags.push('🦍');
             if (n.tags.includes('long_limbs')) tags.push('🕷️');
-            if (n.tags.includes('speed')) tags.push('⚡');
+            if (n.tags.includes('speed')) tags.push('');
 
             const linked = bjjEdgesData.filter(e => e.from === nodeId || e.to === nodeId);
             const triggers = {}, noTrigger = [];
@@ -607,7 +658,6 @@
 
         window.updateProgress = (id, status) => { setProgress(id, status); renderNodeDetails(id); };
         window.focusNode = (id) => { network.focus(id, { scale: 1.8, animation: true }); setTimeout(() => { network.selectNodes([id]); renderNodeDetails(id); }, 300); };
-        window.fitGraph = () => { network.fit({ animation: true }); };
         
         window.shareNode = (nodeId) => {
             const n = bjjNodesData.find(x => x.id === nodeId);
@@ -636,39 +686,33 @@
                 searchResults.classList.remove('hidden');
             }
         });
-        document.addEventListener('click', (e) => { if (!e.target.closest('.relative')) searchResults.classList.add('hidden'); });
+        document.addEventListener('click', (e) => { if (!e.target.closest('.relative') && !e.target.closest('#settingsMenu')) searchResults.classList.add('hidden'); });
         network.on('click', function(params) { if (params.nodes.length) renderNodeDetails(params.nodes[0]); });
 
         window.toggleDarkMode = () => {
             document.body.classList.toggle('dark');
             const isDark = document.body.classList.contains('dark');
             localStorage.setItem('bjj_dark_mode', isDark);
-            document.getElementById('themeToggle').textContent = isDark ? '☀️' : '🌙';
+            document.getElementById('themeToggle').innerHTML = isDark ? '☀️ Тема' : '🌙 Тема';
         };
-        if (localStorage.getItem('bjj_dark_mode') === 'true') { document.body.classList.add('dark'); document.getElementById('themeToggle').textContent = '☀️'; }
+        if (localStorage.getItem('bjj_dark_mode') === 'true') { document.body.classList.add('dark'); document.getElementById('themeToggle').innerHTML = '☀️ Тема'; }
 
         const modalContent = {
             0: `<h2 class="text-lg font-bold text-slate-800 mb-3">О карте BJJ Map</h2>
                 <p class="text-slate-600 mb-3">Интерактивная карта техник БЖЖ, построенная в виде графа. Показывает связи между позициями, переходами и атаками.</p>
-                <p class="text-slate-600"><strong>Особенности:</strong><br>• Учет правил (IBJJF, ADCC)<br>• Персонализация под стиль<br>• Синхронизация прогресса</p>`,
+                <p class="text-slate-600"><strong>Особенности:</strong><br>• Учет правил (IBJJF, ADCC)<br>• Персонализация под стиль и пояс<br>• Синхронизация прогресса</p>`,
             1: `<h2 class="text-lg font-bold text-slate-800 mb-3">Как пользоваться</h2>
                 <ol class="list-decimal pl-5 text-slate-600 space-y-2">
-                    <li>Перетаскивай граф, используй зум двумя пальцами.</li>
+                    <li>Нажми на ☰ чтобы открыть настройки фильтров.</li>
                     <li>Нажми на узел, чтобы увидеть детали и реакции соперника.</li>
                     <li>Отмечай прогресс: "Не начал", "В процессе", "Изучено".</li>
                     <li>Используй поиск: начни вводить название, и появится список.</li>
                 </ol>`,
             2: `<h2 class="text-lg font-bold text-slate-800 mb-3">Резервное копирование</h2>
-                <p class="text-slate-600 mb-4">Сохраняй свой прогресс, чтобы не потерять его при очистке браузера или при смене устройства.</p>
+                <p class="text-slate-600 mb-4">Сохраняй свой прогресс, чтобы не потерять его.</p>
                 <div class="space-y-3">
-                    <button onclick="exportProgress()" class="w-full py-3 bg-blue-600 text-white rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-blue-700 transition">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                        Скачать бэкап (JSON)
-                    </button>
-                    <button onclick="document.getElementById('importFile').click()" class="w-full py-3 bg-slate-200 text-slate-800 rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-slate-300 transition">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                        Загрузить бэкап
-                    </button>
+                    <button onclick="exportProgress()" class="w-full py-3 bg-blue-600 text-white rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-blue-700 transition">Скачать бэкап (JSON)</button>
+                    <button onclick="document.getElementById('importFile').click()" class="w-full py-3 bg-slate-200 text-slate-800 rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-slate-300 transition">Загрузить бэкап</button>
                 </div>`
         };
         
@@ -686,18 +730,42 @@
             const list = document.getElementById('progressListContent');
             const inProgress = bjjNodesData.filter(n => progress[n.id] === 'in_progress');
             const done = bjjNodesData.filter(n => progress[n.id] === 'done');
-            let html = '';
+            
+            // Статистика по поясам
+            const beltStats = beltOrder.map(b => {
+                const total = bjjNodesData.filter(n => n.belt === b).length;
+                const doneCount = done.filter(n => n.belt === b).length;
+                const percent = total > 0 ? Math.round((doneCount / total) * 100) : 0;
+                return { belt: b, total, done: doneCount, percent };
+            });
+
+            let html = '<div class="space-y-3 mb-6">';
+            beltStats.forEach(stat => {
+                const beltIcons = { white:'⚪', blue:'🔵', purple:'🟣', brown:'🟤', black:'⚫' };
+                html += `
+                    <div>
+                        <div class="flex justify-between text-xs font-medium mb-1">
+                            <span>${beltIcons[stat.belt]} ${stat.belt === 'white' ? 'Белый' : stat.belt === 'blue' ? 'Синий' : stat.belt === 'purple' ? 'Фиолетовый' : stat.belt === 'brown' ? 'Коричневый' : 'Чёрный'} пояс</span>
+                            <span class="text-slate-500">${stat.done}/${stat.total} (${stat.percent}%)</span>
+                        </div>
+                        <div class="w-full bg-slate-200 rounded-full h-2">
+                            <div class="bg-blue-600 h-2 rounded-full transition-all duration-500" style="width: ${stat.percent}%"></div>
+                        </div>
+                    </div>`;
+            });
+            html += '</div>';
+
             if (inProgress.length === 0 && done.length === 0) {
-                html = '<p class="text-center text-slate-500 py-8">Вы пока не отметили ни одной техники.<br>Нажмите на узел на графе, чтобы начать!</p>';
+                html += '<p class="text-center text-slate-500 py-4">Вы пока не отметили ни одной техники.</p>';
             } else {
                 if (inProgress.length > 0) {
-                    html += `<h3 class="font-bold text-slate-700 mb-2 flex items-center gap-2">📚 В процессе (${inProgress.length})</h3><div class="space-y-2 mb-6">`;
-                    inProgress.forEach(n => { html += `<div onclick="focusNode(${n.id}); closeProgressModal()" class="p-3 bg-amber-50 border border-amber-200 rounded-lg cursor-pointer hover:bg-amber-100 transition flex items-center gap-3"><span>${groupIcons[n.group] || '🥋'}</span><span class="font-medium text-sm">${n.label}</span></div>`; });
+                    html += `<h3 class="font-bold text-slate-700 mb-2 text-sm">📚 В процессе (${inProgress.length})</h3><div class="space-y-2 mb-4">`;
+                    inProgress.forEach(n => { html += `<div onclick="focusNode(${n.id}); closeProgressModal()" class="p-2 bg-amber-50 border border-amber-200 rounded-lg cursor-pointer hover:bg-amber-100 transition flex items-center gap-2 text-sm"><span>${groupIcons[n.group] || '🥋'}</span><span class="font-medium">${n.label}</span></div>`; });
                     html += `</div>`;
                 }
                 if (done.length > 0) {
-                    html += `<h3 class="font-bold text-slate-700 mb-2 flex items-center gap-2">✅ Изучено (${done.length})</h3><div class="space-y-2">`;
-                    done.forEach(n => { html += `<div onclick="focusNode(${n.id}); closeProgressModal()" class="p-3 bg-emerald-50 border border-emerald-200 rounded-lg cursor-pointer hover:bg-emerald-100 transition flex items-center gap-3"><span>${groupIcons[n.group] || '🥋'}</span><span class="font-medium text-sm">${n.label}</span></div>`; });
+                    html += `<h3 class="font-bold text-slate-700 mb-2 text-sm">✅ Изучено (${done.length})</h3><div class="space-y-2">`;
+                    done.forEach(n => { html += `<div onclick="focusNode(${n.id}); closeProgressModal()" class="p-2 bg-emerald-50 border border-emerald-200 rounded-lg cursor-pointer hover:bg-emerald-100 transition flex items-center gap-2 text-sm"><span>${groupIcons[n.group] || ''}</span><span class="font-medium">${n.label}</span></div>`; });
                     html += `</div>`;
                 }
             }
