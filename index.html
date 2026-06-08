@@ -562,12 +562,22 @@
         };
         window.closeStyleModal = () => document.getElementById('styleModal').classList.add('hidden');
         
-        document.querySelectorAll('.belt-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.belt-btn').forEach(b => b.classList.remove('active-belt'));
-                this.classList.add('active-belt');
-            });
+// Обработчики кнопок пояса
+function initBeltButtons() {
+    document.querySelectorAll('.belt-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.belt-btn').forEach(b => b.classList.remove('active-belt'));
+            this.classList.add('active-belt');
         });
+    });
+}
+
+// Вызываем после загрузки страницы
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initBeltButtons);
+} else {
+    initBeltButtons();
+}
 
         window.saveStyleProfile = () => {
             const activeBeltBtn = document.querySelector('.belt-btn.active-belt');
