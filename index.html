@@ -564,12 +564,24 @@
         
 // Обработчики кнопок пояса
 function initBeltButtons() {
-    document.querySelectorAll('.belt-btn').forEach(btn => {
+// Инициализация кнопок пояса
+function initBeltButtons() {
+    const beltButtons = document.querySelectorAll('.belt-btn');
+    beltButtons.forEach(btn => {
         btn.addEventListener('click', function() {
-            document.querySelectorAll('.belt-btn').forEach(b => b.classList.remove('active-belt'));
+            beltButtons.forEach(b => b.classList.remove('active-belt'));
             this.classList.add('active-belt');
+            triggerHaptic('light');
         });
     });
+}
+
+// Вызываем сразу после загрузки DOM
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initBeltButtons);
+} else {
+    initBeltButtons();
+}
 }
 
 // Вызываем после загрузки страницы
