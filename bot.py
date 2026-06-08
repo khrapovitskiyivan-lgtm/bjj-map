@@ -28,35 +28,20 @@ except Exception as e:
     supabase = None
 
 # ---------- КОМАНДА /start ----------
-@dp.message(Command("start"))
-async def cmd_start(message: types.Message):
-    user_id = str(message.from_user.id)
-    username = message.from_user.username or "друг"
-    url_with_user = f"{WEB_APP_URL}?user_id={user_id}"
-    
-    # Создаем клавиатуру с кнопками команд
-    keyboard = ReplyKeyboardMarkup(
-        keyboard=[
-            [
-                KeyboardButton(text="🥋 Открыть карту", web_app=WebAppInfo(url=url_with_user)),
-                KeyboardButton(text="📊 Мой прогресс")
-            ],
-            [
-                KeyboardButton(text="📖 Помощь"),
-                KeyboardButton(text="🗑️ Сбросить прогресс")
-            ]
-        ],
-        resize_keyboard=True,  # Уменьшает размер клавиатуры
-        input_field_placeholder="Выберите действие 👇"  # Подсказка в поле ввода
-    )
-    
-    await message.answer(
-        f"👋 Привет, {username}!\n\n"
-        f"🥋 Добро пожаловать в <b>BJJ Map</b> — интерактивную карту техник бразильского джиу-джитсу.\n\n"
-        f"Используй кнопки ниже для навигации 👇",
-        reply_markup=keyboard,
-        parse_mode="HTML"
-    )
+@dp.message(lambda message: message.text == "📊 Мой прогресс")
+async def btn_progress(message: types.Message):
+    # Перенаправляем на команду /progress
+    await cmd_progress(message)
+
+@dp.message(lambda message: message.text == " Помощь")
+async def btn_help(message: types.Message):
+    # Перенаправляем на команду /help
+    await cmd_help(message)
+
+@dp.message(lambda message: message.text == "🗑️ Сбросить прогресс")
+async def btn_reset(message: types.Message):
+    # Перенаправляем на команду /reset
+    await cmd_reset(message)
 
 # ---------- КОМАНДА /help ----------
 @dp.message(Command("help"))
