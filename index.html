@@ -716,9 +716,9 @@
             document.body.classList.toggle('dark');
             const isDark = document.body.classList.contains('dark');
             localStorage.setItem('bjj_dark_mode', isDark);
-            document.getElementById('themeToggle').innerHTML = isDark ? '☀️ Тема' : '🌙 Тема';
+            document.getElementById('themeToggle').innerHTML = isDark ? '☀️' : '🌙';
         };
-        if (localStorage.getItem('bjj_dark_mode') === 'true') { document.body.classList.add('dark'); document.getElementById('themeToggle').innerHTML = '☀️ Тема'; }
+        if (localStorage.getItem('bjj_dark_mode') === 'true') { document.body.classList.add('dark'); document.getElementById('themeToggle').innerHTML = '☀️'; }
 
         const modalContent = {
             0: `<h2 class="text-lg font-bold text-slate-800 mb-3">О карте BJJ Map</h2>
