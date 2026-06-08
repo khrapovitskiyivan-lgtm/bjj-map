@@ -2,7 +2,7 @@ import asyncio
 import logging
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
-from aiogram.types import WebAppInfo, ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import WebAppInfo, InlineKeyboardMarkup, InlineKeyboardButton
 from supabase import create_client
 
 # ---------- НАСТРОЙКИ ----------
@@ -23,67 +23,67 @@ try:
     supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
     logging.info("✅ Supabase подключен")
 except Exception as e:
-    logging.error(f" Ошибка подключения к Supabase: {e}")
+    logging.error(f"❌ Ошибка подключения к Supabase: {e}")
     supabase = None
 
 # ---------- КОМАНДА /start ----------
 @dp.message(Command("start"))
 async def cmd_start(message: types.Message):
     user_id = str(message.from_user.id)
-    username = message.from_user.username or "друг"
+    username = message.from_user.first_name or "друг"
     url_with_user = f"{WEB_APP_URL}?user_id={user_id}"
     
-    keyboard = ReplyKeyboardMarkup(
-        keyboard=[
-            [
-                KeyboardButton(text="🥋 Открыть карту", web_app=WebAppInfo(url=url_with_user)),
-                KeyboardButton(text="📊 Мой прогресс")
-            ],
-            [
-                KeyboardButton(text="📖 Помощь"),
-                KeyboardButton(text="🗑️ Сбросить прогресс")
-            ]
+    # Создаем inline-клавиатуру с кнопками прямо в сообщении
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="🥋 Открыть карту техник", web_app=WebAppInfo(url=url_with_user))],
+        [
+            InlineKeyboardButton(text="📊 Мой прогресс", callback_data="show_progress"),
+            InlineKeyboardButton(text="📖 Помощь", callback_data="show_help")
         ],
-        resize_keyboard=True,
-        input_field_placeholder="Выберите действие 👇"
-    )
+        [InlineKeyboardButton(text="🗑️ Сбросить прогресс", callback_data="confirm_reset")]
+    ])
     
     await message.answer(
-        f" Привет, {username}!\n\n"
-        f"🥋 Добро пожаловать в <b>BJJ Map</b> — интерактивную карту техник бразильского джиу-джитсу.\n\n"
-        f"Используй кнопки ниже для навигации 👇",
+        f"👋 <b>Привет, {username}!</b>\n\n"
+        f" Добро пожаловать в <b>BJJ Map</b> — интерактивную карту техник бразильского джиу-джитсу.\n\n"
+        f"📍 <b>Что здесь есть:</b>\n"
+        f"• 130+ техник с связями и триггерами\n"
+        f"• Фильтры по правилам (IBJJF, ADCC)\n"
+        f"• Персонализация под твой стиль\n"
+        f"• Отслеживание прогресса обучения\n\n"
+        f"👇 <b>Выбери действие:</b>",
         reply_markup=keyboard,
         parse_mode="HTML"
     )
 
-# ---------- КОМАНДА /help ----------
-@dp.message(Command("help"))
-@dp.message(lambda message: message.text == "📖 Помощь")
-async def cmd_help(message: types.Message):
-    await message.answer(
-        " <b>Помощь по BJJ Map</b>\n\n"
-        "️ <b>Карта</b> — интерактивный граф техник с 130+ приёмами\n"
-        "📊 <b>Прогресс</b> — отмечай изученные техники\n"
+# ---------- Обработчик кнопки "Помощь" ----------
+@dp.callback_query(lambda c: c.data == "show_help")
+async def btn_help(callback: types.CallbackQuery):
+    await callback.message.edit_text(
+        "📖 <b>Помощь по BJJ Map</b>\n\n"
+        "🗺️ <b>Карта</b> — интерактивный граф техник с 130+ приёмами\n"
+        " <b>Прогресс</b> — отмечай изученные техники\n"
         " <b>Поиск</b> — быстрый поиск по названию\n"
         "🎛️ <b>Фильтры</b> — Gi/No-Gi, правила IBJJF/ADCC\n"
-        "🧑‍🎤 <b>Стиль</b> — персонализация под телосложение\n"
-        "💾 <b>Бэкап</b> — сохранение прогресса\n\n"
-        "Команды:\n"
-        "/start — 🥋 Открыть карту\n"
-        "/help —  Помощь\n"
-        "/progress —  Мой прогресс\n"
-        "/reset — 🗑️ Сбросить прогресс",
+        "🧑‍ <b>Стиль</b> — персонализация под телосложение\n"
+        " <b>Бэкап</b> — сохранение прогресса\n\n"
+        " <b>Что делаем?</b>",
+        reply_markup=InlineKeyboardMarkup(inline_keyboard=[
+            [InlineKeyboardButton(text="🥋 Открыть карту", web_app=WebAppInfo(url=f"{WEB_APP_URL}?user_id={callback.from_user.id}"))],
+            [InlineKeyboardButton(text="️ Назад", callback_data="back_to_menu")]
+        ]),
         parse_mode="HTML"
     )
+    await callback.answer()
 
-# ---------- КОМАНДА /progress ----------
-@dp.message(Command("progress"))
-@dp.message(lambda message: message.text == "📊 Мой прогресс")
-async def cmd_progress(message: types.Message):
-    user_id = str(message.from_user.id)
+# ---------- Обработчик кнопки "Прогресс" ----------
+@dp.callback_query(lambda c: c.data == "show_progress")
+async def btn_progress(callback: types.CallbackQuery):
+    user_id = str(callback.from_user.id)
     
     if not supabase:
-        await message.answer("❌ База данных недоступна. Попробуй позже.")
+        await callback.message.edit_text("❌ База данных недоступна.")
+        await callback.answer()
         return
     
     try:
@@ -94,73 +94,11 @@ async def cmd_progress(message: types.Message):
             done = sum(1 for v in progress.values() if v == 'done')
             in_progress = sum(1 for v in progress.values() if v == 'in_progress')
             
-            await message.answer(
+            await callback.message.edit_text(
                 f"📊 <b>Твой прогресс</b>\n\n"
                 f"✅ Изучено: <b>{done}</b> техник\n"
-                f"📚 В процессе: <b>{in_progress}</b> техник\n"
+                f" В процессе: <b>{in_progress}</b> техник\n"
                 f"📝 Всего отмечено: <b>{done + in_progress}</b>\n\n"
-                f"Открой приложение, чтобы увидеть детали 👇",
-                reply_markup=ReplyKeyboardMarkup(
-                    keyboard=[[KeyboardButton(text="🥋 Открыть карту", web_app=WebAppInfo(url=f"{WEB_APP_URL}?user_id={user_id}"))]],
-                    resize_keyboard=True
-                ),
-                parse_mode="HTML"
-            )
-        else:
-            await message.answer(
-                "📊 Пока нет сохранённого прогресса.\n\n"
-                "Открой приложение и начни отмечать техники!",
-                reply_markup=ReplyKeyboardMarkup(
-                    keyboard=[[KeyboardButton(text=" Открыть карту", web_app=WebAppInfo(url=f"{WEB_APP_URL}?user_id={user_id}"))]],
-                    resize_keyboard=True
-                )
-            )
-    except Exception as e:
-        logging.error(f"Ошибка получения прогресса: {e}")
-        await message.answer("❌ Не удалось получить прогресс. Попробуй позже.")
-
-# ---------- КОМАНДА /reset ----------
-@dp.message(Command("reset"))
-@dp.message(lambda message: message.text == "🗑️ Сбросить прогресс")
-async def cmd_reset(message: types.Message):
-    user_id = str(message.from_user.id)
-    
-    keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [
-            InlineKeyboardButton(text="✅ Да, сбросить", callback_data="confirm_reset"),
-            InlineKeyboardButton(text="❌ Отмена", callback_data="cancel_reset")
-        ]
-    ])
-    
-    await message.answer(
-        "⚠️ Ты уверен, что хочешь сбросить весь прогресс?\n"
-        "Это действие нельзя отменить!",
-        reply_markup=keyboard
-    )
-
-@dp.callback_query(lambda c: c.data in ["confirm_reset", "cancel_reset"])
-async def process_reset(callback: types.CallbackQuery):
-    user_id = str(callback.from_user.id)
-    
-    if callback.data == "confirm_reset":
-        if supabase:
-            try:
-                supabase.table('bjj_progress').delete().eq('telegram_id', user_id).execute()
-                await callback.message.edit_text("✅ Прогресс успешно сброшен!\n\nИспользуй /start чтобы начать заново.")
-            except Exception as e:
-                logging.error(f"Ошибка сброса: {e}")
-                await callback.message.edit_text("❌ Ошибка при сбросе прогресса.")
-        else:
-            await callback.message.edit_text("❌ База данных недоступна.")
-    else:
-        await callback.message.edit_text("✅ Сброс отменён.")
-    
-    await callback.answer()
-
-# ---------- ЗАПУСК ----------
-async def main():
-    logging.info("🚀 Бот запущен!")
-    await dp.start_polling(bot)
-
-if __name__ == '__main__':
-    asyncio.run(main())
+                f" <b>Продолжить?</b>",
+                reply_markup=InlineKeyboardMarkup(inline_keyboard=[
+                    [InlineKeyboardButton(text=" Открыть карту", web_app=WebAppInfo(url
