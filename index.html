@@ -166,41 +166,18 @@ const triggerHaptic = (type = 'light') => {
             try { if (window.Telegram?.WebApp?.HapticFeedback) window.Telegram.WebApp.HapticFeedback.impactOccurred(type); } catch(e) {}
         };
 
-        // ================== SUPABASE (опционально) ==================
-        const SUPABASE_URL = 'https://supabase.com/dashboard/project/ifrgxxcbkzuwfiuihgev';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlmcmd4eGNia3p1d2ZpdWloZ2V2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2ODY4MDYsImV4cCI6MjA5NjI2MjgwNn0.Jn0Mp5_yKoU1wG1pFhY6-zCFl7z29L_ppvcPSSue2NU';
-        let supabase = null;
+               // ================== PROGRESS STORAGE (localStorage) ==================
+        const STORAGE_KEY = 'bjj_learned_v3';
         
-        try {
-            if (window.supabase && window.supabase.createClient && SUPABASE_ANON_KEY !== 'твой_ключ_сюда') {
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                console.log('✅ Supabase подключен');
-            } else {
-                console.log('ℹ️ Supabase не настроен (работаем локально)');
-            }
-        } catch(e) {
-            console.warn('Supabase недоступен:', e);
-        }
-
+        // Пока нет Supabase, работаем только с localStorage
         async function syncProgressToServer(progressObj) {
-            if (!supabase) return;
-            try {
-                const telegramId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString() || 'anonymous';
-                await supabase.from('bjj_progress').upsert({ 
-                    telegram_id: telegramId, 
-                    progress: progressObj,
-                    updated_at: new Date().toISOString()
-                }, { onConflict: 'telegram_id' });
-            } catch (e) { console.warn('Sync error:', e); }
+            // Заглушка - ничего не делаем
+            console.log('Прогресс сохранен локально');
         }
 
         async function loadProgressFromServer() {
-            if (!supabase) return null;
-            try {
-                const telegramId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString() || 'anonymous';
-                const { data, error } = await supabase.from('bjj_progress').select('progress').eq('telegram_id', telegramId).single();
-                return data ? data.progress : null;
-            } catch (e) { console.warn('Load error:', e); return null; }
+            // Заглушка - возвращаем null, чтобы использовался localStorage
+            return null;
         }
 
         // ================== DATA ==================
