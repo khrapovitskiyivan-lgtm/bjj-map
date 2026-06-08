@@ -161,8 +161,6 @@
             else if (navigator.vibrate) navigator.vibrate(type === 'light' ? 10 : 30);
         };
 
-        // ================== SUPABASE CONFIG ==================
-        // 👇 ЗАМЕНИ ЭТИ ДВЕ СТРОКИ НА СВОИ РЕАЛЬНЫЕ ДАННЫЕ ИЗ SUPABASE! 👇
         const SUPABASE_URL = 'https://supabase.com/dashboard/project/ifrgxxcbkzuwfiuihgev'; 
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlmcmd4eGNia3p1d2ZpdWloZ2V2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2ODY4MDYsImV4cCI6MjA5NjI2MjgwNn0.Jn0Mp5_yKoU1wG1pFhY6-zCFl7z29L_ppvcPSSue2NU';
         
@@ -427,7 +425,6 @@
             document.getElementById('globalProgressBtn').textContent = `${Math.round((done / total) * 100)}%`;
         }
 
-        // === ФУНКЦИИ ИНТЕРФЕЙСА (Bottom Sheet, Модалки, Фильтры) ===
         class BottomSheet {
             constructor() {
                 this.sheet = document.getElementById('bottomSheet');
@@ -650,7 +647,6 @@
         };
         if (localStorage.getItem('bjj_dark_mode') === 'true') { document.body.classList.add('dark'); document.getElementById('themeToggle').textContent = '☀️'; }
 
-        // === МОДАЛКИ (Включая новую вкладку Бэкап) ===
         const modalContent = {
             0: `<h2 class="text-lg font-bold text-slate-800 mb-3">О карте BJJ Map</h2>
                 <p class="text-slate-600 mb-3">Интерактивная карта техник БЖЖ, построенная в виде графа. Показывает связи между позициями, переходами и атаками.</p>
@@ -710,7 +706,6 @@
         };
         window.closeProgressModal = () => document.getElementById('progressModal').classList.add('hidden');
 
-        // === ФУНКЦИИ БЭКАПА ===
         window.exportProgress = () => {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(progress));
             const downloadAnchorNode = document.createElement('a');
