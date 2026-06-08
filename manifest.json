@@ -2,7 +2,7 @@
   "name": "BJJ Map - Карта техник",
   "short_name": "BJJ Map",
   "description": "Интерактивная карта техник бразильского джиу-джитсу",
-  "start_url": "/bjj-map/",
+ "start_url": "/",
   "display": "standalone",
   "background_color": "#f1f5f9",
   "theme_color": "#3b82f6",
