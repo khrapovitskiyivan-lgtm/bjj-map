@@ -43,7 +43,17 @@
         body.dark ::-webkit-scrollbar-thumb { background: #475569; }
         .rule-btn.active-rule { background: #0f172a; color: white; border-color: #0f172a; }
         body.dark .rule-btn.active-rule { background: #3b82f6; border-color: #3b82f6; }
-        .belt-btn.active-belt { background: #3b82f6; color: white; border-color: #3b82f6; }
+       .belt-btn.active-belt { 
+    background: #3b82f6 !important; 
+    color: white !important; 
+    border-color: #3b82f6 !important;
+    font-weight: 600;
+}
+body.dark .belt-btn.active-belt {
+    background: #3b82f6 !important;
+    color: white !important;
+    border-color: #3b82f6 !important;
+}
         
         .bottom-sheet-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 998; }
         .bottom-sheet-overlay.active { opacity: 1; pointer-events: auto; }
