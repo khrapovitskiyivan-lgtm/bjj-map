@@ -77,7 +77,15 @@ body.dark .belt-btn.active-belt {
         .bottom-sheet.active { transform: translateY(0); }
         .bottom-sheet-handle { width: 40px; height: 4px; background: #cbd5e0; border-radius: 2px; margin: 12px auto; cursor: grab; }
         body.dark .bottom-sheet-handle { background: #475569; }
-        .bottom-sheet-content { padding: 0 20px 20px; }
+        .bottom-sheet-content { 
+    padding: 0 20px 20px;
+    min-height: calc(90vh - 40px);
+    display: flex;
+    flex-direction: column;
+}
+.bottom-sheet-content > div {
+    flex: 1;
+}
         
         body.dark header { background: #1e293b; border-color: #334155; }
         body.dark .bg-white { background: #1e293b; }
