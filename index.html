@@ -431,7 +431,17 @@
             physics: { solver: 'forceAtlas2Based', forceAtlas2Based: { gravitationalConstant: -50 }, stabilization: { iterations: 150 } },
             interaction: { hover: true, dragNodes: true, dragView: true, zoomView: true }
         });
-
+window.fitGraph = () => { 
+    if (network) {
+        network.fit({ 
+            animation: {
+                duration: 500,
+                easingFunction: 'easeInOutQuad'
+            }
+        });
+        triggerHaptic('light');
+    }
+};
         const STORAGE_KEY = 'bjj_learned_v3';
         let progress = {};
 
