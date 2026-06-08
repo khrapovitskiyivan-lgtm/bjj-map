@@ -2,9 +2,8 @@ import asyncio
 import logging
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
-from aiogram.types import WebAppInfo, ReplyKeyboardMarkup, KeyboardButton
+from aiogram.types import WebAppInfo, ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 from supabase import create_client
-from datetime import datetime
 
 # ---------- НАСТРОЙКИ ----------
 # ⚠️ ВСТАВЬ СЮДА НОВЫЙ ТОКЕН ПОСЛЕ /revoke В BOTFATHER!
@@ -24,46 +23,62 @@ try:
     supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
     logging.info("✅ Supabase подключен")
 except Exception as e:
-    logging.error(f"❌ Ошибка подключения к Supabase: {e}")
+    logging.error(f" Ошибка подключения к Supabase: {e}")
     supabase = None
 
 # ---------- КОМАНДА /start ----------
-@dp.message(lambda message: message.text == "📊 Мой прогресс")
-async def btn_progress(message: types.Message):
-    # Перенаправляем на команду /progress
-    await cmd_progress(message)
-
-@dp.message(lambda message: message.text == " Помощь")
-async def btn_help(message: types.Message):
-    # Перенаправляем на команду /help
-    await cmd_help(message)
-
-@dp.message(lambda message: message.text == "🗑️ Сбросить прогресс")
-async def btn_reset(message: types.Message):
-    # Перенаправляем на команду /reset
-    await cmd_reset(message)
+@dp.message(Command("start"))
+async def cmd_start(message: types.Message):
+    user_id = str(message.from_user.id)
+    username = message.from_user.username or "друг"
+    url_with_user = f"{WEB_APP_URL}?user_id={user_id}"
+    
+    keyboard = ReplyKeyboardMarkup(
+        keyboard=[
+            [
+                KeyboardButton(text="🥋 Открыть карту", web_app=WebAppInfo(url=url_with_user)),
+                KeyboardButton(text="📊 Мой прогресс")
+            ],
+            [
+                KeyboardButton(text="📖 Помощь"),
+                KeyboardButton(text="🗑️ Сбросить прогресс")
+            ]
+        ],
+        resize_keyboard=True,
+        input_field_placeholder="Выберите действие 👇"
+    )
+    
+    await message.answer(
+        f" Привет, {username}!\n\n"
+        f"🥋 Добро пожаловать в <b>BJJ Map</b> — интерактивную карту техник бразильского джиу-джитсу.\n\n"
+        f"Используй кнопки ниже для навигации 👇",
+        reply_markup=keyboard,
+        parse_mode="HTML"
+    )
 
 # ---------- КОМАНДА /help ----------
 @dp.message(Command("help"))
+@dp.message(lambda message: message.text == "📖 Помощь")
 async def cmd_help(message: types.Message):
     await message.answer(
-        "📖 <b>Помощь по BJJ Map</b>\n\n"
-        "🗺️ <b>Карта</b> — интерактивный граф техник с 130+ приёмами\n"
+        " <b>Помощь по BJJ Map</b>\n\n"
+        "️ <b>Карта</b> — интерактивный граф техник с 130+ приёмами\n"
         "📊 <b>Прогресс</b> — отмечай изученные техники\n"
-        "🔍 <b>Поиск</b> — быстрый поиск по названию\n"
+        " <b>Поиск</b> — быстрый поиск по названию\n"
         "🎛️ <b>Фильтры</b> — Gi/No-Gi, правила IBJJF/ADCC\n"
         "🧑‍🎤 <b>Стиль</b> — персонализация под телосложение\n"
         "💾 <b>Бэкап</b> — сохранение прогресса\n\n"
         "Команды:\n"
         "/start — 🥋 Открыть карту\n"
-        "/help — 📖 Помощь\n"
-        "/progress — 📊 Мой прогресс\n"
+        "/help —  Помощь\n"
+        "/progress —  Мой прогресс\n"
         "/reset — 🗑️ Сбросить прогресс",
         parse_mode="HTML"
     )
 
 # ---------- КОМАНДА /progress ----------
 @dp.message(Command("progress"))
+@dp.message(lambda message: message.text == "📊 Мой прогресс")
 async def cmd_progress(message: types.Message):
     user_id = str(message.from_user.id)
     
@@ -72,7 +87,6 @@ async def cmd_progress(message: types.Message):
         return
     
     try:
-        # Получаем прогресс из Supabase
         response = supabase.table('bjj_progress').select('progress').eq('telegram_id', user_id).single().execute()
         
         if response.data and response.data.get('progress'):
@@ -87,10 +101,7 @@ async def cmd_progress(message: types.Message):
                 f"📝 Всего отмечено: <b>{done + in_progress}</b>\n\n"
                 f"Открой приложение, чтобы увидеть детали 👇",
                 reply_markup=ReplyKeyboardMarkup(
-                    keyboard=[[KeyboardButton(
-                        text="🥋 Открыть карту",
-                        web_app=WebAppInfo(url=f"{WEB_APP_URL}?user_id={user_id}")
-                    )]],
+                    keyboard=[[KeyboardButton(text="🥋 Открыть карту", web_app=WebAppInfo(url=f"{WEB_APP_URL}?user_id={user_id}"))]],
                     resize_keyboard=True
                 ),
                 parse_mode="HTML"
@@ -100,10 +111,7 @@ async def cmd_progress(message: types.Message):
                 "📊 Пока нет сохранённого прогресса.\n\n"
                 "Открой приложение и начни отмечать техники!",
                 reply_markup=ReplyKeyboardMarkup(
-                    keyboard=[[KeyboardButton(
-                        text="🥋 Открыть карту",
-                        web_app=WebAppInfo(url=f"{WEB_APP_URL}?user_id={user_id}")
-                    )]],
+                    keyboard=[[KeyboardButton(text=" Открыть карту", web_app=WebAppInfo(url=f"{WEB_APP_URL}?user_id={user_id}"))]],
                     resize_keyboard=True
                 )
             )
@@ -113,13 +121,14 @@ async def cmd_progress(message: types.Message):
 
 # ---------- КОМАНДА /reset ----------
 @dp.message(Command("reset"))
+@dp.message(lambda message: message.text == "🗑️ Сбросить прогресс")
 async def cmd_reset(message: types.Message):
     user_id = str(message.from_user.id)
     
-    keyboard = types.InlineKeyboardMarkup(inline_keyboard=[
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [
-            types.InlineKeyboardButton(text="✅ Да, сбросить", callback_data="confirm_reset"),
-            types.InlineKeyboardButton(text="❌ Отмена", callback_data="cancel_reset")
+            InlineKeyboardButton(text="✅ Да, сбросить", callback_data="confirm_reset"),
+            InlineKeyboardButton(text="❌ Отмена", callback_data="cancel_reset")
         ]
     ])
     
