@@ -134,7 +134,29 @@
 
     <script>
         // Telegram WebApp
-        if (window.Telegram?.WebApp) {
+// Безопасная инициализация Telegram Web App
+if (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp) {
+    try {
+        window.Telegram.WebApp.ready();
+        window.Telegram.WebApp.expand();
+        window.Telegram.WebApp.setHeaderColor('#ffffff');
+        window.Telegram.WebApp.setBackgroundColor('#f1f5f9');
+        console.log('✅ Telegram Web App инициализирован');
+    } catch (err) {
+        console.error('Ошибка инициализации Telegram:', err);
+    }
+} else {
+    console.log('⚠️ Telegram Web App недоступен, работаем в браузере');
+}
+
+const triggerHaptic = (type = 'light') => { 
+    if (typeof window.Telegram !== 'undefined' && window.Telegram?.WebApp?.HapticFeedback) {
+        window.Telegram.WebApp.HapticFeedback.impactOccurred(type);
+    } else if (navigator.vibrate) {
+        const patterns = { light: 10, medium: 30, heavy: 50 };
+        navigator.vibrate(patterns[type] || 10);
+    }
+};
             try {
                 window.Telegram.WebApp.ready();
                 window.Telegram.WebApp.expand();
