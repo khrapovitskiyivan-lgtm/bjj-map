@@ -2,87 +2,1079 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <!-- Критически важно для мобильных: viewport-fit=cover для Safe Area -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
     <title>BJJ Map</title>
     
-    <!-- PWA Meta Tags -->
-    <meta name="theme-color" content="#667eea">
+    <meta name="theme-color" content="#3b82f6">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="BJJ Map">
     <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icons/icon-192.png">
-
-    <!-- Vis.js Network -->
-    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
     
-    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://visjs.github.io/vis-network/standalone/umd/vis-network.min.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <style>
+        * { 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            background-color: #f1f5f9; 
+            color: #1e293b; 
+            margin: 0;
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        
+        body.dark {
+            background-color: #0f172a;
+            color: #e2e8f0;
+        }
+        
+        #mynetwork { 
+            width: 100%; 
+            height: 60vh; 
+            min-height: 400px; 
+            background: white; 
+            border-radius: 16px; 
+            border: 1px solid #e2e8f0;
+            touch-action: none;
+        }
+        
+        body.dark #mynetwork {
+            background: #1e293b;
+            border-color: #334155;
+        }
+        
+        .node-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .filter-btn.active { background: #3b82f6; color: white; border-color: #3b82f6; }
+        .progress-btn { transition: all 0.2s; }
+        .progress-btn.active-not { background: #e2e8f0; color: #475569; border: 1px solid #cbd5e1; }
+        .progress-btn.active-progress { background: #fef3c7; color: #b45309; border: 1px solid #fcd34d; }
+        .progress-btn.active-done { background: #d1fae5; color: #047857; border: 1px solid #6ee7b7; }
+        .fade-in { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 3px; }
+        
+        body.dark ::-webkit-scrollbar-track { background: #1e293b; }
+        body.dark ::-webkit-scrollbar-thumb { background: #475569; }
+        
+        .rule-btn.active-rule { background: #0f172a; color: white; border-color: #0f172a; }
+        body.dark .rule-btn.active-rule { background: #3b82f6; border-color: #3b82f6; }
+        
+        .style-highlight { border: 2px solid #f59e0b; }
+        
+        .bottom-sheet-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            z-index: 998;
+        }
+        
+        .bottom-sheet-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .bottom-sheet {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 20px 20px 0 0;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 999;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding-bottom: max(20px, env(safe-area-inset-bottom));
+        }
+        
+        body.dark .bottom-sheet {
+            background: #1e293b;
+        }
+        
+        .bottom-sheet.active {
+            transform: translateY(0);
+        }
+        
+        .bottom-sheet-handle {
+            width: 40px;
+            height: 4px;
+            background: #cbd5e0;
+            border-radius: 2px;
+            margin: 12px auto;
+            cursor: grab;
+        }
+        
+        body.dark .bottom-sheet-handle {
+            background: #475569;
+        }
+        
+        .bottom-sheet-content {
+            padding: 0 20px 20px;
+        }
+        
+        .context-menu {
+            position: absolute;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            z-index: 1000;
+            min-width: 200px;
+            animation: contextMenuAppear 0.2s ease-out;
+        }
+        
+        body.dark .context-menu {
+            background: #1e293b;
+        }
+        
+        @keyframes contextMenuAppear {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        .context-menu button {
+            display: block;
+            width: 100%;
+            padding: 14px 16px;
+            border: none;
+            background: none;
+            text-align: left;
+            font-size: 16px;
+            cursor: pointer;
+            min-height: 48px;
+            color: #1e293b;
+        }
+        
+        body.dark .context-menu button {
+            color: #e2e8f0;
+        }
+        
+        .context-menu button:active {
+            background: #f1f5f9;
+        }
+        
+        body.dark .context-menu button:active {
+            background: #334155;
+        }
+        
+        body.dark header {
+            background: #1e293b;
+            border-color: #334155;
+        }
+        
+        body.dark .bg-white {
+            background: #1e293b;
+        }
+        
+        body.dark .bg-slate-100 {
+            background: #334155;
+        }
+        
+        body.dark .bg-slate-50 {
+            background: #334155;
+        }
+        
+        body.dark .text-slate-800 {
+            color: #e2e8f0;
+        }
+        
+        body.dark .text-slate-700 {
+            color: #cbd5e1;
+        }
+        
+        body.dark .text-slate-600 {
+            color: #94a3b8;
+        }
+        
+        body.dark .text-slate-500 {
+            color: #64748b;
+        }
+        
+        body.dark .border-slate-200 {
+            border-color: #334155;
+        }
+        
+        body.dark .border-slate-300 {
+            border-color: #475569;
+        }
+        
+        body.dark input {
+            background: #334155;
+            border-color: #475569;
+            color: #e2e8f0;
+        }
+        
+        body.dark input::placeholder {
+            color: #64748b;
+        }
+    </style>
 </head>
-<body>
-    <div class="app-container">
-        <!-- Верхняя панель управления -->
-        <header class="controls">
-            <div class="search-box">
-                <input type="text" id="searchInput" placeholder="🔍 Поиск техники...">
+<body class="min-h-screen flex flex-col">
+    <header class="p-4 bg-white shadow-sm border-b border-slate-200 sticky top-0 z-50">
+        <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-2">
+                <h1 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                    <span class="text-2xl">🥋</span> BJJ Map
+                </h1>
+                <button id="giToggleBtn" onclick="toggleGiFilter()" class="ml-2 px-3 py-1 rounded-full text-xs font-medium border transition active">Gi</button>
             </div>
-            
-            <!-- Горизонтальные чипсы для мобильных -->
-            <div class="filter-chips" id="filterChips">
-                <button class="chip active" data-filter="all">Все</button>
-                <button class="chip" data-filter="position">Позиции</button>
-                <button class="chip" data-filter="submission">Болевые</button>
-                <button class="chip" data-filter="guard">Гард</button>
-                <button class="chip" data-filter="pass">Проходы</button>
+            <div class="flex items-center gap-2">
+                <button onclick="toggleDarkMode()" class="w-8 h-8 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center text-slate-500 transition" title="Темная тема" id="themeToggle">🌙</button>
+                <button onclick="openStyleModal()" class="text-xs px-2 py-1 rounded-full bg-slate-100 hover:bg-slate-200 transition" title="Анкета стиля">🧑‍🎤 Стиль</button>
+                <button onclick="openInfoModal()" class="w-8 h-8 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center text-slate-500 transition" title="Информация">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                </button>
+                <div class="text-xs font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full" id="globalProgressText">0%</div>
             </div>
-
-            <div class="header-actions">
-                <button class="icon-btn" id="themeToggle" title="Темная тема">🌙</button>
-                <button class="icon-btn" id="shortcutsBtn" title="Горячие клавиши">⌨️</button>
-            </div>
-        </header>
-
-        <!-- Контейнер графа -->
-        <main id="mynetwork"></main>
-
-        <!-- Индикатор обновления (Pull to refresh) -->
-        <div class="pull-to-refresh" id="pullToRefresh">
-            <div class="spinner"></div>
-            <span>Обновление...</span>
         </div>
-    </div>
 
-    <!-- BOTTOM SHEET (Всплывающая панель снизу) -->
+        <div class="flex gap-2 overflow-x-auto pb-1 mb-2">
+            <button class="rule-btn active-rule whitespace-nowrap px-2 py-1 rounded-full bg-white border border-slate-300 text-xs font-medium" data-rule="none">Без ограничений</button>
+            <button class="rule-btn whitespace-nowrap px-2 py-1 rounded-full bg-white border border-slate-300 text-xs font-medium" data-rule="ibjjf_gi">IBJJF Gi</button>
+            <button class="rule-btn whitespace-nowrap px-2 py-1 rounded-full bg-white border border-slate-300 text-xs font-medium" data-rule="ibjjf_nogi">IBJJF No‑Gi</button>
+            <button class="rule-btn whitespace-nowrap px-2 py-1 rounded-full bg-white border border-slate-300 text-xs font-medium" data-rule="adcc">ADCC</button>
+        </div>
+
+        <div class="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+            <button class="filter-btn whitespace-nowrap px-3 py-1.5 rounded-full bg-white border border-slate-300 text-slate-700 font-medium text-sm" data-filter="position">Позиции</button>
+            <button class="filter-btn whitespace-nowrap px-3 py-1.5 rounded-full bg-white border border-slate-300 text-slate-700 font-medium text-sm" data-filter="transition">Переходы</button>
+            <button class="filter-btn whitespace-nowrap px-3 py-1.5 rounded-full bg-white border border-slate-300 text-slate-700 font-medium text-sm" data-filter="submission">Сабмишены</button>
+            <button id="styleFilterBtn" class="filter-btn whitespace-nowrap px-3 py-1.5 rounded-full bg-white border border-slate-300 text-slate-700 font-medium text-sm" onclick="toggleStyleFilter()">⭐ Мой стиль</button>
+        </div>
+
+        <div class="relative mt-3">
+            <input type="text" id="searchInput" placeholder="Поиск техники..." class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
+            <svg class="absolute right-3 top-3 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        </div>
+        <div class="w-full h-1.5 bg-slate-200 rounded-full mt-3 overflow-hidden"><div id="progressBar" class="h-full bg-emerald-500 rounded-full transition-all duration-500" style="width: 0%;"></div></div>
+    </header>
+    
+    <main class="flex-1 p-4 flex flex-col gap-4">
+        <div class="relative">
+            <div id="mynetwork"></div>
+            <div class="absolute bottom-3 right-3">
+                <button onclick="fitGraph()" class="w-10 h-10 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-600 shadow-sm active:scale-95 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
+                </button>
+            </div>
+        </div>
+    </main>
+
     <div class="bottom-sheet-overlay" id="bottomSheetOverlay"></div>
     <div class="bottom-sheet" id="bottomSheet">
-        <div class="bottom-sheet-handle"></div>
-        <div class="bottom-sheet-content" id="bottomSheetContent">
-            <!-- Контент загружается через JS -->
-        </div>
-    </div>
-
-    <!-- Контекстное меню (для long-press) -->
-    <div class="context-menu" id="contextMenu" style="display: none;">
-        <button id="ctxMarkDone">Отметить как изучено</button>
-        <button id="ctxMarkLearning">Изучаю</button>
-        <button id="ctxFocus">Сфокусировать</button>
-    </div>
-
-    <!-- Модальное окно горячих клавиш -->
-    <div class="modal-overlay" id="shortcutsModal" style="display: none;">
-        <div class="modal-content">
-            <button class="modal-close" id="closeShortcuts">×</button>
-            <h2>⌨️ Горячие клавиши</h2>
-            <div class="shortcuts-grid">
-                <div class="shortcut-item"><kbd>F</kbd> <span>Поиск</span></div>
-                <div class="shortcut-item"><kbd>Esc</kbd> <span>Закрыть / Сброс</span></div>
-                <div class="shortcut-item"><kbd>Ctrl+S</kbd> <span>Сохранить</span></div>
-                <div class="shortcut-item"><kbd>D</kbd> <span>Темная тема</span></div>
-                <div class="shortcut-item"><kbd>1/2/3</kbd> <span>Статус узла</span></div>
+        <div class="bottom-sheet-handle" id="bottomSheetHandle"></div>
+        <div class="bottom-sheet-content" id="nodeDetails">
+            <div class="text-center py-4 text-slate-400">
+                <svg class="w-10 h-10 mx-auto mb-2 opacity-50" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"/></svg>
+                <p class="text-sm">Нажмите на узел графа,<br>чтобы увидеть детали и отметить прогресс</p>
             </div>
         </div>
     </div>
 
-    <script src="main.js"></script>
-</body>
-</html>
+    <div class="context-menu" id="contextMenu" style="display: none;">
+        <button id="ctxMarkDone">✓ Отметить как изучено</button>
+        <button id="ctxMarkProgress">📚 В процессе</button>
+        <button id="ctxFocus">🔍 Сфокусировать</button>
+    </div>
+
+    <div id="styleModal" class="fixed inset-0 bg-black/20 backdrop-blur-sm z-[100] flex items-center justify-center hidden">
+        <div class="bg-white border border-slate-200 rounded-2xl w-11/12 max-w-md p-5 shadow-xl">
+            <h2 class="text-lg font-bold mb-3">Ваш стиль и телосложение</h2>
+            <div class="space-y-3 text-sm">
+                <label class="flex items-center gap-2"><input type="checkbox" id="styleFlex" class="accent-blue-500"> 🧘 Высокая гибкость</label>
+                <label class="flex items-center gap-2"><input type="checkbox" id="stylePressure" class="accent-blue-500"> 🦍 Давление / тяжёлый вес</label>
+                <label class="flex items-center gap-2"><input type="checkbox" id="styleLong" class="accent-blue-500"> 🕷️ Длинные конечности</label>
+                <label class="flex items-center gap-2"><input type="checkbox" id="styleSpeed" class="accent-blue-500"> ⚡ Взрывная скорость</label>
+            </div>
+            <div class="flex gap-2 mt-4">
+                <button onclick="saveStyleProfile()" class="flex-1 py-2 bg-blue-600 text-white rounded-xl font-medium">Сохранить</button>
+                <button onclick="closeStyleModal()" class="flex-1 py-2 bg-slate-100 rounded-xl font-medium">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="infoModal" class="fixed inset-0 bg-black/20 backdrop-blur-sm z-[100] flex items-center justify-center hidden">
+        <div class="bg-white border border-slate-200 rounded-2xl w-11/12 max-w-md max-h-[80vh] flex flex-col overflow-hidden shadow-xl">
+            <div class="flex border-b border-slate-200">
+                <button class="tab-btn flex-1 py-3 text-sm font-semibold text-slate-400 hover:text-slate-600" data-tab="0">О карте</button>
+                <button class="tab-btn flex-1 py-3 text-sm font-semibold text-slate-400 hover:text-slate-600" data-tab="1">Как пользоваться</button>
+                <button class="tab-btn flex-1 py-3 text-sm font-semibold text-slate-400 hover:text-slate-600" data-tab="2">Обозначения</button>
+            </div>
+            <div class="overflow-y-auto p-5 text-sm text-slate-700 space-y-4" id="modalContent"></div>
+            <button onclick="closeInfoModal()" class="m-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl text-slate-700 font-medium transition">Закрыть</button>
+        </div>
+    </div>
+
+    <script>
+        // Telegram Web App
+        if (window.Telegram?.WebApp) {
+            window.Telegram.WebApp.ready();
+            window.Telegram.WebApp.expand();
+            window.Telegram.WebApp.setHeaderColor('#ffffff');
+            window.Telegram.WebApp.setBackgroundColor('#f1f5f9');
+        }
+        
+        const triggerHaptic = (type = 'light') => { 
+            if (window.Telegram?.WebApp?.HapticFeedback) {
+                window.Telegram.WebApp.HapticFeedback.impactOccurred(type);
+            } else if (navigator.vibrate) {
+                const patterns = { light: 10, medium: 30, heavy: 50 };
+                navigator.vibrate(patterns[type] || 10);
+            }
+        };
+
+        // ================== SUPABASE CONFIG ==================
+        const SUPABASE_URL = 'https://mdsbxyzzmjnbjdzdpyqo.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1kc2J4eXp6bWpuYmpkemRweXFvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxMjQwMDAsImV4cCI6MjA4MDcwMDAwMH0.JQKz8vZqZqZqZqZqZqZqZqZqZqZqZqZqZqZqZqZqZq';
+        
+        async function syncProgressToServer(progress) {
+            try {
+                const telegramId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 'anonymous';
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/bjj_progress`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Prefer': 'resolution=merge-duplicates'
+                    },
+                    body: JSON.stringify({
+                        telegram_id: telegramId,
+                        progress: progress,
+                        updated_at: new Date().toISOString()
+                    })
+                });
+                console.log('Progress synced to server');
+            } catch (error) {
+                console.error('Failed to sync progress:', error);
+            }
+        }
+
+        async function loadProgressFromServer() {
+            try {
+                const telegramId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 'anonymous';
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/bjj_progress?telegram_id=eq.${telegramId}`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+                const data = await response.json();
+                if (data && data.length > 0) {
+                    return data[0].progress;
+                }
+            } catch (error) {
+                console.error('Failed to load progress from server:', error);
+            }
+            return null;
+        }
+
+        // ================== DATA ==================
+        const groups = {
+            position:   { color: { background: '#00BCD4' }, shape: 'dot', size: 25 },
+            submission: { color: { background: '#f44336' }, shape: 'triangle', size: 22 },
+            sweep:      { color: { background: '#FF9800' }, shape: 'square', size: 20 },
+            guard_pass: { color: { background: '#2196F3' }, shape: 'dot', size: 20 },
+            transition: { color: { background: '#9C27B0' }, shape: 'diamond', size: 18 },
+            escape:     { color: { background: '#795548' }, shape: 'dot', size: 18 },
+            takedown:   { color: { background: '#607D8B' }, shape: 'square', size: 20 }
+        };
+
+        const bjjNodesData = [
+            { id: 1, label: "Закрытый гард (снизу)", group: "position", title: "Закрытый гард (снизу) — Closed Guard (bottom)", desc: "Ноги обхватывают корпус соперника, таз поднят.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+            { id: 2, label: "Закрытый гард (сверху)", group: "position", title: "Закрытый гард (сверху) — Closed Guard (top)", desc: "Ты внутри чужого закрытого гарда, пытаешься вскрыть.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+            { id: 3, label: "Халф гард (снизу)", group: "position", title: "Халф гард (снизу) — Half Guard (bottom)", desc: "Захвачена одна нога соперника, контроль бедра.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+            { id: 4, label: "Халф гард (сверху)", group: "position", title: "Халф гард (сверху) — Half Guard (top)", desc: "Твоя нога захвачена, работа над проходом.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+            { id: 5, label: "Баттерфляй гард (снизу)", group: "position", title: "Баттерфляй гард (снизу) — Butterfly Guard (bottom)", desc: "Стопы на бёдрах, колени раскрыты.", belt: 'blue', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['speed'] },
+            { id: 6, label: "Баттерфляй гард (сверху)", group: "position", title: "Баттерфляй гард (сверху) — Butterfly Guard (top)", desc: "Противник в баттерфляе, ищешь проход.", belt: 'blue', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+            { id: 7, label: "Паук гард (снизу)", group: "position", title: "Паук гард (снизу) — Spider Guard (bottom)", desc: "Контроль рукавов и стоп на бицепсах.", belt: 'blue', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['long_limbs'] },
+            { id: 8, label: "Де ла Рива гард (снизу)", group: "position", title: "Де ла Рива гард (снизу) — De La Riva Guard (bottom)", desc: "Зацеп снаружи за бедро одноимённой ногой.", belt: 'blue', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['long_limbs'] },
+            { id: 9, label: "Обратный де ла Рива (снизу)", group: "position", title: "Обратный де ла Рива (снизу) — Reverse De La Riva (bottom)", desc: "Зацеп изнутри бедра.", belt: 'purple', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+            { id: 10, label: "X-гард (снизу)", group: "position", title: "X-гард (снизу) — X-Guard (bottom)", desc: "Ноги скрещены под противником.", belt: 'purple', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+            { id: 11, label: "50/50 (снизу)", group: "position", title: "50/50 (снизу) — 50/50 Guard (bottom)", desc: "Ноги переплетены, равные возможности.", belt: 'brown', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+            { id: 12, label: "Дип халф гард (снизу)", group: "position", title: "Дип халф гард (снизу) — Deep Half Guard (bottom)", desc: "Глубоко под корпус соперника.", belt: 'purple', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['flexibility'] },
+            { id: 13, label: "Сайд контроль (снизу)", group: "position", title: "Сайд контроль (снизу) — Side Control (bottom)", desc: "Лёжа на спине, противник сбоку.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+            { id: 14, label: "Сайд контроль (сверху)", group: "position", title: "Сайд контроль (сверху) — Side Control (top)", desc: "Удержание сбоку, давление грудью.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['pressure'] },
+            { id: 15, label: "Маунт (снизу)", group: "position", title: "Маунт (снизу) — Mount (bottom)", desc: "Соперник верхом.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+            { id: 16, label: "Маунт (сверху)", group: "position", title: "Маунт (сверху) — Mount (top)", desc: "Ты верхом на сопернике.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 4, tags: ['pressure'] },
+            { id: 17, label: "Бэк контроль (атака)", group: "position", title: "Бэк контроль (атака) — Back Mount (attacking)", desc: "Спина соперника, ноги в крючках.", belt: 'blue', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 4, tags: [] },
+            { id: 18, label: "Бэк контроль (защита)", group: "position", title: "Бэк контроль (защита) — Back Mount (defending)", desc: "Соперник взял твою спину.", belt: 'blue', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+            { id: 19, label: "Черепаха (сверху)", group: "position", title: "Черепаха (сверху) — Turtle (top)", desc: "Атакуешь соперника в черепахе.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['pressure'] },
+            { id: 20, label: "Черепаха (снизу)", group: "position", title: "Черепаха (снизу) — Turtle (bottom)", desc: "Защищаешься в положении на четвереньках.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+            { id: 21, label: "Стойка (борьба)", group: "position", title: "Стойка (борьба) — Standing", desc: "Борьба на ногах.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+            { id: 22, label: "Север-юг (сверху)", group: "position", title: "Север-юг (сверху) — North-South (top)", desc: "Удержание голова к голове.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['pressure'] },
+            { id: 23, label: "Север-юг (снизу)", group: "position", title: "Север-юг (снизу) — North-South (bottom)", desc: "Соперник держит в север-юг.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+            { id: 24, label: "Колено на животе (сверху)", group: "position", title: "Колено на животе (сверху) — Knee on Belly (top)", desc: "Колено на животе, давление.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ['pressure'] },
+            { id: 25, label: "Колено на животе (снизу)", group: "position", title: "Колено на животе (снизу) — Knee on Belly (bottom)", desc: "Соперник давит коленом.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+            { id: 30, label: "Рычаг локтя из гарда", group: "submission", title: "Рычаг локтя из гарда — Armbar from Guard", desc: "Захват руки, переворот, разгибание локтя.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+            { id: 31, label: "Треугольник из гарда", group: "submission", title: "Треугольник из гарда — Triangle from Guard", desc: "Удушение ногами через захват шеи и руки.", belt: 'blue', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['long_limbs'] },
+            { id: 32, label: "Кимура из гарда", group: "submission", title: "Кимура из гарда — Kimura from Guard", desc: "Болевой на плечо с захватом руки снизу.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+            { id: 33, label: "Омоплата из гарда", group: "submission", title: "Омоплата из гарда — Omoplata from Guard", desc: "Болевой на плечо, нога перекидывается через руку.", belt: 'blue', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['flexibility'] },
+            { id: 34, label: "Гильотина из гарда", group: "submission", title: "Гильотина из гарда — Guillotine from Guard", desc: "Удушение шеи предплечьем из гарда.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+            { id: 35, label: "Кросс-коллар чок из гарда", group: "submission", title: "Кросс-коллар чок из гарда — Cross Collar Choke from Guard", desc: "Удушение отворотами, скрещенные захваты.", belt: 'white', gi: true, noGi: false, legal_ibjjf_gi: true, legal_ibjjf_nogi: false, legal_adcc: true, points: 0, tags: [] },
+            { id: 36, label: "Иезекиль чок из гарда", group: "submission", title: "Иезекиль чок из гарда — Ezekiel Choke from Guard", desc: "Удушение кистью рукава внутри гарда.", belt: 'blue', gi: true, noGi: false, legal_ibjjf_gi: true, legal_ibjjf_nogi: false, legal_adcc: true, points: 0, tags: [] },
+            { id: 37, label: "Рычаг локтя с маунта", group: "submission", title: "Рычаг локтя с маунта — Armbar from Mount", desc: "Разгибание локтя из верхней позиции.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+            { id: 38, label: "Кросс-коллар чок с маунта", group: "submission", title: "Кросс-коллар чок с маунта — Cross Collar Choke from Mount", desc: "Удушение воротом из маунта.", belt: 'white', gi: true, noGi: false, legal_ibjjf_gi: true, legal_ibjjf_nogi: false, legal_adcc: true, points: 0, tags: [] },
+            { id: 39, label: "Американа с маунта", group: "submission", title: "Американа с маунта — Americana from Mount", desc: "Болевой ключ на плечо (V‑образный).", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+            { id: 40, label: "Треугольник руками с маунта", group: "submission", title: "Треугольник руками с маунта — Arm Triangle from Mount", desc: "Удушение плечом и рукой.", belt: 'blue', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+            { id: 41, label: "Рычаг локтя с бэка", group: "submission", title: "Рычаг локтя с бэка — Armbar from Back", desc: "Захват руки из-за спины и разгибание.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+            { id: 42, label: "Удушение сзади (RNC)", group: "submission", title: "Удушение сзади (RNC) — Rear Naked Choke", desc: "Классическое удушение сзади локтем.", belt: 'blue', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+            { id: 43, label: "Кимура с бэка", group: "submission", title: "Кимура с бэка — Kimura from Back", desc: "Болевой на плечо из-за спины.", belt: 'blue', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+            { id: 44, label: "Рычаг локтя с сайда", group: "submission", title: "Рычаг локтя с сайда — Armbar from Side Control", desc: "Захват ближней руки, выход на рычаг.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+            { id: 45, label: "Американа с сайда", group: "submission", title: "Американа с сайда — Americana from Side Control", desc: "Болевой на плечо ближней руки.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+            { id: 46, label: "Кимура с сайда", group: "submission", title: "Кимура с сайда — Kimura from Side Control", desc: "Захват дальней руки и болевой.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+            { id: 47, label: "Удушение север-юг", group: "submission", title: "Удушение север-юг — North-South Choke", desc: "Давление плечом на сонную артерию.", belt: 'blue', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+            { id: 48, label: "Гильотина стоя", group: "submission", title: "Гильотина стоя — Standing Guillotine", desc: "Удушение предплечьем в стойке.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+            { id: 49, label: "Прямой рычаг голеностопа", group: "submission", title: "Прямой рычаг голеностопа — Straight Ankle Lock", desc: "Выпрямление стопы, давление на ахилл.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+            { id: 50, label: "Рычаг колена", group: "submission", title: "Рычаг колена — Kneebar", desc: "Переразгибание коленного сустава.", belt: 'purple', gi: true, noGi: true, legal_ibjjf_gi: false, legal_ibjjf_nogi: false, legal_adcc: true, points: 0, tags: ['flexibility'] },
+            { id: 51, label: "Тое холд", group: "submission", title: "Тое холд — Toe Hold", desc: "Скручивание голеностопа.", belt: 'purple', gi: true, noGi: true, legal_ibjjf_gi: false, legal_ibjjf_nogi: false, legal_adcc: true, points: 0, tags: [] },
+            { id: 52, label: "Скручивание пятки", group: "submission", title: "Скручивание пятки — Heel Hook", desc: "Скручивание пятки, нагрузка на колено.", belt: 'brown', gi: true, noGi: true, legal_ibjjf_gi: false, legal_ibjjf_nogi: false, legal_adcc: true, points: 0, tags: [] },
+            { id: 53, label: "Эзекиэль чок с сайда", group: "submission", title: "Эзекиэль чок с сайда — Ezekiel Choke from Side", desc: "Удушение рукавом из удержания сбоку.", belt: 'blue', gi: true, noGi: false, legal_ibjjf_gi: true, legal_ibjjf_nogi: false, legal_adcc: true, points: 0, tags: [] },
+            { id: 54, label: "Ущемление бицепса", group: "submission", title: "Ущемление бицепса — Bicep Slicer", desc: "Сдавливание бицепса между голенью и бедром.", belt: 'brown', gi: true, noGi: true, legal_ibjjf_gi: false, legal_ibjjf_nogi: false, legal_adcc: true, points: 0, tags: [] },
+            { id: 55, label: "Лук и стрела", group: "submission", title: "Лук и стрела — Bow and Arrow Choke", desc: "Воротниковый чок с бэка.", belt: 'blue', gi: true, noGi: false, legal_ibjjf_gi: true, legal_ibjjf_nogi: false, legal_adcc: true, points: 0, tags: [] },
+            { id: 56, label: "Петля", group: "submission", title: "Петля — Loop Choke", desc: "Удушение отворотом, петля через голову.", belt: 'blue', gi: true, noGi: false, legal_ibjjf_gi: true, legal_ibjjf_nogi: false, legal_adcc: true, points: 0, tags: [] },
+            { id: 57, label: "Д'Арс чок", group: "submission", title: "Д'Арс чок — D'Arce Choke", desc: "Удушение рукой через подмышку и шею.", belt: 'purple', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+            { id: 58, label: "Анаконда чок", group: "submission", title: "Анаконда чок — Anaconda Choke", desc: "Удушение рукой с захватом своей руки.", belt: 'purple', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+            { id: 59, label: "Японский узел", group: "submission", title: "Японский узел — Peruvian Necktie", desc: "Удушение ногой и захватом головы.", belt: 'purple', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['speed'] },
+            { id: 70, label: "Свип «ножницы»", group: "sweep", title: "Свип «ножницы» — Scissor Sweep", desc: "Сбивание соперника скрестным движением ног.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: [] },
+            { id: 71, label: "Свип «цветок»", group: "sweep", title: "Свип «цветок» — Flower Sweep", desc: "Переворот через плечо с захватом ноги.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: [] },
+            { id: 72, label: "Свип «хип-бамп»", group: "sweep", title: "Свип «хип-бамп» — Hip Bump Sweep", desc: "Подбив тазом и переворот.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ['speed'] },
+            { id: 73, label: "Свип из баттерфляя", group: "sweep", title: "Свип из баттерфляя — Butterfly Sweep", desc: "Подъём таза и переворот вперёд.", belt: 'blue', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ['speed'] },
+            { id: 74, label: "Свип из X-гарда (вставание)", group: "sweep", title: "Свип из X-гарда (вставание) — Technical Stand-up Sweep", desc: "Выход в стойку из X-гарда.", belt: 'purple', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: [] },
+            { id: 75, label: "Паук-свип ножницы", group: "sweep", title: "Паук-свип ножницы — Spider Scissor Sweep", desc: "Скрестный свип из паука.", belt: 'blue', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ['long_limbs'] },
+            { id: 76, label: "Свип «тренога»", group: "sweep", title: "Свип «тренога» — Tripod Sweep", desc: "Сбивание назад через блокировку колена.", belt: 'blue', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: [] },
+            { id: 77, label: "Свип из X-гарда в стойку", group: "sweep", title: "Свип из X-гарда в стойку — X-Guard Standing Sweep", desc: "Переворот с поднятием соперника.", belt: 'purple', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: [] },
+            { id: 78, label: "Свип «старая школа»", group: "sweep", title: "Свип «старая школа» — Old School Sweep", desc: "Захват бедра и переворот на маунт.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: [] },
+            { id: 79, label: "Свип «поцелуй дракона»", group: "sweep", title: "Свип «поцелуй дракона» — Kiss of the Dragon", desc: "Выход на спину из RDLR.", belt: 'purple', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ['flexibility'] },
+            { id: 80, label: "Свип из глубокого полугарда", group: "sweep", title: "Свип из глубокого полугарда — Deep Half Sweep", desc: "Переворот Бернардо Фария.", belt: 'purple', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ['flexibility'] },
+            { id: 90, label: "Knee slice pass", group: "guard_pass", title: "Knee slice pass", desc: "Проход через колено в полугарде.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 3, tags: ['pressure'] },
+            { id: 91, label: "Double under pass", group: "guard_pass", title: "Double under pass", desc: "Проход с захватом двух ног под плечи.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 3, tags: ['pressure'] },
+            { id: 92, label: "Over-under pass", group: "guard_pass", title: "Over-under pass", desc: "Проход накладыванием корпуса (Сан-Паулу).", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 3, tags: ['pressure'] },
+            { id: 93, label: "Toreando pass", group: "guard_pass", title: "Toreando pass", desc: "Быстрый проход с разбросом ног.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 3, tags: ['speed'] },
+            { id: 94, label: "Leg drag pass", group: "guard_pass", title: "Leg drag pass", desc: "Протаскивание ноги в сторону.", belt: 'purple', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 3, tags: [] },
+            { id: 95, label: "Long step pass", group: "guard_pass", title: "Long step pass", desc: "Проход длинным шагом.", belt: 'purple', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 3, tags: [] },
+            { id: 96, label: "Smash pass", group: "guard_pass", title: "Smash pass", desc: "Раздавливание полугарда.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 3, tags: ['pressure'] },
+            { id: 97, label: "Knee over pass", group: "guard_pass", title: "Knee over pass", desc: "Перешагивание через колено.", belt: 'blue', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 3, tags: [] },
+            { id: 98, label: "X-pass", group: "guard_pass", title: "X-pass", desc: "Проход с разрывом X-гарда.", belt: 'purple', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 3, tags: [] },
+            { id: 99, label: "Стекинг пасс", group: "guard_pass", title: "Стекинг пасс — Stacking Pass", desc: "Складывание противника и обход ног.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 3, tags: ['pressure'] },
+            { id: 100, label: "Backstep pass", group: "guard_pass", title: "Backstep pass", desc: "Обратный заступ в седло.", belt: 'brown', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 3, tags: ['flexibility'] },
+            { id: 110, label: "Выход в открытый гард", group: "transition", title: "Выход в открытый гард — Open Guard Transition", desc: "Постановка стоп на бёдра.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+            { id: 111, label: "Закрытый → баттерфляй", group: "transition", title: "Закрытый → баттерфляй — Closed to Butterfly", desc: "Смена гарда на баттерфляй.", belt: 'blue', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['speed'] },
+            { id: 112, label: "Закрытый → паук гард", group: "transition", title: "Закрытый → паук гард — Closed to Spider", desc: "Переход на паук гард.", belt: 'blue', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['long_limbs'] },
+            { id: 113, label: "Сайд → маунт", group: "transition", title: "Сайд → маунт — Side to Mount", desc: "Подъём колена в маунт.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['pressure'] },
+            { id: 114, label: "Маунт → бэк (gift wrap)", group: "transition", title: "Маунт → бэк (gift wrap) — Gift Wrap to Back", desc: "Захват руки и заход за спину.", belt: 'blue', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+            { id: 115, label: "Сайд → бэк (chair sit)", group: "transition", title: "Сайд → бэк (chair sit) — Chair Sit to Back", desc: "Заход на спину из удержания сбоку.", belt: 'blue', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+            { id: 116, label: "Черепаха → бэк", group: "transition", title: "Черепаха → бэк — Turtle to Back", desc: "Забор спины из черепахи.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+            { id: 117, label: "Спин в рычаг локтя", group: "transition", title: "Спин в рычаг локтя — Spin Under Armbar", desc: "Переворот под рычаг локтя.", belt: 'blue', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['flexibility'] },
+            { id: 118, label: "Полугард → бэк", group: "transition", title: "Полугард → бэк — Half Guard to Back", desc: "Выход на спину из нижнего полугарда.", belt: 'blue', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+            { id: 119, label: "X-гард → прямой рычаг", group: "transition", title: "X-гард → прямой рычаг — X-Guard to Ankle Lock", desc: "Переход на голеностоп.", belt: 'purple', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+            { id: 130, label: "Вставание из закрытого гарда", group: "escape", title: "Вставание из закрытого гарда — Standing Break", desc: "Открытие гарда в стойке.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+            { id: 131, label: "Upa escape из маунта", group: "escape", title: "Upa escape из маунта — Upa Escape", desc: "Мост и сброс соперника.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+            { id: 132, label: "Локтевой выход из маунта", group: "escape", title: "Локтевой выход из маунта — Elbow Escape", desc: "Протискивание локтя, уход в полугард.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+            { id: 133, label: "Креветка из сайда", group: "escape", title: "Креветка из сайда — Shrimp Escape", desc: "Выход креветкой, восстановление гарда.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+            { id: 134, label: "Защита из бэка", group: "escape", title: "Защита из бэка — Back Escape", desc: "Сброс крючков, уход плечами.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+            { id: 135, label: "Защита от треугольника", group: "escape", title: "Защита от треугольника — Triangle Defense", desc: "Стойка и складывание.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+            { id: 136, label: "Выход из рычага локтя", group: "escape", title: "Выход из рычага локтя — Hitchhiker Escape", desc: "Вращение руки через голову.", belt: 'blue', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+            { id: 137, label: "Выход из скручивания пятки", group: "escape", title: "Выход из скручивания пятки — Heel Hook Escape", desc: "Раскрутка, уход пятки.", belt: 'brown', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+            { id: 150, label: "Двойной проход", group: "takedown", title: "Двойной проход — Double Leg Takedown", desc: "Проход в обе ноги.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ['speed'] },
+            { id: 151, label: "Одинарный проход", group: "takedown", title: "Одинарный проход — Single Leg Takedown", desc: "Захват одной ноги.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: [] },
+            { id: 152, label: "Бросок через бедро", group: "takedown", title: "Бросок через бедро — Hip Throw (O Goshi)", desc: "Бросок через бедро.", belt: 'blue', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ['pressure'] },
+            { id: 153, label: "Учи мата", group: "takedown", title: "Учи мата — Uchi Mata", desc: "Бросок подхватом изнутри.", belt: 'blue', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ['speed'] },
+            { id: 154, label: "Низкий сингл", group: "takedown", title: "Низкий сингл — Low Single", desc: "Захват голеностопа.", belt: 'purple', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ['speed'] },
+            { id: 155, label: "Бросок захватом корпуса", group: "takedown", title: "Бросок захватом корпуса — Body Lock Takedown", desc: "Бросок за счёт захвата туловища.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ['pressure'] },
+            { id: 200, label: "Иезекиль чок из маунта", group: "submission", title: "Иезекиль чок из маунта — Ezekiel Choke from Mount", desc: "Удушение рукавом из маунта.", belt: 'blue', gi: true, noGi: false, legal_ibjjf_gi: true, legal_ibjjf_nogi: false, legal_adcc: true, points: 0, tags: [] },
+            { id: 201, label: "Paper cutter choke", group: "submission", title: "Paper cutter choke", desc: "Удушение отворотом из сайда, режущее движение.", belt: 'blue', gi: true, noGi: false, legal_ibjjf_gi: true, legal_ibjjf_nogi: false, legal_adcc: true, points: 0, tags: [] },
+            { id: 202, label: "Baseball bat choke", group: "submission", title: "Baseball bat choke", desc: "Удушение отворотами с вращением.", belt: 'purple', gi: true, noGi: false, legal_ibjjf_gi: true, legal_ibjjf_nogi: false, legal_adcc: true, points: 0, tags: [] },
+            { id: 203, label: "Clock choke", group: "submission", title: "Clock choke", desc: "Удушение из черепахи с захватом ворота.", belt: 'blue', gi: true, noGi: false, legal_ibjjf_gi: true, legal_ibjjf_nogi: false, legal_adcc: true, points: 0, tags: [] },
+            { id: 204, label: "Brabo choke", group: "submission", title: "Brabo choke", desc: "Удушение отворотом из полугарда/сайда.", belt: 'purple', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+            { id: 300, label: "Single Leg X", group: "position", title: "Single Leg X (SLX)", desc: "Контроль одной ноги с зацепом изнутри. База для атак на ноги.", belt: 'purple', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+            { id: 301, label: "Collar-Sleeve", group: "position", title: "Collar-Sleeve Guard", desc: "Контроль воротника и рукава. Классическая ги-база для атак.", belt: 'white', gi: true, noGi: false, legal_ibjjf_gi: true, legal_ibjjf_nogi: false, legal_adcc: true, points: 0, tags: [] },
+            { id: 302, label: "Worm Guard", group: "transition", title: "Worm Guard", desc: "Использование пояса для контроля и создания сложных связок и свипов.", belt: 'brown', gi: true, noGi: false, legal_ibjjf_gi: true, legal_ibjjf_nogi: false, legal_adcc: true, points: 0, tags: ['flexibility'] },
+            { id: 303, label: "Inverted Guard", group: "position", title: "Inverted Guard", desc: "Защита через переворот вверх ногами. База для беримболо и торнадо.", belt: 'purple', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['flexibility'] },
+            { id: 304, label: "Estima Lock", group: "submission", title: "Estima Lock", desc: "Узел стопы. Альтернативный финиш на ногу из 50/50 или Аши Гарами.", belt: 'brown', gi: true, noGi: true, legal_ibjjf_gi: false, legal_ibjjf_nogi: false, legal_adcc: true, points: 0, tags: [] },
+            { id: 305, label: "Аши Гарами", group: "transition", title: "Аши Гарами — Ashi Garami", desc: "Контроль ноги (Entanglement). Ключевая позиция для атак на пятку.", belt: 'brown', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] }
+        ];
+
+        const bjjEdgesData = [
+            { from: 1, to: 30, trigger: "Соперник отклоняется назад" },
+            { from: 1, to: 31, trigger: "Соперник давит вниз" },
+            { from: 1, to: 32, trigger: "Соперник ставит руку на ковёр" },
+            { from: 1, to: 34, trigger: "Соперник встаёт" },
+            { from: 1, to: 35, trigger: "Соперник открывает ворот" },
+            { from: 1, to: 70, trigger: "Соперник давит вперёд" },
+            { from: 1, to: 71, trigger: "Соперник давит вниз" },
+            { from: 1, to: 72, trigger: "Соперник сидит ровно" },
+            { from: 1, to: 110, trigger: "Соперник встаёт" },
+            { from: 1, to: 111, trigger: "Соперник отступает" },
+            { from: 1, to: 112, trigger: "Соперник тянет назад" },
+            { from: 1, to: 33, trigger: "Рука соперника на ковре" },
+            { from: 1, to: 36, trigger: "Соперник давит вниз" },
+            { from: 1, to: 117, trigger: "Соперник прячет руку" },
+            { from: 2, to: 130, trigger: "Соперник держит гард" },
+            { from: 2, to: 99, trigger: "Соперник слабый корпус" },
+            { from: 2, to: 91, trigger: "Соперник поднимает бёдра" },
+            { from: 2, to: 92, trigger: "Соперник держит голову" },
+            { from: 3, to: 78, trigger: "Соперник давит вперёд" },
+            { from: 3, to: 79, trigger: "Соперник отступает" },
+            { from: 3, to: 118, trigger: "Соперник поднимает ногу" },
+            { from: 3, to: 46, trigger: "Соперник оставляет руку" },
+            { from: 3, to: 34, trigger: "Соперник встаёт" },
+            { from: 3, to: 80, trigger: "Соперник давит вниз" },
+            { from: 4, to: 96 }, { from: 4, to: 90 }, { from: 4, to: 95 }, { from: 4, to: 204 },
+            { from: 5, to: 73, trigger: "Соперник давит вниз" },
+            { from: 5, to: 74, trigger: "Соперник отступает" },
+            { from: 5, to: 30, trigger: "Соперник выставляет руку" },
+            { from: 5, to: 31, trigger: "Соперник давит вперёд" },
+            { from: 5, to: 48, trigger: "Соперник встаёт" },
+            { from: 6, to: 97 }, { from: 6, to: 93 }, { from: 6, to: 94 },
+            { from: 7, to: 75, trigger: "Соперник давит вниз" },
+            { from: 7, to: 31, trigger: "Соперник тянет назад" },
+            { from: 7, to: 33, trigger: "Соперник открывает локоть" },
+            { from: 7, to: 112, trigger: "Соперник отступает" },
+            { from: 8, to: 76, trigger: "Соперник давит вперёд" },
+            { from: 8, to: 17, trigger: "Соперник отступает" },
+            { from: 8, to: 9, trigger: "Соперник поворачивается" },
+            { from: 9, to: 79, trigger: "Соперник давит вниз" },
+            { from: 9, to: 17, trigger: "Соперник открывает спину" },
+            { from: 9, to: 49, trigger: "Соперник выпрямляет ногу" },
+            { from: 10, to: 77, trigger: "Соперник давит вперёд" },
+            { from: 10, to: 119, trigger: "Соперник поднимает ногу" },
+            { from: 10, to: 49, trigger: "Соперник выставляет стопу" },
+            { from: 10, to: 50, trigger: "Соперник выпрямляет ногу" },
+            { from: 10, to: 14 }, { from: 10, to: 16 },
+            { from: 11, to: 49, trigger: "Соперник выпрямляет ногу" },
+            { from: 11, to: 50, trigger: "Соперник разворачивается" },
+            { from: 11, to: 51, trigger: "Соперник ставит стопу" },
+            { from: 11, to: 52, trigger: "Соперник открывает пятку" },
+            { from: 11, to: 136, trigger: "Соперник держит ногу" },
+            { from: 12, to: 80, trigger: "Соперник давит вниз" },
+            { from: 12, to: 16 }, { from: 12, to: 14 },
+            { from: 13, to: 133 }, { from: 13, to: 3 }, { from: 13, to: 1 },
+            { from: 14, to: 44, trigger: "Соперник выставляет руку" },
+            { from: 14, to: 45, trigger: "Соперник прижимает локоть" },
+            { from: 14, to: 46, trigger: "Соперник открывает дальнюю руку" },
+            { from: 14, to: 53, trigger: "Соперник давит вниз" },
+            { from: 14, to: 201 }, { from: 14, to: 57 }, { from: 14, to: 58 },
+            { from: 14, to: 113, trigger: "Соперник пытается выйти" },
+            { from: 14, to: 115, trigger: "Соперник поворачивается" },
+            { from: 14, to: 24, trigger: "Соперник поднимает ногу" },
+            { from: 14, to: 22, trigger: "Соперник отворачивается" },
+            { from: 15, to: 131 }, { from: 15, to: 132 }, { from: 15, to: 3 },
+            { from: 16, to: 37, trigger: "Соперник выставляет руку" },
+            { from: 16, to: 38, trigger: "Соперник открывает ворот" },
+            { from: 16, to: 39, trigger: "Соперник прижимает локоть" },
+            { from: 16, to: 40, trigger: "Соперник давит снизу" },
+            { from: 16, to: 200, trigger: "Соперник закрывает шею" },
+            { from: 16, to: 114, trigger: "Соперник переворачивается" },
+            { from: 16, to: 14, trigger: "Соперник сбрасывает" },
+            { from: 17, to: 42, trigger: "Соперник открывает шею" },
+            { from: 17, to: 41, trigger: "Соперник выставляет руку" },
+            { from: 17, to: 55, trigger: "Соперник держит ворот" },
+            { from: 17, to: 43, trigger: "Соперник защищает шею" },
+            { from: 17, to: 16, trigger: "Соперник выходит" },
+            { from: 18, to: 134 }, { from: 18, to: 17 },
+            { from: 19, to: 116, trigger: "Соперник поднимает голову" },
+            { from: 19, to: 203, trigger: "Соперник открывает ворот" },
+            { from: 19, to: 24, trigger: "Соперник выпрямляется" },
+            { from: 20, to: 134 }, { from: 20, to: 3 },
+            { from: 21, to: 150, trigger: "Соперник стоит прямо" },
+            { from: 21, to: 151, trigger: "Соперник выставляет ногу" },
+            { from: 21, to: 155, trigger: "Соперник в клинче" },
+            { from: 21, to: 152, trigger: "Соперник давит вперёд" },
+            { from: 21, to: 153, trigger: "Соперник тянет" },
+            { from: 21, to: 154, trigger: "Соперник далеко" },
+            { from: 21, to: 48, trigger: "Соперник опускает голову" },
+            { from: 22, to: 47, trigger: "Соперник поднимает подбородок" },
+            { from: 22, to: 14, trigger: "Соперник выходит" },
+            { from: 23, to: 133 }, { from: 23, to: 13 },
+            { from: 24, to: 113, trigger: "Соперник пытается выйти" },
+            { from: 24, to: 202 }, { from: 24, to: 14 },
+            { from: 25, to: 133 },
+            { from: 150, to: 14 }, { from: 151, to: 14 }, { from: 155, to: 14 },
+            { from: 152, to: 14 }, { from: 153, to: 14 }, { from: 154, to: 14 },
+            { from: 70, to: 16 }, { from: 71, to: 16 }, { from: 72, to: 16 },
+            { from: 73, to: 14 }, { from: 74, to: 14 }, { from: 75, to: 16 },
+            { from: 76, to: 14 }, { from: 77, to: 14 }, { from: 78, to: 16 },
+            { from: 79, to: 17 }, { from: 80, to: 16 },
+            { from: 110, to: 5 }, { from: 110, to: 7 }, { from: 110, to: 8 }, { from: 110, to: 9 },
+            { from: 116, to: 17 }, { from: 117, to: 30 }, { from: 118, to: 17 }, { from: 119, to: 49 },
+            { from: 31, to: 135 }, { from: 30, to: 136 }, { from: 52, to: 137 },
+            { from: 90, to: 14 }, { from: 91, to: 14 }, { from: 92, to: 14 },
+            { from: 93, to: 14 }, { from: 94, to: 14 }, { from: 95, to: 14 },
+            { from: 96, to: 14 }, { from: 97, to: 14 }, { from: 98, to: 14 }, { from: 100, to: 17 },
+            { from: 14, to: 59 }, { from: 19, to: 58 }, { from: 4, to: 57 },
+            { from: 1, to: 56 }, { from: 14, to: 56 },
+            { from: 31, to: 33, trigger: "Соперник прячет руку" },
+            { from: 31, to: 30, trigger: "Соперник выпрямляет руку" },
+            { from: 33, to: 14 }, { from: 30, to: 14 }, { from: 37, to: 14 },
+            { from: 31, to: 14 }, { from: 46, to: 17 }, { from: 48, to: 1 },
+            { from: 49, to: 14 }, { from: 10, to: 11 }, { from: 12, to: 3 },
+            { from: 70, to: 14 }, { from: 71, to: 14 }, { from: 90, to: 16 }, { from: 92, to: 16 },
+            { from: 47, to: 14 }, { from: 19, to: 57 }, { from: 14, to: 204 },
+            { from: 18, to: 20 }, { from: 25, to: 3 },
+            { from: 131, to: 1 }, { from: 132, to: 3 }, { from: 133, to: 1 },
+            { from: 134, to: 1 }, { from: 137, to: 11 }, { from: 136, to: 13 },
+            { from: 130, to: 110 }, { from: 15, to: 1 }, { from: 34, to: 1 },
+            { from: 36, to: 14 }, { from: 40, to: 14 }, { from: 44, to: 16 },
+            { from: 53, to: 14 }, { from: 54, to: 14 }, { from: 59, to: 14 },
+            { from: 74, to: 16 }, { from: 78, to: 49 }, { from: 80, to: 14 },
+            { from: 99, to: 14 }, { from: 100, to: 14 },
+            { from: 300, to: 52, trigger: "Соперник открывает пятку" },
+            { from: 300, to: 49, trigger: "Соперник выпрямляет ногу" },
+            { from: 301, to: 302, trigger: "Соперник давит вниз" },
+            { from: 302, to: 9, trigger: "Соперник отступает" },
+            { from: 9, to: 17, trigger: "Соперник открывает спину" },
+            { from: 90, to: 24, trigger: "Соперник поднимает ногу" },
+            { from: 24, to: 40, trigger: "Соперник давит снизу" },
+            { from: 303, to: 31, trigger: "Соперник давит вниз" },
+            { from: 303, to: 17, trigger: "Соперник отступает" },
+            { from: 11, to: 304, trigger: "Соперник разворачивает стопу" },
+            { from: 305, to: 304, trigger: "Соперник выпрямляет ногу" },
+            { from: 11, to: 305, trigger: "Соперник заходит в 50/50" }
+        ];
+
+        // ================== VIS.JS ==================
+        const nodes = new vis.DataSet(bjjNodesData.map(n => ({
+            id: n.id, label: n.label, group: n.group, title: n.title, desc: n.desc, belt: n.belt,
+            gi: n.gi, noGi: n.noGi, legal_ibjjf_gi: n.legal_ibjjf_gi, legal_ibjjf_nogi: n.legal_ibjjf_nogi,
+            legal_adcc: n.legal_adcc, points: n.points, tags: n.tags
+        })));
+        const edges = new vis.DataSet(bjjEdgesData);
+        const container = document.getElementById('mynetwork');
+        const network = new vis.Network(container, { nodes, edges }, {
+            groups,
+            nodes: {
+                size: window.innerWidth < 768 ? 28 : 22,
+                font: {
+                    size: window.innerWidth < 768 ? 14 : 12,
+                    color: '#ffffff',
+                    strokeWidth: 3,
+                    strokeColor: '#000000'
+                }
+            },
+            edges: { 
+                arrows: { to: { enabled: true, scaleFactor: 0.8 } }, 
+                font: { size: 0 }, 
+                color: '#cbd5e1',
+                width: 2,
+                selectionWidth: 4
+            },
+            physics: { 
+                solver: 'forceAtlas2Based', 
+                forceAtlas2Based: { gravitationalConstant: -50 },
+                stabilization: { iterations: 150 }
+            },
+            interaction: { 
+                hover: true,
+                dragNodes: true,
+                dragView: true,
+                zoomView: true,
+                navigationButtons: false,
+                keyboard: false
+            }
+        });
+
+        // ================== PROGRESS ==================
+        const STORAGE_KEY = 'bjj_learned_v3';
+        let progress = {};
+        
+        const getProgress = () => progress;
+        
+        const setProgress = async (id, status) => { 
+            progress[id] = status; 
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+            await syncProgressToServer(progress);
+            updateGlobalProgress(); 
+            updateNodeColors(); 
+            triggerHaptic('light'); 
+        };
+
+        async function initProgress() {
+            const serverProgress = await loadProgressFromServer();
+            if (serverProgress) {
+                progress = serverProgress;
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+            } else {
+                progress = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+            }
+            updateGlobalProgress();
+            updateNodeColors();
+        }
+
+        function updateNodeColors() {
+            const learnedSet = new Set(Object.keys(progress).filter(id => progress[id] === 'done'));
+            const availableSet = new Set();
+            edges.forEach(edge => {
+                if (learnedSet.has(String(edge.from)) && !learnedSet.has(String(edge.to))) availableSet.add(edge.to);
+                if (learnedSet.has(String(edge.to)) && !learnedSet.has(String(edge.from))) availableSet.add(edge.from);
+            });
+            nodes.forEach(node => {
+                const status = progress[node.id] || 'not_started';
+                let color;
+                if (status === 'done') color = { background: '#4CAF50', border: '#2E7D32' };
+                else if (status === 'in_progress') color = { background: '#f59e0b', border: '#d97706' };
+                else if (availableSet.has(node.id)) color = { background: '#FFC107', border: '#FF9800' };
+                else { 
+                    const orig = groups[node.group]?.color?.background || '#ccc'; 
+                    color = { background: orig, opacity: 0.6 }; 
+                }
+                nodes.update({ id: node.id, color });
+            });
+        }
+
+        function updateGlobalProgress() {
+            const total = bjjNodesData.length;
+            const done = Object.values(progress).filter(v => v === 'done').length;
+            const percent = Math.round((done / total) * 100);
+            document.getElementById('globalProgressText').textContent = `${percent}%`;
+            document.getElementById('progressBar').style.width = `${percent}%`;
+        }
+
+        // ================== BOTTOM SHEET ==================
+        class BottomSheet {
+            constructor() {
+                this.sheet = document.getElementById('bottomSheet');
+                this.content = document.getElementById('nodeDetails');
+                this.overlay = document.getElementById('bottomSheetOverlay');
+                this.handle = document.getElementById('bottomSheetHandle');
+                this.startY = 0;
+                this.isDragging = false;
+
+                this.handle.addEventListener('touchstart', (e) => this.startDrag(e));
+                document.addEventListener('touchmove', (e) => this.onDrag(e));
+                document.addEventListener('touchend', () => this.endDrag());
+                this.overlay.addEventListener('click', () => this.hide());
+            }
+
+            show() {
+                this.sheet.classList.add('active');
+                this.overlay.classList.add('active');
+                triggerHaptic('medium');
+            }
+
+            hide() {
+                this.sheet.classList.remove('active');
+                this.overlay.classList.remove('active');
+                this.sheet.style.transform = '';
+                triggerHaptic('light');
+            }
+
+            startDrag(e) {
+                this.startY = e.touches[0].clientY;
+                this.isDragging = true;
+            }
+
+            onDrag(e) {
+                if (!this.isDragging) return;
+                const diff = e.touches[0].clientY - this.startY;
+                if (diff > 0) {
+                    this.sheet.style.transform = `translateY(${diff}px)`;
+                }
+            }
+
+            endDrag() {
+                if (!this.isDragging) return;
+                this.isDragging = false;
+                const currentTransform = this.sheet.style.transform;
+                const diff = currentTransform ? parseInt(currentTransform.replace('translateY(', '').replace('px)', '')) : 0;
+                
+                if (diff > 100) {
+                    this.hide();
+                } else {
+                    this.sheet.style.transform = '';
+                }
+            }
+        }
+
+        const bottomSheet = new BottomSheet();
+
+        // ================== GI / NO‑GI TOGGLE ==================
+        let giFilterState = 'gi';
+        const giToggleBtn = document.getElementById('giToggleBtn');
+        function updateGiButtonUI() {
+            if (giFilterState === 'gi') {
+                giToggleBtn.textContent = 'Gi';
+                giToggleBtn.classList.add('active');
+            } else {
+                giToggleBtn.textContent = 'No‑Gi';
+                giToggleBtn.classList.remove('active');
+            }
+        }
+        window.toggleGiFilter = () => {
+            giFilterState = giFilterState === 'gi' ? 'nogi' : 'gi';
+            updateGiButtonUI();
+            applyAllFilters();
+            triggerHaptic('light');
+        };
+
+        // ================== FILTERS ==================
+        let currentCategoryFilter = null;
+        let currentRule = 'none';
+        let styleFilterActive = false;
+        let styleProfile = JSON.parse(localStorage.getItem('bjj_style_profile') || '{}');
+
+        function applyAllFilters() {
+            nodes.forEach(n => nodes.update({ id: n.id, hidden: true }));
+            nodes.forEach(n => {
+                const passCategory = (currentCategoryFilter === null || n.group === currentCategoryFilter);
+                if (!passCategory) return;
+                const passGi = (giFilterState === 'gi' && n.gi) || (giFilterState === 'nogi' && n.noGi);
+                if (!passGi) return;
+                let passRule = true;
+                if (currentRule === 'ibjjf_gi') passRule = n.legal_ibjjf_gi;
+                else if (currentRule === 'ibjjf_nogi') passRule = n.legal_ibjjf_nogi;
+                else if (currentRule === 'adcc') passRule = n.legal_adcc;
+                if (!passRule) {
+                    nodes.update({ id: n.id, hidden: false, opacity: 0.4 });
+                    return;
+                }
+                nodes.update({ id: n.id, hidden: false, opacity: 1.0 });
+            });
+            if (styleFilterActive && Object.keys(styleProfile).length > 0) {
+                nodes.forEach(n => {
+                    if (n.hidden) return;
+                    const tags = n.tags || [];
+                    const matches = tags.some(tag => styleProfile[tag]);
+                    if (matches) {
+                        nodes.update({ id: n.id, borderWidth: 2, borderColor: '#f59e0b' });
+                    } else {
+                        nodes.update({ id: n.id, borderWidth: undefined, borderColor: undefined });
+                    }
+                });
+            } else {
+                nodes.forEach(n => nodes.update({ id: n.id, borderWidth: undefined, borderColor: undefined }));
+            }
+
+            edges.forEach(e => {
+                const from = nodes.get(e.from);
+                const to = nodes.get(e.to);
+                if (from && to) edges.update({ id: e.id, hidden: from.hidden || to.hidden });
+            });
+        }
+
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            if (btn.id === 'styleFilterBtn') return;
+            btn.addEventListener('click', function() {
+                const filterValue = this.dataset.filter;
+                if (this.classList.contains('active') && currentCategoryFilter === filterValue) {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    currentCategoryFilter = null;
+                } else {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentCategoryFilter = filterValue;
+                }
+                applyAllFilters();
+                triggerHaptic('light');
+            });
+        });
+
+        document.querySelectorAll('.rule-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.rule-btn').forEach(b => b.classList.remove('active-rule'));
+                this.classList.add('active-rule');
+                currentRule = this.dataset.rule;
+                applyAllFilters();
+                triggerHaptic('light');
+            });
+        });
+
+        window.toggleStyleFilter = () => {
+            const btn = document.getElementById('styleFilterBtn');
+            if (Object.keys(styleProfile).length === 0) {
+                alert('Сначала заполните анкету стиля (кнопка "Стиль" вверху).');
+                return;
+            }
+            styleFilterActive = !styleFilterActive;
+            if (styleFilterActive) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+            applyAllFilters();
+            triggerHaptic('light');
+        };
+
+        window.openStyleModal = () => {
+            document.getElementById('styleModal').classList.remove('hidden');
+            document.getElementById('styleFlex').checked = !!styleProfile.flexibility;
+            document.getElementById('stylePressure').checked = !!styleProfile.pressure;
+            document.getElementById('styleLong').checked = !!styleProfile.long_limbs;
+            document.getElementById('styleSpeed').checked = !!styleProfile.speed;
+        };
+        window.closeStyleModal = () => document.getElementById('styleModal').classList.add('hidden');
+        window.saveStyleProfile = () => {
+            styleProfile = {
+                flexibility: document.getElementById('styleFlex').checked,
+                pressure: document.getElementById('stylePressure').checked,
+                long_limbs: document.getElementById('styleLong').checked,
+                speed: document.getElementById('styleSpeed').checked
+            };
+            localStorage.setItem('bjj_style_profile', JSON.stringify(styleProfile));
+            closeStyleModal();
+            if (styleFilterActive) applyAllFilters();
+            triggerHaptic('medium');
+        };
+
+        // ================== DETAILS CARD ==================
+        function renderNodeDetails(nodeId) {
+            const nodeData = bjjNodesData.find(n => n.id === nodeId);
+            if (!nodeData) return;
+            const currentStatus = progress[nodeId] || 'not_started';
+            const categoryLabels = { position:'Позиция', submission:'Сабмишен', sweep:'Свип', guard_pass:'Проход', transition:'Переход', escape:'Защита', takedown:'Тейкдаун' };
+            const beltIcons = { white:'⚪', blue:'🔵', purple:'🟣', brown:'🟤', black:'⚫' };
+            const badges = [];
+            if (nodeData.gi) badges.push('<span class="px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded text-xs border border-indigo-200">🥋 Gi</span>');
+            if (nodeData.noGi) badges.push('<span class="px-2 py-0.5 bg-cyan-50 text-cyan-600 rounded text-xs border border-cyan-200">🩳 No‑Gi</span>');
+            const legalIcons = [];
+            legalIcons.push(nodeData.legal_ibjjf_gi ? '✅ IBJJF Gi' : '🚫 IBJJF Gi');
+            legalIcons.push(nodeData.legal_ibjjf_nogi ? '✅ IBJJF No‑Gi' : '🚫 IBJJF No‑Gi');
+            legalIcons.push(nodeData.legal_adcc ? '✅ ADCC' : '🚫 ADCC');
+            const pointsText = nodeData.points > 0 ? `⭐ ${nodeData.points} очк.` : '';
+            const tagIcons = [];
+            if (nodeData.tags.includes('flexibility')) tagIcons.push('🧘');
+            if (nodeData.tags.includes('pressure')) tagIcons.push('🦍');
+            if (nodeData.tags.includes('long_limbs')) tagIcons.push('🕷️');
+            if (nodeData.tags.includes('speed')) tagIcons.push('⚡');
+
+            const linkedEdges = bjjEdgesData.filter(e => e.from === nodeId || e.to === nodeId);
+            const triggerGroups = {};
+            const noTrigger = [];
+            linkedEdges.forEach(edge => {
+                const relatedId = edge.from === nodeId ? edge.to : edge.from;
+                const relatedNode = bjjNodesData.find(n => n.id === relatedId);
+                const direction = edge.from === nodeId ? '→' : '←';
+                const item = { relatedId, relatedNode, direction };
+                if (edge.trigger) {
+                    if (!triggerGroups[edge.trigger]) triggerGroups[edge.trigger] = [];
+                    triggerGroups[edge.trigger].push(item);
+                } else {
+                    noTrigger.push(item);
+                }
+            });
+
+            let linkedHtml = '';
+            for (const [trigger, items] of Object.entries(triggerGroups)) {
+                linkedHtml += `<div class="mb-2"><span class="text-xs font-semibold text-slate-500">${trigger}</span>`;
+                items.forEach(item => {
+                    linkedHtml += `<button onclick="focusNode(${item.relatedId})" class="flex items-center gap-2 w-full text-left px-3 py-1 bg-slate-50 hover:bg-slate-100 rounded-lg transition text-sm border border-slate-100"><span class="text-slate-400">${item.direction}</span><span class="font-medium text-slate-700">${item.relatedNode ? item.relatedNode.label : item.relatedId}</span></button>`;
+                });
+                linkedHtml += `</div>`;
+            }
+            if (noTrigger.length > 0) {
+                linkedHtml += `<div class="mb-2"><span class="text-xs font-semibold text-slate-500">Всегда доступно</span>`;
+                noTrigger.forEach(item => {
+                    linkedHtml += `<button onclick="focusNode(${item.relatedId})" class="flex items-center gap-2 w-full text-left px-3 py-1 bg-slate-50 hover:bg-slate-100 rounded-lg transition text-sm border border-slate-100"><span class="text-slate-400">${item.direction}</span><span class="font-medium text-slate-700">${item.relatedNode ? item.relatedNode.label : item.relatedId}</span></button>`;
+                });
+                linkedHtml += `</div>`;
+            }
+
+            document.getElementById('nodeDetails').innerHTML = `
+                <div class="fade-in">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <h2 class="text-lg font-bold text-slate-800 mb-1">${nodeData.title}</h2>
+                            <div class="flex gap-2 flex-wrap">
+                                <span class="px-2 py-0.5 bg-slate-100 rounded text-xs text-slate-600 border border-slate-200">${categoryLabels[nodeData.group]}</span>
+                                <span class="px-2 py-0.5 bg-slate-100 rounded text-xs text-slate-600 border border-slate-200">${beltIcons[nodeData.belt]} ${nodeData.belt}</span>
+                                ${badges.join('')}
+                                ${pointsText ? `<span class="px-2 py-0.5 bg-yellow-50 text-yellow-700 rounded text-xs border border-yellow-200">${pointsText}</span>` : ''}
+                            </div>
+                            <div class="text-xs text-slate-500 mt-1 space-x-2">${legalIcons.join(' · ')}</div>
+                            ${tagIcons.length ? `<div class="text-xs mt-1">${tagIcons.join(' ')}</div>` : ''}
+                        </div>
+                        <button onclick="shareNode(${nodeId})" class="p-2 bg-slate-100 rounded-lg hover:bg-slate-200 transition text-slate-500"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></button>
+                    </div>
+                    <p class="text-slate-600 text-sm mb-4 leading-relaxed">${nodeData.desc}</p>
+                    <div class="mb-4">
+                        <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Прогресс</h3>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button onclick="updateProgress(${nodeId}, 'not_started')" class="progress-btn ${currentStatus==='not_started'?'active-not':'bg-slate-50 text-slate-500 border border-slate-200'} py-2 rounded-lg text-xs font-medium">Не начал</button>
+                            <button onclick="updateProgress(${nodeId}, 'in_progress')" class="progress-btn ${currentStatus==='in_progress'?'active-progress':'bg-slate-50 text-slate-500 border border-slate-200'} py-2 rounded-lg text-xs font-medium">В процессе</button>
+                            <button onclick="updateProgress(${nodeId}, 'done')" class="progress-btn ${currentStatus==='done'?'active-done':'bg-slate-50 text-slate-500 border border-slate-200'} py-2 rounded-lg text-xs font-medium">Изучено</button>
+                        </div>
+                    </div>
+                    ${linkedHtml ? `<div class="border-t border-slate-200 pt-3"><h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Реакции и продолжения</h3><div class="flex flex-col gap-1 max-h-40 overflow-y-auto">${linkedHtml}</div></div>` : ''}
+                </div>`;
+            
+            bottomSheet.show();
+        }
+
+        window.updateProgress = async (id, status) => { 
+            await setProgress(id, status); 
+            renderNodeDetails(id); 
+        };
+        window.focusNode = (id) => { 
+            network.focus(id, { scale: 1.8, animation: true }); 
+            setTimeout(() => { 
+                network.selectNodes([id]); 
+                renderNodeDetails(id); 
+            }, 300); 
+        };
+        window.fitGraph = () => { network.fit({ animation: true }); };
+        window.shareNode = (nodeId) => {
+            const node = bjjNodesData.find(n => n.id === nodeId);
+            const text = `🥋 ${node.title}\n${node.desc}`;
+            const url = `${window.location.origin}${window.location.pathname}?node=${nodeId}`;
+            if (window.Telegram?.WebApp?.openLink) {
+                window.Telegram.WebApp.openLink(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`);
+            } else {
+                navigator.clipboard.writeText(`${text}\n${url}`).then(() => alert('Ссылка скопирована!'));
+            }
+            triggerHaptic('medium');
+        };
+
+        // ================== GRAPH EVENTS ==================
+        network.on('click', function(params) { 
+            if (params.nodes.length) {
+                renderNodeDetails(params.nodes[0]);
+            }
+        });
+
+        function showContextMenu(nodeId, position) {
+            const menu = document.getElementById('contextMenu');
+            menu.style.display = 'block';
+            menu.style.left = `${position.x}px`;
+            menu.style.top = `${position.y}px`;
+            
+            document.getElementById('ctxMarkDone').onclick = async () => { await updateProgress(nodeId, 'done'); hideContextMenu(); };
+            document.getElementById('ctxMarkProgress').onclick = async () => { await updateProgress(nodeId, 'in_progress'); hideContextMenu(); };
+            document.getElementById('ctxFocus').onclick = () => { network.focus(nodeId, { scale: 1.5, animation: { duration: 400 } }); hideContextMenu(); };
+
+            setTimeout(() => {
+                document.addEventListener('click', hideContextMenu, { once: true });
+                document.addEventListener('touchstart', hideContextMenu, { once: true });
+            }, 100);
+        }
+
+        function hideContextMenu() {
+            document.getElementById('contextMenu').style.display = 'none';
+        }
+
+        // ================== SEARCH ==================
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const q = e.target.value.toLowerCase().trim();
+            if (q.length < 2) return;
+            const found = bjjNodesData.find(n => n.label.toLowerCase().includes(q));
+            if (found) focusNode(found.id);
+        });
+
+        // ================== INFO MODAL ==================
+        const modalContent = {
+            0: `<h2 class="text-lg font-bold text-slate-800 mb-2">О карте</h2><p class="text-slate-600">Интерактивная карта техник БЖЖ с легальностью, баллами, реакциями и персональным стилем.</p>`,
+            1: `<h2 class="text-lg font-bold text-slate-800 mb-2">Как пользоваться</h2><ol class="list-decimal pl-5 text-slate-600 space-y-2"><li>Выберите правила (IBJJF Gi/No‑Gi, ADCC).</li><li>Отметьте свой стиль (кнопка «🧑‍🎤 Стиль»).
