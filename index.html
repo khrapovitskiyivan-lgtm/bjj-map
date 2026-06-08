@@ -166,12 +166,12 @@
         const SUPABASE_URL = 'https://supabase.com/dashboard/project/ifrgxxcbkzuwfiuihgev'; 
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlmcmd4eGNia3p1d2ZpdWloZ2V2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2ODY4MDYsImV4cCI6MjA5NjI2MjgwNn0.Jn0Mp5_yKoU1wG1pFhY6-zCFl7z29L_ppvcPSSue2NU';
         
-        let supabase = null;
+        let supabaseClient = null;
         let supabaseEnabled = false;
 
         try {
-            if (typeof window.supabase !== 'undefined' && SUPABASE_URL !== 'ВСТАВЬ_СЮДА_СВОЙ_SUPABASE_URL') {
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            if (typeof window.supabase !== 'undefined' && SUPABASE_URL !== 'https://supabase.com/dashboard/project/ifrgxxcbkzuwfiuihgev') {
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
                 supabaseEnabled = true;
                 console.log('✅ Supabase подключен');
             }
