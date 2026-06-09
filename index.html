@@ -262,7 +262,9 @@ padding-bottom: 80px;
         };
 
 document.addEventListener('touchmove', function(e) {
-if (e.target.closest('.bottom-sheet-content') || e.target.closest('#searchResults') || e.target.closest('.overflow-y-auto')) return;
+const target = e.target;
+const isInsideSheet = target.closest('.bottom-sheet-content') || target.closest('#searchResults') || target.closest('.overflow-y-auto');
+if (isInsideSheet) return;
 if (window.scrollY <= 0 && e.touches[0].clientY > 0) e.preventDefault();
 }, { passive: false });
 
