@@ -237,6 +237,12 @@ body.dark .icon-btn:hover { background: #475569; }
 </div>
 </div>
 <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importProgress(this)">
+  window.focusOnCategory = (group) => {
+  const nodesInGroup = bjjNodesData.filter(n => n.group === group).map(n => n.id);
+  if (nodesInGroup.length === 0) return;
+  network.focus(nodesInGroup, { scale: 0.9, animation: { duration: 500, easingFunction: 'easeInOutQuad' } });
+  triggerHaptic('light');
+};
 <script>
 if (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp) {
 try { window.Telegram.WebApp.ready(); window.Telegram.WebApp.expand(); } catch (e) {}
