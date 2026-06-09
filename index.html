@@ -262,10 +262,10 @@ padding-bottom: 80px;
             else if (navigator.vibrate) navigator.vibrate(type === 'light' ? 10 : 30);
         };
 
-        document.addEventListener('touchmove', function(e) {
-            if (e.target.closest('.bottom-sheet') || e.target.closest('#searchResults') || e.target.closest('.overflow-y-auto')) return;
-            if (window.scrollY <= 0 && e.touches[0].clientY > 0) e.preventDefault();
-        }, { passive: false });
+document.addEventListener('touchmove', function(e) {
+if (e.target.closest('.bottom-sheet-content') || e.target.closest('#searchResults') || e.target.closest('.overflow-y-auto')) return;
+if (window.scrollY <= 0 && e.touches[0].clientY > 0) e.preventDefault();
+}, { passive: false });
 
         let touchStartY = 0;
         document.addEventListener('touchstart', function(e) { touchStartY = e.touches[0].clientY; }, { passive: true });
