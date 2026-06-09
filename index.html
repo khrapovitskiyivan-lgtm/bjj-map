@@ -896,20 +896,12 @@ else this.sheet.style.transform = '';
 }
         const bottomSheet = new BottomSheet();
 
-async function renderNodeDetails(nodeId) {
+function renderNodeDetails(nodeId) { // 👈 Убрали слово "async"
   const n = bjjNodesData.find(x => x.id === nodeId);
   if (!n) return;
   
-  // Показываем загрузку
-  document.getElementById('nodeDetails').innerHTML = `
-    <div class="fade-in text-center py-8">
-      <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      <p class="text-slate-500 mt-3 text-sm">Загрузка деталей...</p>
-    </div>`;
-  bottomSheet.show();
-  
-  // Загружаем описания
-  const details = (await loadTechniqueDetails())[n.id] || {};
+  // 👈 Получаем описания напрямую из глобальной переменной
+  const details = (window.techniqueDetails && window.techniqueDetails[n.id]) ? window.techniqueDetails[n.id] : {};
   
   const status = progress[nodeId] || 'not_started';
   const catLabels = { position:'Позиция', submission:'Сабмишен', sweep:'Свип', guard_pass:'Проход', transition:'Переход', escape:'Защита', takedown:'Тейкдаун' };
