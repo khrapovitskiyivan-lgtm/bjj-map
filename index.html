@@ -947,80 +947,124 @@ else this.sheet.style.transform = '';
 }
         const bottomSheet = new BottomSheet();
 
-        function renderNodeDetails(nodeId) {
-            const n = bjjNodesData.find(x => x.id === nodeId);
-            if (!n) return;
-            const status = progress[nodeId] || 'not_started';
-            const catLabels = { position:'Позиция', submission:'Сабмишен', sweep:'Свип', guard_pass:'Проход', transition:'Переход', escape:'Защита', takedown:'Тейкдаун' };
-            const beltIcons = { white:'', blue:'🔵', purple:'', brown:'🟤', black:'' };
-            
-            let badges = [];
-            if (n.gi) badges.push('<span class="px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded text-xs border border-indigo-200">🥋 Gi</span>');
-            if (n.noGi) badges.push('<span class="px-2 py-0.5 bg-cyan-50 text-cyan-600 rounded text-xs border border-cyan-200">🩳 No-Gi</span>');
-            
-            let legal = [];
-            legal.push(n.legal_ibjjf_gi ? '✅ IBJJF Gi' : '🚫 IBJJF Gi');
-            legal.push(n.legal_ibjjf_nogi ? '✅ IBJJF No-Gi' : '🚫 IBJJF No-Gi');
-            legal.push(n.legal_adcc ? '✅ ADCC' : '🚫 ADCC');
-            
-            let tags = [];
-            if (n.tags.includes('flexibility')) tags.push('🧘');
-            if (n.tags.includes('pressure')) tags.push('🦍');
-            if (n.tags.includes('long_limbs')) tags.push('🕷️');
-            if (n.tags.includes('speed')) tags.push('⚡');
-
-            const linked = bjjEdgesData.filter(e => e.from === nodeId || e.to === nodeId);
-            const triggers = {}, noTrigger = [];
-            linked.forEach(e => {
-                const relId = e.from === nodeId ? e.to : e.from;
-                const relNode = bjjNodesData.find(x => x.id === relId);
-                const dir = e.from === nodeId ? '→' : '←';
-                if (e.trigger) { if (!triggers[e.trigger]) triggers[e.trigger] = []; triggers[e.trigger].push({ id: relId, label: relNode ? relNode.label : relId, dir }); }
-                else { noTrigger.push({ id: relId, label: relNode ? relNode.label : relId, dir }); }
-            });
-
-            let linkedHtml = '';
-            for (const [trig, items] of Object.entries(triggers)) {
-                linkedHtml += `<div class="mb-2"><span class="text-xs font-semibold text-slate-500">${trig}</span>`;
-                items.forEach(i => { linkedHtml += `<button onclick="focusNode(${i.id})" class="flex items-center gap-2 w-full text-left px-3 py-1.5 bg-slate-50 hover:bg-slate-100 rounded-lg transition text-sm border border-slate-100 mt-1"><span class="text-slate-400">${i.dir}</span><span class="font-medium text-slate-700">${i.label}</span></button>`; });
-                linkedHtml += `</div>`;
-            }
-            if (noTrigger.length > 0) {
-                linkedHtml += `<div class="mb-2"><span class="text-xs font-semibold text-slate-500">Всегда доступно</span>`;
-                noTrigger.forEach(i => { linkedHtml += `<button onclick="focusNode(${i.id})" class="flex items-center gap-2 w-full text-left px-3 py-1.5 bg-slate-50 hover:bg-slate-100 rounded-lg transition text-sm border border-slate-100 mt-1"><span class="text-slate-400">${i.dir}</span><span class="font-medium text-slate-700">${i.label}</span></button>`; });
-                linkedHtml += `</div>`;
-            }
-
-            document.getElementById('nodeDetails').innerHTML = `
-                <div class="fade-in">
-                    <div class="flex justify-between items-start mb-3">
-                        <div class="flex-1">
-                            <h2 class="text-lg font-bold text-slate-800 mb-1">${n.title}</h2>
-                            <div class="flex gap-2 flex-wrap">
-                                <span class="px-2 py-0.5 bg-slate-100 rounded text-xs text-slate-600 border border-slate-200">${catLabels[n.group]}</span>
-                                <span class="px-2 py-0.5 bg-slate-100 rounded text-xs text-slate-600 border border-slate-200">${beltIcons[n.belt]} ${n.belt}</span>
-                                ${badges.join('')}
-                            </div>
-                            <div class="text-xs text-slate-500 mt-1.5 space-x-2">${legal.join(' · ')}</div>
-                            ${tags.length ? `<div class="text-xs mt-1">${tags.join(' ')}</div>` : ''}
-                        </div>
-                        <button onclick="shareNode(${nodeId})" class="p-2 bg-slate-100 rounded-lg hover:bg-slate-200 transition text-slate-500 ml-2" title="Поделиться">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-                        </button>
-                    </div>
-                    <p class="text-slate-600 text-sm mb-4 leading-relaxed">${n.desc}</p>
-                    <div class="mb-4">
-                        <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Прогресс</h3>
-                        <div class="grid grid-cols-3 gap-2">
-                            <button onclick="updateProgress(${nodeId}, 'not_started')" class="progress-btn ${status==='not_started'?'active-not':'bg-slate-50 text-slate-500 border border-slate-200'} py-2 rounded-lg text-xs font-medium">Не начал</button>
-                            <button onclick="updateProgress(${nodeId}, 'in_progress')" class="progress-btn ${status==='in_progress'?'active-progress':'bg-slate-50 text-slate-500 border border-slate-200'} py-2 rounded-lg text-xs font-medium">В процессе</button>
-                            <button onclick="updateProgress(${nodeId}, 'done')" class="progress-btn ${status==='done'?'active-done':'bg-slate-50 text-slate-500 border border-slate-200'} py-2 rounded-lg text-xs font-medium">Изучено</button>
-                        </div>
-                    </div>
-                    ${linkedHtml ? `<div class="border-t border-slate-200 pt-3"><h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Реакции и продолжения</h3><div class="flex flex-col gap-1 max-h-40 overflow-y-auto">${linkedHtml}</div></div>` : ''}
-                </div>`;
-            bottomSheet.show();
-        }
+       function renderNodeDetails(nodeId) {
+  const n = bjjNodesData.find(x => x.id === nodeId);
+  if (!n) return;
+  const status = progress[nodeId] || 'not_started';
+  const catLabels = { position:'Позиция', submission:'Сабмишен', sweep:'Свип', guard_pass:'Проход', transition:'Переход', escape:'Защита', takedown:'Тейкдаун' };
+  const beltIcons = { white:'⚪', blue:'🔵', purple:'🟣', brown:'🟤', black:'⚫' };
+  let badges = [];
+  if (n.gi) badges.push('<span class="px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded text-xs border border-indigo-200">🥋 Gi</span>');
+  if (n.noGi) badges.push('<span class="px-2 py-0.5 bg-cyan-50 text-cyan-600 rounded text-xs border border-cyan-200">🩳 No-Gi</span>');
+  let legal = [];
+  legal.push(n.legal_ibjjf_gi ? '✅ IBJJF Gi' : '🚫 IBJJF Gi');
+  legal.push(n.legal_ibjjf_nogi ? '✅ IBJJF No-Gi' : '🚫 IBJJF No-Gi');
+  legal.push(n.legal_adcc ? '✅ ADCC' : '🚫 ADCC');
+  let tags = [];
+  if (n.tags.includes('flexibility')) tags.push('🧘 Гибкость');
+  if (n.tags.includes('pressure')) tags.push('🦍 Давление');
+  if (n.tags.includes('long_limbs')) tags.push('🕷️ Длинные конечности');
+  if (n.tags.includes('speed')) tags.push('⚡ Скорость');
+  
+  // Получаем подробное описание
+  const details = techniqueDetails[n.id] || {};
+  
+  // Секции с подробными описаниями
+  let detailsHtml = '';
+  if (details.mechanics) {
+    detailsHtml += `
+      <div class="mb-3 p-3 bg-blue-50 dark:bg-slate-700 rounded-lg border border-blue-100 dark:border-slate-600">
+        <div class="flex items-center gap-2 mb-1.5">
+          <span class="text-lg">🔧</span>
+          <h3 class="text-xs font-bold text-blue-900 dark:text-blue-200 uppercase tracking-wider">Механика</h3>
+        </div>
+        <p class="text-sm text-slate-700 dark:text-slate-200 leading-relaxed">${details.mechanics}</p>
+      </div>`;
+  }
+  if (details.keyPoints) {
+    detailsHtml += `
+      <div class="mb-3 p-3 bg-emerald-50 dark:bg-slate-700 rounded-lg border border-emerald-100 dark:border-slate-600">
+        <div class="flex items-center gap-2 mb-1.5">
+          <span class="text-lg">🎯</span>
+          <h3 class="text-xs font-bold text-emerald-900 dark:text-emerald-200 uppercase tracking-wider">Ключевые детали</h3>
+        </div>
+        <p class="text-sm text-slate-700 dark:text-slate-200 leading-relaxed">${details.keyPoints}</p>
+      </div>`;
+  }
+  if (details.when) {
+    detailsHtml += `
+      <div class="mb-3 p-3 bg-amber-50 dark:bg-slate-700 rounded-lg border border-amber-100 dark:border-slate-600">
+        <div class="flex items-center gap-2 mb-1.5">
+          <span class="text-lg">⏱</span>
+          <h3 class="text-xs font-bold text-amber-900 dark:text-amber-200 uppercase tracking-wider">Когда применять</h3>
+        </div>
+        <p class="text-sm text-slate-700 dark:text-slate-200 leading-relaxed">${details.when}</p>
+      </div>`;
+  }
+  if (details.mistakes) {
+    detailsHtml += `
+      <div class="mb-3 p-3 bg-red-50 dark:bg-slate-700 rounded-lg border border-red-100 dark:border-slate-600">
+        <div class="flex items-center gap-2 mb-1.5">
+          <span class="text-lg">⚠️</span>
+          <h3 class="text-xs font-bold text-red-900 dark:text-red-200 uppercase tracking-wider">Типичные ошибки</h3>
+        </div>
+        <p class="text-sm text-slate-700 dark:text-slate-200 leading-relaxed">${details.mistakes}</p>
+      </div>`;
+  }
+  
+  const linked = bjjEdgesData.filter(e => e.from === nodeId || e.to === nodeId);
+  const triggers = {}, noTrigger = [];
+  linked.forEach(e => {
+    const relId = e.from === nodeId ? e.to : e.from;
+    const relNode = bjjNodesData.find(x => x.id === relId);
+    const dir = e.from === nodeId ? '→' : '←';
+    if (e.trigger) { if (!triggers[e.trigger]) triggers[e.trigger] = []; triggers[e.trigger].push({ id: relId, label: relNode ? relNode.label : relId, dir }); }
+    else { noTrigger.push({ id: relId, label: relNode ? relNode.label : relId, dir }); }
+  });
+  let linkedHtml = '';
+  for (const [trig, items] of Object.entries(triggers)) {
+    linkedHtml += `<div class="mb-2"><span class="text-xs font-semibold text-slate-500">${trig}</span>`;
+    items.forEach(i => { linkedHtml += `<button onclick="focusNode(${i.id})" class="flex items-center gap-2 w-full text-left px-3 py-1.5 bg-slate-50 hover:bg-slate-100 rounded-lg transition text-sm border border-slate-100 mt-1"><span class="text-slate-400">${i.dir}</span><span class="font-medium text-slate-700">${i.label}</span></button>`; });
+    linkedHtml += `</div>`;
+  }
+  if (noTrigger.length > 0) {
+    linkedHtml += `<div class="mb-2"><span class="text-xs font-semibold text-slate-500">Всегда доступно</span>`;
+    noTrigger.forEach(i => { linkedHtml += `<button onclick="focusNode(${i.id})" class="flex items-center gap-2 w-full text-left px-3 py-1.5 bg-slate-50 hover:bg-slate-100 rounded-lg transition text-sm border border-slate-100 mt-1"><span class="text-slate-400">${i.dir}</span><span class="font-medium text-slate-700">${i.label}</span></button>`; });
+    linkedHtml += `</div>`;
+  }
+  document.getElementById('nodeDetails').innerHTML = `
+  <div class="fade-in">
+    <div class="flex justify-between items-start mb-3">
+      <div class="flex-1">
+        <h2 class="text-lg font-bold text-slate-800 mb-1">${n.title}</h2>
+        <div class="flex gap-2 flex-wrap">
+          <span class="px-2 py-0.5 bg-slate-100 rounded text-xs text-slate-600 border border-slate-200">${catLabels[n.group]}</span>
+          <span class="px-2 py-0.5 bg-slate-100 rounded text-xs text-slate-600 border border-slate-200">${beltIcons[n.belt]} ${n.belt}</span>
+          ${badges.join('')}
+        </div>
+        <div class="text-xs text-slate-500 mt-1.5 space-x-2">${legal.join(' · ')}</div>
+        ${tags.length ? `<div class="text-xs mt-1 flex flex-wrap gap-1">${tags.map(t => `<span class="px-2 py-0.5 bg-slate-100 rounded text-xs">${t}</span>`).join('')}</div>` : ''}
+      </div>
+      <button onclick="shareNode(${nodeId})" class="p-2 bg-slate-100 rounded-lg hover:bg-slate-200 transition text-slate-500 ml-2" title="Поделиться">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+      </button>
+    </div>
+    <p class="text-slate-600 text-sm mb-4 leading-relaxed">${n.desc}</p>
+    
+    ${detailsHtml}
+    
+    <div class="mb-4">
+      <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Прогресс</h3>
+      <div class="grid grid-cols-3 gap-2">
+        <button onclick="updateProgress(${nodeId}, 'not_started')" class="progress-btn ${status==='not_started'?'active-not':'bg-slate-50 text-slate-500 border border-slate-200'} py-2 rounded-lg text-xs font-medium">Не начал</button>
+        <button onclick="updateProgress(${nodeId}, 'in_progress')" class="progress-btn ${status==='in_progress'?'active-progress':'bg-slate-50 text-slate-500 border border-slate-200'} py-2 rounded-lg text-xs font-medium">В процессе</button>
+        <button onclick="updateProgress(${nodeId}, 'done')" class="progress-btn ${status==='done'?'active-done':'bg-slate-50 text-slate-500 border border-slate-200'} py-2 rounded-lg text-xs font-medium">Изучено</button>
+      </div>
+    </div>
+    ${linkedHtml ? `<div class="border-t border-slate-200 pt-3"><h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Реакции и продолжения</h3><div class="flex flex-col gap-1 max-h-40 overflow-y-auto">${linkedHtml}</div></div>` : ''}
+  </div>`;
+  bottomSheet.show();
+}
 
         window.updateProgress = (id, status) => { setProgress(id, status); renderNodeDetails(id); };
         window.focusNode = (id) => { network.focus(id, { scale: 1.8, animation: true }); setTimeout(() => { network.selectNodes([id]); renderNodeDetails(id); }, 300); };
