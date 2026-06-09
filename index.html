@@ -418,7 +418,7 @@ if (window.scrollY <= 0 && e.touches[0].clientY > 0) e.preventDefault();
             { id: 302, label: "Worm Guard", group: "transition", title: "Worm Guard", desc: "Использование пояса для контроля.", belt: 'brown', gi: true, noGi: false, legal_ibjjf_gi: true, legal_ibjjf_nogi: false, legal_adcc: true, points: 0, tags: ['flexibility'] },
             { id: 303, label: "Inverted Guard", group: "position", title: "Inverted Guard", desc: "Защита через переворот вверх ногами.", belt: 'purple', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['flexibility'] },
             { id: 304, label: "Estima Lock", group: "submission", title: "Estima Lock", desc: "Узел стопы.", belt: 'brown', gi: true, noGi: true, legal_ibjjf_gi: false, legal_ibjjf_nogi: false, legal_adcc: true, points: 0, tags: [] },
-            { id: 305, label: "Аши Гарами", group: "transition", title: "Аши Гарами", desc: "Контроль ноги для атак на пятку.", belt: 'brown', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] }
+           { id: 305, label: "Аши Гарами", group: "transition", title: "Аши Гарами", desc: "Контроль ноги для атак на пятку.", belt: 'brown', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
   // === НОВЫЕ ТЕХНИКИ (51 шт.) — ИСПРАВЛЕННАЯ ВЕРСИЯ ===
   { id: 306, label: "Ashi Ankle Lock", group: "submission", title: "Рычаг голеностопа из Аши Гарами", desc: "Вариация прямого болевого на стопу из контроля аши-гарами, сложнее защищается.", belt: "blue", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
   { id: 307, label: "Inside Heel Hook", group: "submission", title: "Внутренний хилхук", desc: "Ротационный болевой на колено изнутри (50/50).", belt: "purple", gi: true, noGi: true, legal_ibjjf_gi: false, legal_ibjjf_nogi: false, legal_adcc: true, points: 0, tags: ["flexibility"] },
@@ -523,7 +523,7 @@ if (window.scrollY <= 0 && e.touches[0].clientY > 0) e.preventDefault();
             { from: 300, to: 49, trigger: "Соперник выпрямляет ногу" }, { from: 301, to: 302, trigger: "Соперник давит вниз" }, { from: 302, to: 9, trigger: "Соперник отступает" },
             { from: 9, to: 17, trigger: "Соперник открывает спину" }, { from: 90, to: 24, trigger: "Соперник поднимает ногу" }, { from: 24, to: 40, trigger: "Соперник давит снизу" },
             { from: 303, to: 31, trigger: "Соперник давит вниз" }, { from: 303, to: 17, trigger: "Соперник отступает" }, { from: 11, to: 304, trigger: "Соперник разворачивает стопу" },
-            { from: 305, to: 304, trigger: "Соперник выпрямляет ногу" }, { from: 11, to: 305, trigger: "Соперник заходит в 50/50" }
+            { from: 305, to: 304, trigger: "Соперник выпрямляет ногу" }, { from: 11, to: 305, trigger: "Соперник заходит в 50/50" },
   // === НОВЫЕ СВЯЗИ ДЛЯ 51 ТЕХНИКИ (ИСПРАВЛЕНО) ===
   { from: 305, to: 306, trigger: "Соперник выпрямляет ногу в аши-гарами" },
   { from: 11, to: 307, trigger: "Соперник защищает прямой рычаг" },
