@@ -654,23 +654,7 @@ const options = {
 const network = new vis.Network(document.getElementById('mynetwork'), { nodes, edges }, options);
 
         const STORAGE_KEY = 'bjj_learned_v3';
-        let techniqueDetailsCache = null;
-
-async function loadTechniqueDetails() {
-  if (techniqueDetailsCache) return techniqueDetailsCache;
-  
-  try {
-    const response = await fetch('technique-details.js');
-    if (!response.ok) throw new Error('Failed to load');
-    await response.text(); // Это вызовет выполнение скрипта и создаст window.techniqueDetails
-    techniqueDetailsCache = window.techniqueDetails || {};
-    return techniqueDetailsCache;
-  } catch (err) {
-    console.warn('Не удалось загрузить описания техник:', err);
-    techniqueDetailsCache = {};
-    return techniqueDetailsCache;
-  }
-}
+       
         let progress = {};
 
         async function initApp() {
