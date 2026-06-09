@@ -875,7 +875,7 @@ const network = new vis.Network(document.getElementById('mynetwork'), { nodes, e
             triggerHaptic('light');
         };
 
-        let giFilterState = 'gi', currentCategoryFilter = null, currentRule = 'none', styleFilterActive = false;
+let giFilterState = 'gi', currentCategoryFilter = null, currentRule = 'none';
         let styleProfile = JSON.parse(localStorage.getItem('bjj_style_profile') || '{"belt": "white"}');
         const beltOrder = ['white', 'blue', 'purple', 'brown', 'black'];
 
