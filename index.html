@@ -879,31 +879,61 @@ const network = new vis.Network(document.getElementById('mynetwork'), { nodes, e
         let styleProfile = JSON.parse(localStorage.getItem('bjj_style_profile') || '{"belt": "white"}');
         const beltOrder = ['white', 'blue', 'purple', 'brown', 'black'];
 
-        function applyAllFilters() {
-            const userBelt = styleProfile.belt || 'white';
-            const maxBeltIndex = beltOrder.indexOf(userBelt);
-
-            nodes.forEach(n => {
-                const nodeBeltIndex = beltOrder.indexOf(n.belt);
-                const passBelt = nodeBeltIndex <= maxBeltIndex;
-                
-                if (!passBelt) { nodes.update({ id: n.id, hidden: true }); return; }
-                if (currentCategoryFilter !== null && n.group !== currentCategoryFilter) { nodes.update({ id: n.id, hidden: true }); return; }
-                if ((giFilterState === 'gi' && !n.gi) || (giFilterState === 'nogi' && !n.noGi)) { nodes.update({ id: n.id, hidden: true }); return; }
-                
-                let passRule = true;
-                if (currentRule === 'ibjjf_gi') passRule = n.legal_ibjjf_gi;
-                else if (currentRule === 'ibjjf_nogi') passRule = n.legal_ibjjf_nogi;
-                else if (currentRule === 'adcc') passRule = n.legal_adcc;
-                
-                if (!passRule) { nodes.update({ id: n.id, hidden: false, opacity: 0.3 }); return; }
-                nodes.update({ id: n.id, hidden: false, opacity: 1.0 });
-            });
-            edges.forEach(e => {
-                const from = nodes.get(e.from), to = nodes.get(e.to);
-                if (from && to) edges.update({ id: e.id, hidden: from.hidden || to.hidden });
-            });
-        }
+function applyAllFilters() {
+  const userBelt = styleProfile.belt || 'white';
+  const maxBeltIndex = beltOrder.indexOf(userBelt);
+  
+  // Собираем выбранные теги стиля (если галочки стоят)
+  const preferredTags = [];
+  if (styleProfile.flexibility) preferredTags.push('flexibility');
+  if (styleProfile.pressure) preferredTags.push('pressure');
+  if (styleProfile.long_limbs) preferredTags.push('long_limbs');
+  if (styleProfile.speed) preferredTags.push('speed');
+  
+  nodes.forEach(n => {
+    // 1. Проверка пояса
+    const nodeBeltIndex = beltOrder.indexOf(n.belt);
+    const passBelt = nodeBeltIndex <= maxBeltIndex;
+    if (!passBelt) { nodes.update({ id: n.id, hidden: true }); return; }
+    
+    // 2. Проверка категории
+    if (currentCategoryFilter !== null && n.group !== currentCategoryFilter) { nodes.update({ id: n.id, hidden: true }); return; }
+    
+    // 3. Проверка Gi/No-Gi
+    if ((giFilterState === 'gi' && !n.gi) || (giFilterState === 'nogi' && !n.noGi)) { nodes.update({ id: n.id, hidden: true }); return; }
+    
+    // 4. Проверка правил
+    let passRule = true;
+    if (currentRule === 'ibjjf_gi') passRule = n.legal_ibjjf_gi;
+    else if (currentRule === 'ibjjf_nogi') passRule = n.legal_ibjjf_nogi;
+    else if (currentRule === 'adcc') passRule = n.legal_adcc;
+    
+    if (!passRule) { nodes.update({ id: n.id, hidden: false, opacity: 0.3 }); return; }
+    
+    // 5. АВТОМАТИЧЕСКАЯ проверка стиля (работает, если выбрана хотя бы одна галочка)
+    if (preferredTags.length > 0) {
+      const hasMatchingTag = n.tags.some(tag => preferredTags.includes(tag));
+      if (!hasMatchingTag && n.tags.length > 0) {
+        // У техники есть теги, но они не совпадают с выбранными → скрываем
+        nodes.update({ id: n.id, hidden: true });
+        return;
+      } else if (!hasMatchingTag && n.tags.length === 0) {
+        // У техники нет тегов (базовая) → показываем полупрозрачной
+        nodes.update({ id: n.id, hidden: false, opacity: 0.5 });
+        return;
+      }
+    }
+    
+    // Если все проверки пройдены → показываем
+    nodes.update({ id: n.id, hidden: false, opacity: 1.0 });
+  });
+  
+  // Скрываем связи между скрытыми узлами
+  edges.forEach(e => {
+    const from = nodes.get(e.from), to = nodes.get(e.to);
+    if (from && to) edges.update({ id: e.id, hidden: from.hidden || to.hidden });
+  });
+}
 
         document.querySelectorAll('.filter-btn').forEach(btn => {
             btn.addEventListener('click', function() {
