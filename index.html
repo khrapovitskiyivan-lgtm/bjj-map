@@ -18,14 +18,14 @@
 <style>
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 body {
-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-background-color: #f1f5f9;
-color: #1e293b;
-margin: 0;
-padding-top: env(safe-area-inset-top);
-padding-bottom: env(safe-area-inset-bottom);
-overscroll-behavior: none;
--webkit-overflow-scrolling: touch;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: #f1f5f9;
+  color: #1e293b;
+  margin: 0;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
 }
 body.dark { background-color: #0f172a; color: #e2e8f0; }
 #mynetwork { width: 100%; height: calc(100vh - 140px); min-height: 400px; background: white; touch-action: none; }
@@ -37,6 +37,8 @@ body.dark #mynetwork { background: #1e293b; }
 .progress-btn.active-done { background: #d1fae5; color: #047857; border: 1px solid #6ee7b7; }
 .fade-in { animation: fadeIn 0.3s ease-out; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+.animate-spin { animation: spin 1s linear infinite; }
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: #f1f5f9; }
 ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 3px; }
@@ -45,40 +47,51 @@ body.dark ::-webkit-scrollbar-thumb { background: #475569; }
 .rule-btn.active-rule { background: #0f172a; color: white; border-color: #0f172a; }
 body.dark .rule-btn.active-rule { background: #3b82f6; border-color: #3b82f6; }
 .belt-btn.active-belt {
-background: #3b82f6 !important;
-color: white !important;
-border-color: #3b82f6 !important;
-font-weight: 600;
+  background: #3b82f6 !important;
+  color: white !important;
+  border-color: #3b82f6 !important;
+  font-weight: 600;
 }
 body.dark .belt-btn.active-belt {
-background: #3b82f6 !important;
-color: white !important;
-border-color: #3b82f6 !important;
+  background: #3b82f6 !important;
+  color: white !important;
+  border-color: #3b82f6 !important;
 }
 .bottom-sheet-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 998; }
 .bottom-sheet-overlay.active { opacity: 1; pointer-events: auto; }
 .bottom-sheet {
-position: fixed;
-bottom: 0;
-left: 0;
-right: 0;
-background: white;
-border-radius: 20px 20px 0 0;
-box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
-transform: translateY(100%);
-transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-z-index: 999;
-max-height: 90vh;
-overflow-y: auto;
--webkit-overflow-scrolling: touch;
-overscroll-behavior-y: contain;
-padding-bottom: 80px;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 999;
+  max-height: 90vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  padding-bottom: 80px;
 }
 body.dark .bottom-sheet { background: #1e293b; }
 .bottom-sheet.active { transform: translateY(0); }
 .bottom-sheet-handle { width: 40px; height: 4px; background: #cbd5e0; border-radius: 2px; margin: 12px auto; cursor: grab; }
 body.dark .bottom-sheet-handle { background: #475569; }
-.bottom-sheet-content { padding: 0 20px 20px; }
+
+/* 🔑 ИСПРАВЛЕННЫЙ CSS: все правила теперь корректно внутри селектора */
+.bottom-sheet-content {
+  padding: 0 20px 20px;
+  min-height: calc(90vh - 40px);
+  display: flex;
+  flex-direction: column;
+}
+.bottom-sheet-content > div {
+  flex: 1;
+}
+
 body.dark header { background: #1e293b; border-color: #334155; }
 body.dark .bg-white { background: #1e293b; }
 body.dark .bg-slate-100 { background: #334155; }
@@ -168,13 +181,6 @@ body.dark .icon-btn:hover { background: #475569; }
 </header>
 <main class="flex-1 flex flex-col relative">
 <div id="mynetwork"></div>
-  <!-- Быстрые фильтры по категориям -->
-<div class="absolute bottom-4 left-4 right-20 flex gap-2 overflow-x-auto pb-1 z-10" style="scrollbar-width: none; -ms-overflow-style: none;">
-  <button onclick="focusOnCategory('position')" class="flex-shrink-0 px-3 py-1.5 bg-cyan-500 text-white rounded-full text-xs font-medium shadow-md active:scale-95 transition">📍 Позиции</button>
-  <button onclick="focusOnCategory('submission')" class="flex-shrink-0 px-3 py-1.5 bg-red-500 text-white rounded-full text-xs font-medium shadow-md active:scale-95 transition">🔒 Сабмишены</button>
-  <button onclick="focusOnCategory('guard_pass')" class="flex-shrink-0 px-3 py-1.5 bg-blue-500 text-white rounded-full text-xs font-medium shadow-md active:scale-95 transition">🚪 Проходы</button>
-  <button onclick="focusOnCategory('sweep')" class="flex-shrink-0 px-3 py-1.5 bg-orange-500 text-white rounded-full text-xs font-medium shadow-md active:scale-95 transition">🔄 Свипы</button>
-</div>
 <button onclick="fitGraph()" class="absolute bottom-4 right-4 w-12 h-12 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-600 shadow-lg hover:bg-slate-50 active:scale-95 transition z-10" title="Центрировать граф">
 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 <path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
@@ -237,62 +243,54 @@ body.dark .icon-btn:hover { background: #475569; }
 </div>
 </div>
 <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importProgress(this)">
-  window.focusOnCategory = (group) => {
-  const nodesInGroup = bjjNodesData.filter(n => n.group === group).map(n => n.id);
-  if (nodesInGroup.length === 0) return;
-  network.focus(nodesInGroup, { scale: 0.9, animation: { duration: 500, easingFunction: 'easeInOutQuad' } });
-  triggerHaptic('light');
-};
 <script>
 if (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp) {
-try { window.Telegram.WebApp.ready(); window.Telegram.WebApp.expand(); } catch (e) {}
+  try { window.Telegram.WebApp.ready(); window.Telegram.WebApp.expand(); } catch (e) {}
 }
 const triggerHaptic = (type = 'light') => {
-if (typeof window.Telegram !== 'undefined' && window.Telegram?.WebApp?.HapticFeedback) window.Telegram.WebApp.HapticFeedback.impactOccurred(type);
-else if (navigator.vibrate) navigator.vibrate(type === 'light' ? 10 : 30);
+  if (typeof window.Telegram !== 'undefined' && window.Telegram?.WebApp?.HapticFeedback) window.Telegram.WebApp.HapticFeedback.impactOccurred(type);
+  else if (navigator.vibrate) navigator.vibrate(type === 'light' ? 10 : 30);
 };
 document.addEventListener('touchmove', function(e) {
-const target = e.target;
-const isInsideSheet = target.closest('.bottom-sheet-content') || target.closest('#searchResults') || target.closest('.overflow-y-auto');
-if (isInsideSheet) return;
-if (window.scrollY <= 0 && e.touches[0].clientY > 0) e.preventDefault();
+  const target = e.target;
+  const isInsideSheet = target.closest('.bottom-sheet-content') || target.closest('#searchResults') || target.closest('.overflow-y-auto');
+  if (isInsideSheet) return;
+  if (window.scrollY <= 0 && e.touches[0].clientY > 0) e.preventDefault();
 }, { passive: false });
 let touchStartY = 0;
 document.addEventListener('touchstart', function(e) { touchStartY = e.touches[0].clientY; }, { passive: true });
 document.addEventListener('touchmove', function(e) {
-const touchY = e.touches[0].clientY;
-const touchDiff = touchY - touchStartY;
-if (touchDiff > 0 && window.scrollY === 0) e.preventDefault();
+  const touchY = e.touches[0].clientY;
+  const touchDiff = touchY - touchStartY;
+  if (touchDiff > 0 && window.scrollY === 0) e.preventDefault();
 }, { passive: false });
 const SUPABASE_URL = 'https://ifrgxxcbkzuwfiuihgev.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlmcmd4eGNia3p1d2ZpdWloZ2V2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2ODY4MDYsImV4cCI6MjA5NjI2MjgwNn0.Jn0Mp5_yKoU1wG1pFhY6-zCFl7z29L_ppvcPSSue2NU';
 let supabaseClient = null;
 let supabaseEnabled = false;
 try {
-if (typeof window.supabase !== 'undefined' && SUPABASE_URL !== 'https://supabase.com/dashboard/project/ifrgxxcbkzuwfiuihgev') {
-supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-supabaseEnabled = true;
-}
+  if (typeof window.supabase !== 'undefined' && SUPABASE_URL !== 'https://supabase.com/dashboard/project/ifrgxxcbkzuwfiuihgev') {
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    supabaseEnabled = true;
+  }
 } catch (err) {}
 async function syncProgressToServer(progressObj) {
-if (!supabaseEnabled) return;
-try {
-const telegramId = (window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 'anonymous').toString();
-await supabaseClient.from('bjj_progress').upsert({ telegram_id: telegramId, progress: progressObj, updated_at: new Date().toISOString() }, { onConflict: 'telegram_id' });
-} catch (err) {}
+  if (!supabaseEnabled) return;
+  try {
+    const telegramId = (window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 'anonymous').toString();
+    await supabaseClient.from('bjj_progress').upsert({ telegram_id: telegramId, progress: progressObj, updated_at: new Date().toISOString() }, { onConflict: 'telegram_id' });
+  } catch (err) {}
 }
 async function loadProgressFromServer() {
-if (!supabaseEnabled) return null;
-try {
-const telegramId = (window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 'anonymous').toString();
-const { data } = await supabaseClient.from('bjj_progress').select('progress').eq('telegram_id', telegramId).single();
-return data ? data.progress : null;
-} catch (err) { return null; }
+  if (!supabaseEnabled) return null;
+  try {
+    const telegramId = (window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 'anonymous').toString();
+    const { data } = await supabaseClient.from('bjj_progress').select('progress').eq('telegram_id', telegramId).single();
+    return data ? data.progress : null;
+  } catch (err) { return null; }
 }
 const groups = { position: { color: { background: '#00BCD4' }, shape: 'dot', size: 25 }, submission: { color: { background: '#f44336' }, shape: 'triangle', size: 22 }, sweep: { color: { background: '#FF9800' }, shape: 'square', size: 20 }, guard_pass: { color: { background: '#2196F3' }, shape: 'dot', size: 20 }, transition: { color: { background: '#9C27B0' }, shape: 'diamond', size: 18 }, escape: { color: { background: '#795548' }, shape: 'dot', size: 18 }, takedown: { color: { background: '#607D8B' }, shape: 'square', size: 20 } };
-const groupIcons = { position: '', submission: '🔒', sweep: '🔄', guard_pass: '🚪', transition: '➡️', escape: '️', takedown: '🤼' };
-
-// ===== ДАННЫЕ ТЕХНИК (163 шт.) =====
+const groupIcons = { position: '', submission: '🔒', sweep: '🔄', guard_pass: '🚪', transition: '➡️', escape: '🛡️', takedown: '🤼' };
 const bjjNodesData = [
 { id: 1, label: "Закрытый гард (снизу)", group: "position", title: "Закрытый гард (снизу)", desc: "Ноги обхватывают корпус.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
 { id: 2, label: "Закрытый гард (сверху)", group: "position", title: "Закрытый гард (сверху)", desc: "Соперник в закрытом гарде.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
@@ -379,10 +377,10 @@ const bjjNodesData = [
 { id: 115, label: "Сайд → бэк (chair sit)", group: "transition", title: "Сайд → бэк (chair sit)", desc: "Заход на спину из удержания сбоку.", belt: 'blue', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['flexibility'] },
 { id: 116, label: "Черепаха → бэк", group: "transition", title: "Черепаха → бэк", desc: "Забор спины из черепахи.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
 { id: 117, label: "Спин в рычаг локтя", group: "transition", title: "Спин в рычаг локтя", desc: "Переворот под рычаг локтя.", belt: 'blue', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['flexibility'] },
-{ id: 118, label: "Полугард → бэк", group: "transition", title: "Полугард → бэк", desc: "Выход на спину из нижнего полугарда.", belt: 'blue', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+{ id: 118, label: "Полугард → бэк", group: "transition", title: "Полугард → бэк", desc: "Выход на спину из нижнего полугарда.", belt: 'blue', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['flexibility'] },
 { id: 119, label: "X-гард → прямой рычаг", group: "transition", title: "X-гард → прямой рычаг", desc: "Переход на голеностоп.", belt: 'purple', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
 { id: 130, label: "Вставание из закрытого гарда", group: "escape", title: "Вставание из закрытого гарда", desc: "Открытие гарда в стойке.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
-{ id: 131, label: "Upa escape из маунта", group: "escape", title: "Upa escape из маунта", desc: "Мост и сброс соперника.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
+{ id: 131, label: "Upa escape из маунта", group: "escape", title: "Upa escape из маунта", desc: "Мост и сброс соперника.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['speed'] },
 { id: 132, label: "Локтевой выход из маунта", group: "escape", title: "Локтевой выход из маунта", desc: "Протискивание локтя, уход в полугард.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
 { id: 133, label: "Креветка из сайда", group: "escape", title: "Креветка из сайда", desc: "Выход креветкой, восстановление гарда.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
 { id: 134, label: "Защита из бэка", group: "escape", title: "Защита из бэка", desc: "Сброс крючков, уход плечами.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
@@ -391,13 +389,13 @@ const bjjNodesData = [
 { id: 137, label: "Выход из скручивания пятки", group: "escape", title: "Выход из скручивания пятки", desc: "Раскрутка, уход пятки.", belt: 'brown', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
 { id: 150, label: "Двойной проход", group: "takedown", title: "Двойной проход", desc: "Проход в обе ноги.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ['speed'] },
 { id: 151, label: "Одинарный проход", group: "takedown", title: "Одинарный проход", desc: "Захват одной ноги.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: [] },
-{ id: 152, label: "Бросок через бедро", group: "takedown", title: "Бросок через бедро", desc: "Бросок через бедро.", belt: 'blue', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ['pressure'] },
+{ id: 152, label: "Бросок через бедро", group: "takedown", title: "Бросок через бедро", desc: "Бросок через бедро.", belt: 'blue', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: [] },
 { id: 153, label: "Учи мата", group: "takedown", title: "Учи мата", desc: "Бросок подхватом изнутри.", belt: 'blue', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ['speed'] },
 { id: 154, label: "Низкий сингл", group: "takedown", title: "Низкий сингл", desc: "Захват голеностопа.", belt: 'purple', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ['speed'] },
 { id: 155, label: "Бросок захватом корпуса", group: "takedown", title: "Бросок захватом корпуса", desc: "Бросок за счёт захвата туловища.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ['pressure'] },
 { id: 200, label: "Иезекиль чок из маунта", group: "submission", title: "Иезекиль чок из маунта", desc: "Удушение рукавом из маунта.", belt: 'blue', gi: true, noGi: false, legal_ibjjf_gi: true, legal_ibjjf_nogi: false, legal_adcc: true, points: 0, tags: [] },
-{ id: 201, label: "Paper cutter choke", group: "submission", title: "Paper cutter choke", desc: "Удушение отворотом из сайда, режущее движение.", belt: 'blue', gi: true, noGi: false, legal_ibjjf_gi: true, legal_ibjjf_nogi: false, legal_adcc: true, points: 0, tags: [] },
-{ id: 202, label: "Baseball bat choke", group: "submission", title: "Baseball bat choke", desc: "Удушение отворотами с вращением.", belt: 'purple', gi: true, noGi: false, legal_ibjjf_gi: true, legal_ibjjf_nogi: false, legal_adcc: true, points: 0, tags: [] },
+{ id: 201, label: "Paper cutter choke", group: "submission", title: "Paper cutter choke", desc: "Удушение отворотом из сайда, режущее движение.", belt: 'blue', gi: true, noGi: false, legal_ibjjf_gi: true, legal_ibjjf_nogi: false, legal_adcc: true, points: 0, tags: ['pressure'] },
+{ id: 202, label: "Baseball bat choke", group: "submission", title: "Baseball bat choke", desc: "Удушение отворотами с вращением.", belt: 'purple', gi: true, noGi: false, legal_ibjjf_gi: true, legal_ibjjf_nogi: false, legal_adcc: true, points: 0, tags: ['flexibility'] },
 { id: 203, label: "Clock choke", group: "submission", title: "Clock choke", desc: "Удушение из черепахи с захватом ворота.", belt: 'blue', gi: true, noGi: false, legal_ibjjf_gi: true, legal_ibjjf_nogi: false, legal_adcc: true, points: 0, tags: [] },
 { id: 204, label: "Brabo choke", group: "submission", title: "Brabo choke", desc: "Удушение отворотом из полугарда/сайда.", belt: 'purple', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
 { id: 300, label: "Single Leg X", group: "position", title: "Single Leg X (SLX)", desc: "Контроль одной ноги с зацепом изнутри.", belt: 'purple', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['flexibility'] },
@@ -407,56 +405,56 @@ const bjjNodesData = [
 { id: 304, label: "Estima Lock", group: "submission", title: "Estima Lock", desc: "Узел стопы.", belt: 'brown', gi: true, noGi: true, legal_ibjjf_gi: false, legal_ibjjf_nogi: false, legal_adcc: true, points: 0, tags: [] },
 { id: 305, label: "Аши Гарами", group: "transition", title: "Аши Гарами", desc: "Контроль ноги для атак на пятку.", belt: 'brown', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
 { id: 306, label: "Ashi Ankle Lock", group: "submission", title: "Рычаг голеностопа из Аши Гарами", desc: "Вариация прямого болевого на стопу из контроля аши-гарами.", belt: "blue", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
-{ id: 307, label: "Inside Heel Hook", group: "submission", title: "Внутренний хилхук", desc: "Ротационный болевой на колено изнутри (50/50).", belt: "purple", gi: true, noGi: true, legal_ibjjf_gi: false, legal_ibjjf_nogi: false, legal_adcc: true, points: 0, tags: ["flexibility"] },
-{ id: 308, label: "Outside Heel Hook", group: "submission", title: "Внешний хилхук", desc: "Внешний хилхук с другим углом атаки из outside 50/50.", belt: "brown", gi: true, noGi: true, legal_ibjjf_gi: false, legal_ibjjf_nogi: false, legal_adcc: true, points: 0, tags: ["flexibility"] },
+{ id: 307, label: "Inside Heel Hook", group: "submission", title: "Внутренний хилхук", desc: "Ротационный болевой на колено изнутри (50/50).", belt: "purple", gi: true, noGi: true, legal_ibjjf_gi: false, legal_ibjjf_nogi: false, legal_adcc: true, points: 0, tags: [] },
+{ id: 308, label: "Outside Heel Hook", group: "submission", title: "Внешний хилхук", desc: "Внешний хилхук с другим углом атаки из outside 50/50.", belt: "brown", gi: true, noGi: true, legal_ibjjf_gi: false, legal_ibjjf_nogi: false, legal_adcc: true, points: 0, tags: [] },
 { id: 309, label: "Inside Toe Hold", group: "submission", title: "Внутренний тое холд", desc: "Вариация тое холда с внутренним захватом стопы.", belt: "brown", gi: true, noGi: true, legal_ibjjf_gi: false, legal_ibjjf_nogi: false, legal_adcc: true, points: 0, tags: [] },
-{ id: 310, label: "Reverse Kneebar", group: "submission", title: "Обратный рычаг колена", desc: "Рычаг колена в противоположном направлении, из saddle.", belt: "brown", gi: true, noGi: true, legal_ibjjf_gi: false, legal_ibjjf_nogi: false, legal_adcc: true, points: 0, tags: ["flexibility"] },
-{ id: 311, label: "Calf Slicer", group: "submission", title: "Ущемление икры", desc: "Компрессионный болевой на икроножную мышцу.", belt: "brown", gi: true, noGi: true, legal_ibjjf_gi: false, legal_ibjjf_nogi: false, legal_adcc: true, points: 0, tags: ["flexibility"] },
-{ id: 312, label: "Boston Crab", group: "submission", title: "Boston Crab", desc: "Болевой на стопу и позвоночник из позиции за спиной.", belt: "brown", gi: true, noGi: true, legal_ibjjf_gi: false, legal_ibjjf_nogi: false, legal_adcc: true, points: 0, tags: ["flexibility"] },
+{ id: 310, label: "Reverse Kneebar", group: "submission", title: "Обратный рычаг колена", desc: "Рычаг колена в противоположном направлении, из saddle.", belt: "brown", gi: true, noGi: true, legal_ibjjf_gi: false, legal_ibjjf_nogi: false, legal_adcc: true, points: 0, tags: ['flexibility'] },
+{ id: 311, label: "Calf Slicer", group: "submission", title: "Ущемление икры", desc: "Компрессионный болевой на икроножную мышцу.", belt: "brown", gi: true, noGi: true, legal_ibjjf_gi: false, legal_ibjjf_nogi: false, legal_adcc: true, points: 0, tags: ['flexibility'] },
+{ id: 312, label: "Boston Crab", group: "submission", title: "Boston Crab", desc: "Болевой на стопу и позвоночник из позиции за спиной.", belt: "brown", gi: true, noGi: true, legal_ibjjf_gi: false, legal_ibjjf_nogi: false, legal_adcc: true, points: 0, tags: ['flexibility'] },
 { id: 313, label: "Reverse Brabo", group: "submission", title: "Обратный Брабо чок", desc: "Вариация Brabo с другим углом захвата.", belt: "brown", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
-{ id: 314, label: "Peruvian Necktie", group: "submission", title: "Перуанская удавка", desc: "Удушение из фронт-хедлока в позиции черепахи.", belt: "purple", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ["flexibility"] },
-{ id: 315, label: "Ninja Choke", group: "submission", title: "Ninja Choke", desc: "Удушение из позиции north-south с захватом руки.", belt: "brown", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ["pressure"] },
+{ id: 314, label: "Peruvian Necktie", group: "submission", title: "Перуанская удавка", desc: "Удушение из фронт-хедлока в позиции черепахи.", belt: "purple", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['flexibility'] },
+{ id: 315, label: "Ninja Choke", group: "submission", title: "Ninja Choke", desc: "Удушение из позиции north-south с захватом руки.", belt: "brown", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['pressure'] },
 { id: 316, label: "Turtle Loop Choke", group: "submission", title: "Петля из черепахи", desc: "Удушение петлёй через ворот из черепахи.", belt: "purple", gi: true, noGi: false, legal_ibjjf_gi: true, legal_ibjjf_nogi: false, legal_adcc: true, points: 0, tags: [] },
 { id: 317, label: "Reverse Clock Choke", group: "submission", title: "Обратный Clock Choke", desc: "Вариация Clock Choke с противоположным вращением.", belt: "brown", gi: true, noGi: false, legal_ibjjf_gi: true, legal_ibjjf_nogi: false, legal_adcc: true, points: 0, tags: [] },
 { id: 318, label: "Turtle Shell Choke", group: "submission", title: "Удушение из черепахи", desc: "Атака на спину с удушением через seatbelt.", belt: "purple", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
-{ id: 319, label: "Standing Bow & Arrow", group: "submission", title: "Лук и стрела (стоя)", desc: "Динамичное удушение с взятием спины из стойки.", belt: "brown", gi: true, noGi: false, legal_ibjjf_gi: true, legal_ibjjf_nogi: false, legal_adcc: true, points: 0, tags: ["speed", "flexibility"] },
-{ id: 320, label: "Berimbolo", group: "sweep", title: "Беримболо", desc: "Инвертированный свип с прямым переходом во взятие спины.", belt: "purple", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ["flexibility", "speed"] },
-{ id: 321, label: "Rolling Back Take", group: "sweep", title: "Ролл-тейк бэк", desc: "Динамичный ролл-свип из De La Riva для захвата спины.", belt: "purple", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ["flexibility", "speed"] },
-{ id: 322, label: "Knee Slice Sweep", group: "sweep", title: "Свип коленом", desc: "Свип с использованием давления knee slice.", belt: "blue", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ["pressure"] },
-{ id: 323, label: "Reverse DLR Sweep", group: "sweep", title: "Свип из Reverse DLR", desc: "Свип из позиции Reverse De La Riva гарда.", belt: "purple", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ["flexibility"] },
-{ id: 324, label: "Spider Lasso Sweep", group: "sweep", title: "Свип лассо из паука", desc: "Свип с использованием лассо-хука.", belt: "purple", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ["long_limbs", "flexibility"] },
+{ id: 319, label: "Standing Bow & Arrow", group: "submission", title: "Лук и стрела (стоя)", desc: "Динамичное удушение с взятием спины из стойки.", belt: "brown", gi: true, noGi: false, legal_ibjjf_gi: true, legal_ibjjf_nogi: false, legal_adcc: true, points: 0, tags: [] },
+{ id: 320, label: "Berimbolo", group: "sweep", title: "Беримболо", desc: "Инвертированный свип с прямым переходом во взятие спины.", belt: "purple", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ['flexibility', 'speed'] },
+{ id: 321, label: "Rolling Back Take", group: "sweep", title: "Ролл-тейк бэк", desc: "Динамичный ролл-свип из De La Riva для захвата спины.", belt: "purple", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ['flexibility', 'speed'] },
+{ id: 322, label: "Knee Slice Sweep", group: "sweep", title: "Свип коленом", desc: "Свип с использованием давления knee slice.", belt: "blue", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ['pressure'] },
+{ id: 323, label: "Reverse DLR Sweep", group: "sweep", title: "Свип из Reverse DLR", desc: "Свип из позиции Reverse De La Riva гарда.", belt: "purple", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ['flexibility'] },
+{ id: 324, label: "Spider Lasso Sweep", group: "sweep", title: "Свип лассо из паука", desc: "Свип с использованием лассо-хука.", belt: "purple", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ['long_limbs', 'flexibility'] },
 { id: 325, label: "X-Guard Sweep", group: "sweep", title: "Свип из X-Guard", desc: "Классический свип из X-Guard.", belt: "purple", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: [] },
-{ id: 326, label: "Single Leg X Sweep", group: "sweep", title: "Свип из Single Leg X", desc: "Свип из SLX гарда.", belt: "purple", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ["flexibility"] },
-{ id: 327, label: "Reverse Leg Drag", group: "guard_pass", title: "Reverse Leg Drag", desc: "Обратная вариация leg drag.", belt: "brown", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 3, tags: ["speed", "flexibility"] },
-{ id: 328, label: "Saddle Pass", group: "guard_pass", title: "Saddle Pass", desc: "Проход гарда через захват ноги в saddle.", belt: "brown", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 3, tags: ["flexibility"] },
-{ id: 329, label: "Body Lock Pass", group: "guard_pass", title: "Body Lock Pass", desc: "Проход гарда с захватом корпуса.", belt: "brown", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 3, tags: ["pressure"] },
-{ id: 330, label: "Bulldog Pass", group: "guard_pass", title: "Bulldog Pass", desc: "Проход гарда с захватом обеих ног под одну руку.", belt: "brown", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 3, tags: ["pressure"] },
-{ id: 331, label: "Knee Shield Pass", group: "guard_pass", title: "Knee Shield Pass", desc: "Проход через нейтрализацию knee shield.", belt: "purple", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 3, tags: ["pressure"] },
-{ id: 332, label: "Step-over Pass", group: "guard_pass", title: "Step-over Pass", desc: "Проход перешагиванием через ногу.", belt: "purple", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 3, tags: [] },
-{ id: 333, label: "Shoulder Pressure Pass", group: "guard_pass", title: "Shoulder Pressure Pass", desc: "Проход с давлением плечом на бёдра.", belt: "brown", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 3, tags: ["pressure"] },
-{ id: 334, label: "Honeyhole Pass", group: "guard_pass", title: "Honeyhole Pass", desc: "Продвинутый проход халф-гарда с переходом в saddle.", belt: "brown", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 3, tags: ["flexibility"] },
-{ id: 335, label: "Arm Drag to Back", group: "takedown", title: "Arm Drag to Back", desc: "Arm drag для разворота и захвата спины.", belt: "blue", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ["speed"] },
+{ id: 326, label: "Single Leg X Sweep", group: "sweep", title: "Свип из Single Leg X", desc: "Свип из SLX гарда.", belt: "purple", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ['flexibility'] },
+{ id: 327, label: "Reverse Leg Drag", group: "guard_pass", title: "Reverse Leg Drag", desc: "Обратная вариация leg drag.", belt: "brown", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 3, tags: ['speed'] },
+{ id: 328, label: "Saddle Pass", group: "guard_pass", title: "Saddle Pass", desc: "Проход гарда через захват ноги в saddle.", belt: "brown", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 3, tags: ['flexibility'] },
+{ id: 329, label: "Body Lock Pass", group: "guard_pass", title: "Body Lock Pass", desc: "Проход гарда с захватом корпуса.", belt: "brown", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 3, tags: ['pressure'] },
+{ id: 330, label: "Bulldog Pass", group: "guard_pass", title: "Bulldog Pass", desc: "Проход гарда с захватом обеих ног под одну руку.", belt: "brown", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 3, tags: ['pressure'] },
+{ id: 331, label: "Knee Shield Pass", group: "guard_pass", title: "Knee Shield Pass", desc: "Проход через нейтрализацию knee shield.", belt: "purple", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 3, tags: ['pressure'] },
+{ id: 332, label: "Step-over Pass", group: "guard_pass", title: "Step-over Pass", desc: "Проход гарда перешагиванием через ногу.", belt: "purple", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 3, tags: [] },
+{ id: 333, label: "Shoulder Pressure Pass", group: "guard_pass", title: "Shoulder Pressure Pass", desc: "Проход с давлением плечом на бёдра.", belt: "brown", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 3, tags: ['pressure'] },
+{ id: 334, label: "Honeyhole Pass", group: "guard_pass", title: "Honeyhole Pass", desc: "Продвинутый проход халф-гарда с переходом в saddle.", belt: "brown", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 3, tags: ['flexibility'] },
+{ id: 335, label: "Arm Drag to Back", group: "takedown", title: "Arm Drag to Back", desc: "Arm drag для разворота и захвата спины.", belt: "blue", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ['speed'] },
 { id: 336, label: "Russian Tie Control", group: "position", title: "Russian Tie (2-on-1)", desc: "Контроль руки 2-в-1.", belt: "purple", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
-{ id: 337, label: "Wrestling Sprawl", group: "escape", title: "Wrestling Sprawl", desc: "Защитный спрэлл против проходов в ноги.", belt: "white", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ["speed"] },
-{ id: 338, label: "Ankle Pick", group: "takedown", title: "Ankle Pick", desc: "Проход в одну ногу с захватом лодыжки.", belt: "blue", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ["speed"] },
-{ id: 339, label: "High Crotch", group: "takedown", title: "High Crotch", desc: "Проход в две ноги через высокий захват.", belt: "blue", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ["speed"] },
-{ id: 340, label: "Snap Down", group: "takedown", title: "Snap Down", desc: "Сламывание осанки соперника.", belt: "blue", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ["speed"] },
-{ id: 341, label: "Front Headlock to Guillo", group: "submission", title: "Front Headlock to Guillotine", desc: "Захват гильотины из фронт-хедлок.", belt: "blue", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ["speed"] },
+{ id: 337, label: "Wrestling Sprawl", group: "escape", title: "Wrestling Sprawl", desc: "Защитный спрэлл против проходов в ноги.", belt: "white", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['speed'] },
+{ id: 338, label: "Ankle Pick", group: "takedown", title: "Ankle Pick", desc: "Проход в одну ногу с захватом лодыжки.", belt: "blue", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ['speed'] },
+{ id: 339, label: "High Crotch", group: "takedown", title: "High Crotch", desc: "Проход в две ноги через высокий захват.", belt: "blue", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ['speed'] },
+{ id: 340, label: "Snap Down", group: "takedown", title: "Snap Down", desc: "Сламывание осанки соперника.", belt: "blue", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['speed'] },
+{ id: 341, label: "Front Headlock to Guillo", group: "submission", title: "Front Headlock to Guillotine", desc: "Захват гильотины из фронт-хедлок.", belt: "blue", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['speed'] },
 { id: 342, label: "Cradle Position", group: "position", title: "Cradle (Колыбель)", desc: "Борцовский контроль cradle.", belt: "purple", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
-{ id: 343, label: "Reverse Omoplata", group: "submission", title: "Обратная омоплата", desc: "Омоплата с противоположным вращением.", belt: "brown", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ["flexibility"] },
-{ id: 344, label: "Gogoplata", group: "submission", title: "Гогоплата", desc: "Удушение голенью против горла.", belt: "brown", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ["flexibility"] },
-{ id: 345, label: "Electric Chair", group: "submission", title: "Electric Chair", desc: "Болевой на плечо из инвертированного гарда.", belt: "brown", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ["flexibility"] },
-{ id: 346, label: "Crucifix Choke", group: "submission", title: "Crucifix (Распятие)", desc: "Позиция 'распятие', ведущая к RNC.", belt: "brown", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ["flexibility"] },
+{ id: 343, label: "Reverse Omoplata", group: "submission", title: "Обратная омоплата", desc: "Омоплата с противоположным вращением.", belt: "brown", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['flexibility'] },
+{ id: 344, label: "Gogoplata", group: "submission", title: "Гогоплата", desc: "Удушение голенью против горла.", belt: "brown", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['flexibility'] },
+{ id: 345, label: "Electric Chair", group: "submission", title: "Electric Chair", desc: "Болевой на плечо из инвертированного гарда.", belt: "brown", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['flexibility'] },
+{ id: 346, label: "Crucifix Choke", group: "submission", title: "Crucifix (Распятие)", desc: "Позиция 'распятие', ведущая к RNC.", belt: "brown", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['flexibility'] },
 { id: 347, label: "Gift Wrap Choke", group: "submission", title: "Gift Wrap Choke", desc: "Удушение с обвиванием руки из сайд-контроля.", belt: "purple", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
 { id: 348, label: "Baby Arm", group: "submission", title: "Baby Arm", desc: "Болевой на плечо через вариацию D'Arce.", belt: "brown", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
-{ id: 349, label: "Arm Triangle from N-S", group: "submission", title: "Arm Triangle из North-South", desc: "Треугольник рукой из позиции north-south.", belt: "brown", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ["pressure"] },
-{ id: 350, label: "Brass Monkey", group: "submission", title: "Brass Monkey", desc: "Продвинутый болевой на плечо из гарда.", belt: "brown", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ["flexibility"] },
+{ id: 349, label: "Arm Triangle from N-S", group: "submission", title: "Arm Triangle из North-South", desc: "Треугольник рукой из позиции north-south.", belt: "brown", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['pressure'] },
+{ id: 350, label: "Brass Monkey", group: "submission", title: "Brass Monkey", desc: "Продвинутый болевой на плечо из гарда.", belt: "brown", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['flexibility'] },
 { id: 351, label: "Triangle to Armbar", group: "transition", title: "Triangle to Armbar", desc: "Переход от треугольника к болевому на руку.", belt: "purple", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
-{ id: 352, label: "Armbar to Omoplata", group: "transition", title: "Armbar to Omoplata", desc: "Переход от армбара к омоплате.", belt: "purple", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ["flexibility"] },
+{ id: 352, label: "Armbar to Omoplata", group: "transition", title: "Armbar to Omoplata", desc: "Переход от армбара к омоплате.", belt: "purple", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['flexibility'] },
 { id: 353, label: "Seatbelt Back Take", group: "transition", title: "Seatbelt Back Take", desc: "Взятие спины через seatbelt.", belt: "purple", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
-{ id: 354, label: "Knee Ride Transition", group: "transition", title: "Переход в Knee Ride", desc: "Переход из сайд-контроля в knee ride.", belt: "blue", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ["pressure"] },
+{ id: 354, label: "Knee Ride Transition", group: "transition", title: "Переход в Knee Ride", desc: "Переход из сайд-контроля в knee ride.", belt: "blue", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['pressure'] },
 { id: 355, label: "Guard to Leg Lock", group: "transition", title: "Guard to Leg Lock", desc: "Переход от свипов к атакам на ноги.", belt: "purple", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
-{ id: 356, label: "Gut Wrench Turn", group: "transition", title: "Gut Wrench Turn", desc: "Борцовский поворот из черепахи.", belt: "purple", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ["speed"] }
+{ id: 356, label: "Gut Wrench Turn", group: "transition", title: "Gut Wrench Turn", desc: "Борцовский поворот из черепахи.", belt: "purple", gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['speed'] }
 ];
 
 const bjjEdgesData = [
@@ -564,7 +562,7 @@ const bjjEdgesData = [
 { from: 20, to: 356, trigger: "Соперник в позиции черепахи" }
 ];
 
-// ===== ПОДРОБНЫЕ ОПИСАНИЯ ТЕХНИК (встроено в index) =====
+// ===== ПОДРОБНЫЕ ОПИСАНИЯ ТЕХНИК (ОДНО ОБЪЯВЛЕНИЕ, БЕЗ ДУБЛЕЙ) =====
 const techniqueDetails = {
 1: { mechanics: "Ноги скрещены за спиной соперника, контроль дистанции бёдрами и захватами.", keyPoints: "Пятки тянут соперника вниз, колени сжаты, один захват рукава + ворот.", when: "Базовая защитная позиция, восстановление после прохода гарда.", mistakes: "Расслабленные ноги, отсутствие контроля осанки соперника." },
 2: { mechanics: "Находитесь внутри гарда соперника, работаете над проходом или поднятием корпуса.", keyPoints: "Руки на бёдрах/плечах, поднятая спина, разрыв захватов.", when: "Стартовая позиция для прохода гарда.", mistakes: "Низкая осанка, позволяющая сопернику атаковать." },
@@ -731,452 +729,409 @@ const techniqueDetails = {
 356: { mechanics: "Борцовский поворот из черепахи.", keyPoints: "Захват корпуса, вращение.", when: "Соперник в позиции черепахи.", mistakes: "Соперник защищает корпус." }
 };
 
-// ===== ИНИЦИАЛИЗАЦИЯ ГРАФА =====
 const nodes = new vis.DataSet(bjjNodesData.map(n => ({ id: n.id, label: n.label, group: n.group, title: n.title, desc: n.desc, belt: n.belt, gi: n.gi, noGi: n.noGi, legal_ibjjf_gi: n.legal_ibjjf_gi, legal_ibjjf_nogi: n.legal_ibjjf_nogi, legal_adcc: n.legal_adcc, points: n.points, tags: n.tags })));
 const edges = new vis.DataSet(bjjEdgesData);
 const network = new vis.Network(document.getElementById('mynetwork'), { nodes, edges }, {
-groups, nodes: { size: window.innerWidth < 768 ? 28 : 22, font: { size: window.innerWidth < 768 ? 14 : 12, color: '#ffffff', strokeWidth: 3, strokeColor: '#000000' } },
-edges: { arrows: { to: { enabled: true, scaleFactor: 0.8 } }, font: { size: 0 }, color: '#cbd5e1', width: 2, selectionWidth: 4 },
-physics: { solver: 'forceAtlas2Based', forceAtlas2Based: { gravitationalConstant: -50 }, stabilization: { iterations: 150 } },
-interaction: { hover: true, dragNodes: true, dragView: true, zoomView: true }
+  groups, 
+  nodes: { size: window.innerWidth < 768 ? 28 : 22, font: { size: window.innerWidth < 768 ? 14 : 12, color: '#ffffff', strokeWidth: 3, strokeColor: '#000000' } },
+  edges: { arrows: { to: { enabled: true, scaleFactor: 0.8 } }, font: { size: 0 }, color: '#cbd5e1', width: 2, selectionWidth: 4 },
+  physics: { solver: 'forceAtlas2Based', forceAtlas2Based: { gravitationalConstant: -50 }, stabilization: { iterations: 150 } },
+  interaction: { hover: true, dragNodes: true, dragView: true, zoomView: true }
 });
-
 const STORAGE_KEY = 'bjj_learned_v3';
 let progress = {};
 async function initApp() {
-const serverProgress = await loadProgressFromServer();
-progress = serverProgress || JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-updateGlobalProgress();
-updateNodeColors();
-applyAllFilters();
+  const serverProgress = await loadProgressFromServer();
+  progress = serverProgress || JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+  updateGlobalProgress();
+  updateNodeColors();
+  applyAllFilters();
 }
 const setProgress = async (id, status) => {
-progress[id] = status;
-localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
-await syncProgressToServer(progress);
-updateGlobalProgress();
-updateNodeColors();
-triggerHaptic('light');
+  progress[id] = status;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+  await syncProgressToServer(progress);
+  updateGlobalProgress();
+  updateNodeColors();
+  triggerHaptic('light');
 };
 function updateNodeColors() {
-const learnedSet = new Set(Object.keys(progress).filter(id => progress[id] === 'done'));
-const availableSet = new Set();
-edges.forEach(edge => {
-if (learnedSet.has(String(edge.from)) && !learnedSet.has(String(edge.to))) availableSet.add(edge.to);
-if (learnedSet.has(String(edge.to)) && !learnedSet.has(String(edge.from))) availableSet.add(edge.from);
-});
-nodes.forEach(node => {
-const status = progress[node.id] || 'not_started';
-let color = status === 'done' ? { background: '#4CAF50', border: '#2E7D32' } :
-status === 'in_progress' ? { background: '#f59e0b', border: '#d97706' } :
-availableSet.has(node.id) ? { background: '#FFC107', border: '#FF9800' } :
-{ background: groups[node.group]?.color?.background || '#ccc', opacity: 0.6 };
-nodes.update({ id: node.id, color });
-});
+  const learnedSet = new Set(Object.keys(progress).filter(id => progress[id] === 'done'));
+  const availableSet = new Set();
+  edges.forEach(edge => {
+    if (learnedSet.has(String(edge.from)) && !learnedSet.has(String(edge.to))) availableSet.add(edge.to);
+    if (learnedSet.has(String(edge.to)) && !learnedSet.has(String(edge.from))) availableSet.add(edge.from);
+  });
+  nodes.forEach(node => {
+    const status = progress[node.id] || 'not_started';
+    let color = status === 'done' ? { background: '#4CAF50', border: '#2E7D32' } :
+                status === 'in_progress' ? { background: '#f59e0b', border: '#d97706' } :
+                availableSet.has(node.id) ? { background: '#FFC107', border: '#FF9800' } :
+                { background: groups[node.group]?.color?.background || '#ccc', opacity: 0.6 };
+    nodes.update({ id: node.id, color });
+  });
 }
 function updateGlobalProgress() {
-const total = bjjNodesData.length;
-const done = Object.values(progress).filter(v => v === 'done').length;
-document.getElementById('globalProgressBtn').textContent = `${Math.round((done / total) * 100)}%`;
+  const total = bjjNodesData.length;
+  const done = Object.values(progress).filter(v => v === 'done').length;
+  document.getElementById('globalProgressBtn').textContent = `${Math.round((done / total) * 100)}%`;
 }
 window.fitGraph = () => {
-if (network) {
-network.fit({
-animation: { duration: 500, easingFunction: 'easeInOutQuad' }
-});
-triggerHaptic('light');
-}
+  if (network) {
+    network.fit({ animation: { duration: 500, easingFunction: 'easeInOutQuad' } });
+    triggerHaptic('light');
+  }
 };
 window.toggleMenu = () => {
-document.getElementById('settingsMenu').classList.toggle('hidden');
-triggerHaptic('light');
+  document.getElementById('settingsMenu').classList.toggle('hidden');
+  triggerHaptic('light');
 };
-let giFilterState = 'gi', currentCategoryFilter = null, currentRule = 'none';
+let giFilterState = 'gi', currentCategoryFilter = null, currentRule = 'none', styleFilterActive = false;
 let styleProfile = JSON.parse(localStorage.getItem('bjj_style_profile') || '{"belt": "white"}');
 const beltOrder = ['white', 'blue', 'purple', 'brown', 'black'];
 function applyAllFilters() {
-const userBelt = styleProfile.belt || 'white';
-const maxBeltIndex = beltOrder.indexOf(userBelt);
-const preferredTags = [];
-if (styleProfile.flexibility) preferredTags.push('flexibility');
-if (styleProfile.pressure) preferredTags.push('pressure');
-if (styleProfile.long_limbs) preferredTags.push('long_limbs');
-if (styleProfile.speed) preferredTags.push('speed');
-nodes.forEach(n => {
-const nodeBeltIndex = beltOrder.indexOf(n.belt);
-const passBelt = nodeBeltIndex <= maxBeltIndex;
-if (!passBelt) { nodes.update({ id: n.id, hidden: true }); return; }
-if (currentCategoryFilter !== null && n.group !== currentCategoryFilter) { nodes.update({ id: n.id, hidden: true }); return; }
-if ((giFilterState === 'gi' && !n.gi) || (giFilterState === 'nogi' && !n.noGi)) { nodes.update({ id: n.id, hidden: true }); return; }
-let passRule = true;
-if (currentRule === 'ibjjf_gi') passRule = n.legal_ibjjf_gi;
-else if (currentRule === 'ibjjf_nogi') passRule = n.legal_ibjjf_nogi;
-else if (currentRule === 'adcc') passRule = n.legal_adcc;
-if (!passRule) { nodes.update({ id: n.id, hidden: false, opacity: 0.3 }); return; }
-if (preferredTags.length > 0) {
-const hasMatchingTag = n.tags.some(tag => preferredTags.includes(tag));
-if (!hasMatchingTag && n.tags.length > 0) {
-nodes.update({ id: n.id, hidden: true });
-return;
-} else if (!hasMatchingTag && n.tags.length === 0) {
-nodes.update({ id: n.id, hidden: false, opacity: 0.5 });
-return;
-}
-}
-nodes.update({ id: n.id, hidden: false, opacity: 1.0 });
-});
-edges.forEach(e => {
-const from = nodes.get(e.from), to = nodes.get(e.to);
-if (from && to) edges.update({ id: e.id, hidden: from.hidden || to.hidden });
-});
+  const userBelt = styleProfile.belt || 'white';
+  const maxBeltIndex = beltOrder.indexOf(userBelt);
+  const preferredTags = [];
+  if (styleProfile.flexibility) preferredTags.push('flexibility');
+  if (styleProfile.pressure) preferredTags.push('pressure');
+  if (styleProfile.long_limbs) preferredTags.push('long_limbs');
+  if (styleProfile.speed) preferredTags.push('speed');
+  nodes.forEach(n => {
+    const nodeBeltIndex = beltOrder.indexOf(n.belt);
+    const passBelt = nodeBeltIndex <= maxBeltIndex;
+    if (!passBelt) { nodes.update({ id: n.id, hidden: true }); return; }
+    if (currentCategoryFilter !== null && n.group !== currentCategoryFilter) { nodes.update({ id: n.id, hidden: true }); return; }
+    if ((giFilterState === 'gi' && !n.gi) || (giFilterState === 'nogi' && !n.noGi)) { nodes.update({ id: n.id, hidden: true }); return; }
+    let passRule = true;
+    if (currentRule === 'ibjjf_gi') passRule = n.legal_ibjjf_gi;
+    else if (currentRule === 'ibjjf_nogi') passRule = n.legal_ibjjf_nogi;
+    else if (currentRule === 'adcc') passRule = n.legal_adcc;
+    if (!passRule) { nodes.update({ id: n.id, hidden: false, opacity: 0.3 }); return; }
+    if (preferredTags.length > 0) {
+      const hasMatchingTag = n.tags.some(tag => preferredTags.includes(tag));
+      if (!hasMatchingTag && n.tags.length > 0) { nodes.update({ id: n.id, hidden: true }); return; }
+      else if (!hasMatchingTag && n.tags.length === 0) { nodes.update({ id: n.id, hidden: false, opacity: 0.5 }); return; }
+    }
+    nodes.update({ id: n.id, hidden: false, opacity: 1.0 });
+  });
+  edges.forEach(e => {
+    const from = nodes.get(e.from), to = nodes.get(e.to);
+    if (from && to) edges.update({ id: e.id, hidden: from.hidden || to.hidden });
+  });
 }
 document.querySelectorAll('.filter-btn').forEach(btn => {
-btn.addEventListener('click', function() {
-const val = this.dataset.filter;
-if (this.classList.contains('active') && currentCategoryFilter === val) {
-document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-currentCategoryFilter = null;
-} else {
-document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-this.classList.add('active'); currentCategoryFilter = val;
-}
-applyAllFilters(); triggerHaptic('light');
-});
+  btn.addEventListener('click', function() {
+    const val = this.dataset.filter;
+    if (this.classList.contains('active') && currentCategoryFilter === val) {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      currentCategoryFilter = null;
+    } else {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active'); currentCategoryFilter = val;
+    }
+    applyAllFilters(); triggerHaptic('light');
+  });
 });
 document.querySelectorAll('.rule-btn').forEach(btn => {
-btn.addEventListener('click', function() {
-document.querySelectorAll('.rule-btn').forEach(b => b.classList.remove('active-rule'));
-this.classList.add('active-rule'); currentRule = this.dataset.rule; applyAllFilters(); triggerHaptic('light');
-});
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.rule-btn').forEach(b => b.classList.remove('active-rule'));
+    this.classList.add('active-rule'); currentRule = this.dataset.rule; applyAllFilters(); triggerHaptic('light');
+  });
 });
 window.toggleGiFilter = () => {
-giFilterState = giFilterState === 'gi' ? 'nogi' : 'gi';
-document.getElementById('giToggleBtn').textContent = giFilterState === 'gi' ? 'Gi' : 'No-Gi';
-document.getElementById('giToggleBtn').classList.toggle('active', giFilterState === 'gi');
-applyAllFilters(); triggerHaptic('light');
+  giFilterState = giFilterState === 'gi' ? 'nogi' : 'gi';
+  document.getElementById('giToggleBtn').textContent = giFilterState === 'gi' ? 'Gi' : 'No-Gi';
+  document.getElementById('giToggleBtn').classList.toggle('active', giFilterState === 'gi');
+  applyAllFilters(); triggerHaptic('light');
 };
 document.addEventListener('click', function(e) {
-if (e.target.closest('.belt-btn')) {
-const btn = e.target.closest('.belt-btn');
-document.querySelectorAll('.belt-btn').forEach(b => b.classList.remove('active-belt'));
-btn.classList.add('active-belt');
-triggerHaptic('light');
-}
+  if (e.target.closest('.belt-btn')) {
+    const btn = e.target.closest('.belt-btn');
+    document.querySelectorAll('.belt-btn').forEach(b => b.classList.remove('active-belt'));
+    btn.classList.add('active-belt');
+    triggerHaptic('light');
+  }
 });
 window.openStyleModal = () => {
-document.getElementById('styleModal').classList.remove('hidden');
-document.getElementById('styleFlex').checked = !!styleProfile.flexibility;
-document.getElementById('stylePressure').checked = !!styleProfile.pressure;
-document.getElementById('styleLong').checked = !!styleProfile.long_limbs;
-document.getElementById('styleSpeed').checked = !!styleProfile.speed;
-document.querySelectorAll('.belt-btn').forEach(btn => {
-btn.classList.toggle('active-belt', btn.dataset.belt === (styleProfile.belt || 'white'));
-});
+  document.getElementById('styleModal').classList.remove('hidden');
+  document.getElementById('styleFlex').checked = !!styleProfile.flexibility;
+  document.getElementById('stylePressure').checked = !!styleProfile.pressure;
+  document.getElementById('styleLong').checked = !!styleProfile.long_limbs;
+  document.getElementById('styleSpeed').checked = !!styleProfile.speed;
+  document.querySelectorAll('.belt-btn').forEach(btn => {
+    btn.classList.toggle('active-belt', btn.dataset.belt === (styleProfile.belt || 'white'));
+  });
 };
 window.closeStyleModal = () => document.getElementById('styleModal').classList.add('hidden');
 window.saveStyleProfile = () => {
-const activeBeltBtn = document.querySelector('.belt-btn.active-belt');
-styleProfile = {
-belt: activeBeltBtn ? activeBeltBtn.dataset.belt : 'white',
-flexibility: document.getElementById('styleFlex').checked,
-pressure: document.getElementById('stylePressure').checked,
-long_limbs: document.getElementById('styleLong').checked,
-speed: document.getElementById('styleSpeed').checked
-};
-localStorage.setItem('bjj_style_profile', JSON.stringify(styleProfile));
-closeStyleModal();
-applyAllFilters();
-triggerHaptic('medium');
+  const activeBeltBtn = document.querySelector('.belt-btn.active-belt');
+  styleProfile = {
+    belt: activeBeltBtn ? activeBeltBtn.dataset.belt : 'white',
+    flexibility: document.getElementById('styleFlex').checked,
+    pressure: document.getElementById('stylePressure').checked,
+    long_limbs: document.getElementById('styleLong').checked,
+    speed: document.getElementById('styleSpeed').checked
+  };
+  localStorage.setItem('bjj_style_profile', JSON.stringify(styleProfile));
+  closeStyleModal();
+  applyAllFilters();
+  triggerHaptic('medium');
 };
 class BottomSheet {
-constructor() {
-this.sheet = document.getElementById('bottomSheet');
-this.overlay = document.getElementById('bottomSheetOverlay');
-this.handle = document.getElementById('bottomSheetHandle');
-this.content = document.getElementById('nodeDetails');
-this.startY = 0;
-this.isDragging = false;
-this.handle.addEventListener('touchstart', (e) => this.startDrag(e));
-this.handle.addEventListener('touchmove', (e) => this.onDrag(e));
-this.handle.addEventListener('touchend', () => this.endDrag());
-this.overlay.addEventListener('click', () => this.hide());
-}
-show() {
-this.sheet.classList.add('active');
-this.overlay.classList.add('active');
-triggerHaptic('medium');
-}
-hide() {
-this.sheet.classList.remove('active');
-this.overlay.classList.remove('active');
-this.sheet.style.transform = '';
-}
-startDrag(e) {
-this.startY = e.touches[0].clientY;
-this.isDragging = true;
-}
-onDrag(e) {
-if (!this.isDragging) return;
-e.preventDefault();
-const diff = e.touches[0].clientY - this.startY;
-if (diff > 0) this.sheet.style.transform = `translateY(${diff}px)`;
-}
-endDrag() {
-if (!this.isDragging) return;
-this.isDragging = false;
-const currentTransform = this.sheet.style.transform;
-const diff = currentTransform ? parseInt(currentTransform.replace('translateY(', '').replace('px)', '')) : 0;
-if (diff > 100) this.hide();
-else this.sheet.style.transform = '';
-}
+  constructor() {
+    this.sheet = document.getElementById('bottomSheet');
+    this.overlay = document.getElementById('bottomSheetOverlay');
+    this.handle = document.getElementById('bottomSheetHandle');
+    this.content = document.getElementById('nodeDetails');
+    this.startY = 0;
+    this.isDragging = false;
+    this.handle.addEventListener('touchstart', (e) => this.startDrag(e));
+    this.handle.addEventListener('touchmove', (e) => this.onDrag(e));
+    this.handle.addEventListener('touchend', () => this.endDrag());
+    this.overlay.addEventListener('click', () => this.hide());
+  }
+  show() {
+    this.sheet.classList.add('active');
+    this.overlay.classList.add('active');
+    triggerHaptic('medium');
+  }
+  hide() {
+    this.sheet.classList.remove('active');
+    this.overlay.classList.remove('active');
+    this.sheet.style.transform = '';
+  }
+  startDrag(e) {
+    this.startY = e.touches[0].clientY;
+    this.isDragging = true;
+  }
+  onDrag(e) {
+    if (!this.isDragging) return;
+    e.preventDefault();
+    const diff = e.touches[0].clientY - this.startY;
+    if (diff > 0) this.sheet.style.transform = `translateY(${diff}px)`;
+  }
+  endDrag() {
+    if (!this.isDragging) return;
+    this.isDragging = false;
+    const currentTransform = this.sheet.style.transform;
+    const diff = currentTransform ? parseInt(currentTransform.replace('translateY(', '').replace('px)', '')) : 0;
+    if (diff > 100) this.hide();
+    else this.sheet.style.transform = '';
+  }
 }
 const bottomSheet = new BottomSheet();
-
-// ===== КАРТОЧКА ТЕХНИКИ (синхронная, без async) =====
 function renderNodeDetails(nodeId) {
-const n = bjjNodesData.find(x => x.id === nodeId);
-if (!n) return;
-const status = progress[nodeId] || 'not_started';
-const catLabels = { position:'Позиция', submission:'Сабмишен', sweep:'Свип', guard_pass:'Проход', transition:'Переход', escape:'Защита', takedown:'Тейкдаун' };
-const beltIcons = { white:'⚪', blue:'🔵', purple:'🟣', brown:'🟤', black:'⚫' };
-let badges = [];
-if (n.gi) badges.push('<span class="px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded text-xs border border-indigo-200">🥋 Gi</span>');
-if (n.noGi) badges.push('<span class="px-2 py-0.5 bg-cyan-50 text-cyan-600 rounded text-xs border border-cyan-200">🩳 No-Gi</span>');
-let legal = [];
-legal.push(n.legal_ibjjf_gi ? '✅ IBJJF Gi' : '🚫 IBJJF Gi');
-legal.push(n.legal_ibjjf_nogi ? '✅ IBJJF No-Gi' : '🚫 IBJJF No-Gi');
-legal.push(n.legal_adcc ? '✅ ADCC' : '🚫 ADCC');
-let tags = [];
-if (n.tags.includes('flexibility')) tags.push('🧘 Гибкость');
-if (n.tags.includes('pressure')) tags.push('🦍 Давление');
-if (n.tags.includes('long_limbs')) tags.push('🕷️ Длинные конечности');
-if (n.tags.includes('speed')) tags.push('⚡ Скорость');
-// Получаем описания напрямую из встроенного объекта
-const details = techniqueDetails[n.id] || {};
-let detailsHtml = '';
-if (details.mechanics) {
-detailsHtml += `<div class="mb-3 p-3 bg-blue-50 dark:bg-slate-700 rounded-lg border border-blue-100 dark:border-slate-600">
-<div class="flex items-center gap-2 mb-1.5">
-<span class="text-lg">🔧</span>
-<h3 class="text-xs font-bold text-blue-900 dark:text-blue-200 uppercase tracking-wider">Механика</h3>
-</div>
-<p class="text-sm text-slate-700 dark:text-slate-200 leading-relaxed">${details.mechanics}</p>
-</div>`;
-}
-if (details.keyPoints) {
-detailsHtml += `<div class="mb-3 p-3 bg-emerald-50 dark:bg-slate-700 rounded-lg border border-emerald-100 dark:border-slate-600">
-<div class="flex items-center gap-2 mb-1.5">
-<span class="text-lg">🎯</span>
-<h3 class="text-xs font-bold text-emerald-900 dark:text-emerald-200 uppercase tracking-wider">Ключевые детали</h3>
-</div>
-<p class="text-sm text-slate-700 dark:text-slate-200 leading-relaxed">${details.keyPoints}</p>
-</div>`;
-}
-if (details.when) {
-detailsHtml += `<div class="mb-3 p-3 bg-amber-50 dark:bg-slate-700 rounded-lg border border-amber-100 dark:border-slate-600">
-<div class="flex items-center gap-2 mb-1.5">
-<span class="text-lg">⏱</span>
-<h3 class="text-xs font-bold text-amber-900 dark:text-amber-200 uppercase tracking-wider">Когда применять</h3>
-</div>
-<p class="text-sm text-slate-700 dark:text-slate-200 leading-relaxed">${details.when}</p>
-</div>`;
-}
-if (details.mistakes) {
-detailsHtml += `<div class="mb-3 p-3 bg-red-50 dark:bg-slate-700 rounded-lg border border-red-100 dark:border-slate-600">
-<div class="flex items-center gap-2 mb-1.5">
-<span class="text-lg">⚠️</span>
-<h3 class="text-xs font-bold text-red-900 dark:text-red-200 uppercase tracking-wider">Типичные ошибки</h3>
-</div>
-<p class="text-sm text-slate-700 dark:text-slate-200 leading-relaxed">${details.mistakes}</p>
-</div>`;
-}
-const linked = bjjEdgesData.filter(e => e.from === nodeId || e.to === nodeId);
-const triggers = {}, noTrigger = [];
-linked.forEach(e => {
-const relId = e.from === nodeId ? e.to : e.from;
-const relNode = bjjNodesData.find(x => x.id === relId);
-const dir = e.from === nodeId ? '→' : '←';
-if (e.trigger) { if (!triggers[e.trigger]) triggers[e.trigger] = []; triggers[e.trigger].push({ id: relId, label: relNode ? relNode.label : relId, dir }); }
-else { noTrigger.push({ id: relId, label: relNode ? relNode.label : relId, dir }); }
-});
-let linkedHtml = '';
-for (const [trig, items] of Object.entries(triggers)) {
-linkedHtml += `<div class="mb-2"><span class="text-xs font-semibold text-slate-500">${trig}</span>`;
-items.forEach(i => { linkedHtml += `<button onclick="focusNode(${i.id})" class="flex items-center gap-2 w-full text-left px-3 py-1.5 bg-slate-50 hover:bg-slate-100 rounded-lg transition text-sm border border-slate-100 mt-1"><span class="text-slate-400">${i.dir}</span><span class="font-medium text-slate-700">${i.label}</span></button>`; });
-linkedHtml += `</div>`;
-}
-if (noTrigger.length > 0) {
-linkedHtml += `<div class="mb-2"><span class="text-xs font-semibold text-slate-500">Всегда доступно</span>`;
-noTrigger.forEach(i => { linkedHtml += `<button onclick="focusNode(${i.id})" class="flex items-center gap-2 w-full text-left px-3 py-1.5 bg-slate-50 hover:bg-slate-100 rounded-lg transition text-sm border border-slate-100 mt-1"><span class="text-slate-400">${i.dir}</span><span class="font-medium text-slate-700">${i.label}</span></button>`; });
-linkedHtml += `</div>`;
-}
-document.getElementById('nodeDetails').innerHTML = `
-<div class="fade-in">
-<div class="flex justify-between items-start mb-3">
-<div class="flex-1">
-<h2 class="text-lg font-bold text-slate-800 mb-1">${n.title}</h2>
-<div class="flex gap-2 flex-wrap">
-<span class="px-2 py-0.5 bg-slate-100 rounded text-xs text-slate-600 border border-slate-200">${catLabels[n.group]}</span>
-<span class="px-2 py-0.5 bg-slate-100 rounded text-xs text-slate-600 border border-slate-200">${beltIcons[n.belt]} ${n.belt}</span>
-${badges.join('')}
-</div>
-<div class="text-xs text-slate-500 mt-1.5 space-x-2">${legal.join(' · ')}</div>
-${tags.length ? `<div class="text-xs mt-1 flex flex-wrap gap-1">${tags.map(t => `<span class="px-2 py-0.5 bg-slate-100 rounded text-xs">${t}</span>`).join('')}</div>` : ''}
-</div>
-<button onclick="shareNode(${nodeId})" class="p-2 bg-slate-100 rounded-lg hover:bg-slate-200 transition text-slate-500 ml-2" title="Поделиться">
-<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-</button>
-</div>
-${detailsHtml}
-<div class="mb-4">
-<h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Прогресс</h3>
-<div class="grid grid-cols-3 gap-2">
-<button onclick="updateProgress(${nodeId}, 'not_started')" class="progress-btn ${status==='not_started'?'active-not':'bg-slate-50 text-slate-500 border border-slate-200'} py-2 rounded-lg text-xs font-medium">Не начал</button>
-<button onclick="updateProgress(${nodeId}, 'in_progress')" class="progress-btn ${status==='in_progress'?'active-progress':'bg-slate-50 text-slate-500 border border-slate-200'} py-2 rounded-lg text-xs font-medium">В процессе</button>
-<button onclick="updateProgress(${nodeId}, 'done')" class="progress-btn ${status==='done'?'active-done':'bg-slate-50 text-slate-500 border border-slate-200'} py-2 rounded-lg text-xs font-medium">Изучено</button>
-</div>
-</div>
-${linkedHtml ? `<div class="border-t border-slate-200 pt-3"><h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Реакции и продолжения</h3><div class="flex flex-col gap-1 max-h-40 overflow-y-auto">${linkedHtml}</div></div>` : ''}
-</div>`;
-bottomSheet.show();
+  const n = bjjNodesData.find(x => x.id === nodeId);
+  if (!n) return;
+  const status = progress[nodeId] || 'not_started';
+  const catLabels = { position:'Позиция', submission:'Сабмишен', sweep:'Свип', guard_pass:'Проход', transition:'Переход', escape:'Защита', takedown:'Тейкдаун' };
+  const beltIcons = { white:'⚪', blue:'🔵', purple:'🟣', brown:'🟤', black:'⚫' };
+  let badges = [];
+  if (n.gi) badges.push('<span class="px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded text-xs border border-indigo-200">🥋 Gi</span>');
+  if (n.noGi) badges.push('<span class="px-2 py-0.5 bg-cyan-50 text-cyan-600 rounded text-xs border border-cyan-200">🩳 No-Gi</span>');
+  let legal = [];
+  legal.push(n.legal_ibjjf_gi ? '✅ IBJJF Gi' : '🚫 IBJJF Gi');
+  legal.push(n.legal_ibjjf_nogi ? '✅ IBJJF No-Gi' : '🚫 IBJJF No-Gi');
+  legal.push(n.legal_adcc ? '✅ ADCC' : '🚫 ADCC');
+  let tags = [];
+  if (n.tags.includes('flexibility')) tags.push('🧘 Гибкость');
+  if (n.tags.includes('pressure')) tags.push('🦍 Давление');
+  if (n.tags.includes('long_limbs')) tags.push('🕷️ Длинные конечности');
+  if (n.tags.includes('speed')) tags.push('⚡ Скорость');
+  
+  const details = techniqueDetails[n.id] || {};
+  let detailsHtml = '';
+  if (details.mechanics) {
+    detailsHtml += `<div class="mb-3 p-3 bg-blue-50 dark:bg-slate-700 rounded-lg border border-blue-100 dark:border-slate-600">
+      <div class="flex items-center gap-2 mb-1.5"><span class="text-lg">🔧</span><h3 class="text-xs font-bold text-blue-900 dark:text-blue-200 uppercase tracking-wider">Механика</h3></div>
+      <p class="text-sm text-slate-700 dark:text-slate-200 leading-relaxed">${details.mechanics}</p>
+    </div>`;
+  }
+  if (details.keyPoints) {
+    detailsHtml += `<div class="mb-3 p-3 bg-emerald-50 dark:bg-slate-700 rounded-lg border border-emerald-100 dark:border-slate-600">
+      <div class="flex items-center gap-2 mb-1.5"><span class="text-lg">🎯</span><h3 class="text-xs font-bold text-emerald-900 dark:text-emerald-200 uppercase tracking-wider">Ключевые детали</h3></div>
+      <p class="text-sm text-slate-700 dark:text-slate-200 leading-relaxed">${details.keyPoints}</p>
+    </div>`;
+  }
+  if (details.when) {
+    detailsHtml += `<div class="mb-3 p-3 bg-amber-50 dark:bg-slate-700 rounded-lg border border-amber-100 dark:border-slate-600">
+      <div class="flex items-center gap-2 mb-1.5"><span class="text-lg">⏱</span><h3 class="text-xs font-bold text-amber-900 dark:text-amber-200 uppercase tracking-wider">Когда применять</h3></div>
+      <p class="text-sm text-slate-700 dark:text-slate-200 leading-relaxed">${details.when}</p>
+    </div>`;
+  }
+  if (details.mistakes) {
+    detailsHtml += `<div class="mb-3 p-3 bg-red-50 dark:bg-slate-700 rounded-lg border border-red-100 dark:border-slate-600">
+      <div class="flex items-center gap-2 mb-1.5"><span class="text-lg">⚠️</span><h3 class="text-xs font-bold text-red-900 dark:text-red-200 uppercase tracking-wider">Типичные ошибки</h3></div>
+      <p class="text-sm text-slate-700 dark:text-slate-200 leading-relaxed">${details.mistakes}</p>
+    </div>`;
+  }
+  
+  const linked = bjjEdgesData.filter(e => e.from === nodeId || e.to === nodeId);
+  const triggers = {}, noTrigger = [];
+  linked.forEach(e => {
+    const relId = e.from === nodeId ? e.to : e.from;
+    const relNode = bjjNodesData.find(x => x.id === relId);
+    const dir = e.from === nodeId ? '→' : '←';
+    if (e.trigger) { if (!triggers[e.trigger]) triggers[e.trigger] = []; triggers[e.trigger].push({ id: relId, label: relNode ? relNode.label : relId, dir }); }
+    else { noTrigger.push({ id: relId, label: relNode ? relNode.label : relId, dir }); }
+  });
+  let linkedHtml = '';
+  for (const [trig, items] of Object.entries(triggers)) {
+    linkedHtml += `<div class="mb-2"><span class="text-xs font-semibold text-slate-500">${trig}</span>`;
+    items.forEach(i => { linkedHtml += `<button onclick="focusNode(${i.id})" class="flex items-center gap-2 w-full text-left px-3 py-1.5 bg-slate-50 hover:bg-slate-100 rounded-lg transition text-sm border border-slate-100 mt-1"><span class="text-slate-400">${i.dir}</span><span class="font-medium text-slate-700">${i.label}</span></button>`; });
+    linkedHtml += `</div>`;
+  }
+  if (noTrigger.length > 0) {
+    linkedHtml += `<div class="mb-2"><span class="text-xs font-semibold text-slate-500">Всегда доступно</span>`;
+    noTrigger.forEach(i => { linkedHtml += `<button onclick="focusNode(${i.id})" class="flex items-center gap-2 w-full text-left px-3 py-1.5 bg-slate-50 hover:bg-slate-100 rounded-lg transition text-sm border border-slate-100 mt-1"><span class="text-slate-400">${i.dir}</span><span class="font-medium text-slate-700">${i.label}</span></button>`; });
+    linkedHtml += `</div>`;
+  }
+  document.getElementById('nodeDetails').innerHTML = `
+    <div class="fade-in">
+      <div class="flex justify-between items-start mb-3">
+        <div class="flex-1">
+          <h2 class="text-lg font-bold text-slate-800 mb-1">${n.title}</h2>
+          <div class="flex gap-2 flex-wrap">
+            <span class="px-2 py-0.5 bg-slate-100 rounded text-xs text-slate-600 border border-slate-200">${catLabels[n.group]}</span>
+            <span class="px-2 py-0.5 bg-slate-100 rounded text-xs text-slate-600 border border-slate-200">${beltIcons[n.belt]} ${n.belt}</span>
+            ${badges.join('')}
+          </div>
+          <div class="text-xs text-slate-500 mt-1.5 space-x-2">${legal.join(' · ')}</div>
+          ${tags.length ? `<div class="text-xs mt-1 flex flex-wrap gap-1">${tags.map(t => `<span class="px-2 py-0.5 bg-slate-100 rounded text-xs">${t}</span>`).join('')}</div>` : ''}
+        </div>
+        <button onclick="shareNode(${nodeId})" class="p-2 bg-slate-100 rounded-lg hover:bg-slate-200 transition text-slate-500 ml-2" title="Поделиться">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        </button>
+      </div>
+      ${detailsHtml}
+      <div class="mb-4">
+        <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Прогресс</h3>
+        <div class="grid grid-cols-3 gap-2">
+          <button onclick="updateProgress(${nodeId}, 'not_started')" class="progress-btn ${status==='not_started'?'active-not':'bg-slate-50 text-slate-500 border border-slate-200'} py-2 rounded-lg text-xs font-medium">Не начал</button>
+          <button onclick="updateProgress(${nodeId}, 'in_progress')" class="progress-btn ${status==='in_progress'?'active-progress':'bg-slate-50 text-slate-500 border border-slate-200'} py-2 rounded-lg text-xs font-medium">В процессе</button>
+          <button onclick="updateProgress(${nodeId}, 'done')" class="progress-btn ${status==='done'?'active-done':'bg-slate-50 text-slate-500 border border-slate-200'} py-2 rounded-lg text-xs font-medium">Изучено</button>
+        </div>
+      </div>
+      ${linkedHtml ? `<div class="border-t border-slate-200 pt-3"><h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Реакции и продолжения</h3><div class="flex flex-col gap-1 max-h-40 overflow-y-auto">${linkedHtml}</div></div>` : ''}
+    </div>`;
+  bottomSheet.show();
 }
 window.updateProgress = (id, status) => { setProgress(id, status); renderNodeDetails(id); };
 window.focusNode = (id) => { network.focus(id, { scale: 1.8, animation: true }); setTimeout(() => { network.selectNodes([id]); renderNodeDetails(id); }, 300); };
 window.shareNode = (nodeId) => {
-const n = bjjNodesData.find(x => x.id === nodeId);
-const text = `🥋 ${n.title}\n${n.desc}`;
-const url = `${window.location.origin}${window.location.pathname}?node=${nodeId}`;
-if (navigator.share) { navigator.share({ title: n.title, text: text, url: url }).catch(console.error); }
-else { navigator.clipboard.writeText(`${text}\n${url}`).then(() => alert('Ссылка скопирована!')); }
-triggerHaptic('medium');
+  const n = bjjNodesData.find(x => x.id === nodeId);
+  const text = `🥋 ${n.title}\n${n.desc}`;
+  const url = `${window.location.origin}${window.location.pathname}?node=${nodeId}`;
+  if (navigator.share) { navigator.share({ title: n.title, text: text, url: url }).catch(console.error); }
+  else { navigator.clipboard.writeText(`${text}\n${url}`).then(() => alert('Ссылка скопирована!')); }
+  triggerHaptic('medium');
 };
 const searchInput = document.getElementById('searchInput');
 const searchResults = document.getElementById('searchResults');
 searchInput.addEventListener('input', (e) => {
-const q = e.target.value.toLowerCase().trim();
-if (q.length < 1) { searchResults.classList.add('hidden'); return; }
-const matches = bjjNodesData.filter(n => n.label.toLowerCase().includes(q) || n.title.toLowerCase().includes(q));
-if (matches.length > 0) {
-searchResults.innerHTML = matches.map(n => `
-<div onclick="focusNode(${n.id}); searchInput.value=''; searchResults.classList.add('hidden')" class="px-4 py-3 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-0 flex items-center gap-3 transition">
-<span class="text-lg">${groupIcons[n.group] || '🥋'}</span>
-<div><div class="font-medium text-sm text-slate-800">${n.label}</div><div class="text-xs text-slate-500">${n.title}</div></div>
-</div>`).join('');
-searchResults.classList.remove('hidden');
-} else {
-searchResults.innerHTML = '<div class="px-4 py-3 text-sm text-slate-500">Ничего не найдено</div>';
-searchResults.classList.remove('hidden');
-}
+  const q = e.target.value.toLowerCase().trim();
+  if (q.length < 1) { searchResults.classList.add('hidden'); return; }
+  const matches = bjjNodesData.filter(n => n.label.toLowerCase().includes(q) || n.title.toLowerCase().includes(q));
+  if (matches.length > 0) {
+    searchResults.innerHTML = matches.map(n => `
+      <div onclick="focusNode(${n.id}); searchInput.value=''; searchResults.classList.add('hidden')" class="px-4 py-3 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-0 flex items-center gap-3 transition">
+        <span class="text-lg">${groupIcons[n.group] || '🥋'}</span>
+        <div><div class="font-medium text-sm text-slate-800">${n.label}</div><div class="text-xs text-slate-500">${n.title}</div></div>
+      </div>`).join('');
+    searchResults.classList.remove('hidden');
+  } else {
+    searchResults.innerHTML = '<div class="px-4 py-3 text-sm text-slate-500">Ничего не найдено</div>';
+    searchResults.classList.remove('hidden');
+  }
 });
 document.addEventListener('click', (e) => { if (!e.target.closest('.relative') && !e.target.closest('#settingsMenu')) searchResults.classList.add('hidden'); });
 network.on('click', function(params) { if (params.nodes.length) renderNodeDetails(params.nodes[0]); });
 window.toggleDarkMode = () => {
-document.body.classList.toggle('dark');
-const isDark = document.body.classList.contains('dark');
-localStorage.setItem('bjj_dark_mode', isDark);
-document.getElementById('themeToggle').innerHTML = isDark ? '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>' : '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>';
+  document.body.classList.toggle('dark');
+  const isDark = document.body.classList.contains('dark');
+  localStorage.setItem('bjj_dark_mode', isDark);
+  document.getElementById('themeToggle').innerHTML = isDark ? '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>' : '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>';
 };
 if (localStorage.getItem('bjj_dark_mode') === 'true') { document.body.classList.add('dark'); document.getElementById('themeToggle').innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>'; }
 const modalContent = {
-0: `<h2 class="text-lg font-bold text-slate-800 mb-3">О карте BJJ Map</h2>
-<p class="text-slate-600 mb-3">Интерактивная карта техник БЖЖ, построенная в виде графа. Показывает связи между позициями, переходами и атаками.</p>
-<p class="text-slate-600"><strong>Особенности:</strong><br>• Учет правил (IBJJF, ADCC)<br>• Персонализация под стиль и пояс<br>• Синхронизация прогресса</p>`,
-1: `<h2 class="text-lg font-bold text-slate-800 mb-3">Как пользоваться</h2>
-<ol class="list-decimal pl-5 text-slate-600 space-y-2">
-<li>Нажми на ☰ чтобы открыть настройки фильтров.</li>
-<li>Нажми на узел, чтобы увидеть детали и реакции соперника.</li>
-<li>Отмечай прогресс: "Не начал", "В процессе", "Изучено".</li>
-<li>Используй поиск: начни вводить название, и появится список.</li>
-</ol>`,
-2: `<h2 class="text-lg font-bold text-slate-800 mb-3">Резервное копирование</h2>
-<p class="text-slate-600 mb-4">Сохраняй свой прогресс, чтобы не потерять его.</p>
-<div class="space-y-3">
-<button onclick="exportProgress()" class="w-full py-3 bg-blue-600 text-white rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-blue-700 transition">Скачать бэкап (JSON)</button>
-<button onclick="document.getElementById('importFile').click()" class="w-full py-3 bg-slate-200 text-slate-800 rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-slate-300 transition">Загрузить бэкап</button>
-</div>`
+  0: `<h2 class="text-lg font-bold text-slate-800 mb-3">О карте BJJ Map</h2><p class="text-slate-600 mb-3">Интерактивная карта техник БЖЖ, построенная в виде графа. Показывает связи между позициями, переходами и атаками.</p><p class="text-slate-600"><strong>Особенности:</strong><br>• Учет правил (IBJJF, ADCC)<br>• Персонализация под стиль и пояс<br>• Синхронизация прогресса</p>`,
+  1: `<h2 class="text-lg font-bold text-slate-800 mb-3">Как пользоваться</h2><ol class="list-decimal pl-5 text-slate-600 space-y-2"><li>Нажми на ☰ чтобы открыть настройки фильтров.</li><li>Нажми на узел, чтобы увидеть детали и реакции соперника.</li><li>Отмечай прогресс: "Не начал", "В процессе", "Изучено".</li><li>Используй поиск: начни вводить название, и появится список.</li></ol>`,
+  2: `<h2 class="text-lg font-bold text-slate-800 mb-3">Резервное копирование</h2><p class="text-slate-600 mb-4">Сохраняй свой прогресс, чтобы не потерять его.</p><div class="space-y-3"><button onclick="exportProgress()" class="w-full py-3 bg-blue-600 text-white rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-blue-700 transition">Скачать бэкап (JSON)</button><button onclick="document.getElementById('importFile').click()" class="w-full py-3 bg-slate-200 text-slate-800 rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-slate-300 transition">Загрузить бэкап</button></div>`
 };
 window.openInfoModal = () => { document.getElementById('infoModal').classList.remove('hidden'); switchTab(0); };
 window.closeInfoModal = () => document.getElementById('infoModal').classList.add('hidden');
 window.switchTab = (idx) => {
-document.getElementById('modalContent').innerHTML = modalContent[idx];
-document.querySelectorAll('.tab-btn').forEach((b, i) => {
-if (i === idx) { b.classList.add('text-blue-600', 'border-b-2', 'border-blue-600'); b.classList.remove('text-slate-400'); }
-else { b.classList.remove('text-blue-600', 'border-b-2', 'border-blue-600'); b.classList.add('text-slate-400'); }
-});
+  document.getElementById('modalContent').innerHTML = modalContent[idx];
+  document.querySelectorAll('.tab-btn').forEach((b, i) => {
+    if (i === idx) { b.classList.add('text-blue-600', 'border-b-2', 'border-blue-600'); b.classList.remove('text-slate-400'); }
+    else { b.classList.remove('text-blue-600', 'border-b-2', 'border-blue-600'); b.classList.add('text-slate-400'); }
+  });
 };
 window.openProgressModal = () => {
-const list = document.getElementById('progressListContent');
-const inProgress = bjjNodesData.filter(n => progress[n.id] === 'in_progress');
-const done = bjjNodesData.filter(n => progress[n.id] === 'done');
-const beltStats = beltOrder.map(b => {
-const total = bjjNodesData.filter(n => n.belt === b).length;
-const doneCount = done.filter(n => n.belt === b).length;
-const percent = total > 0 ? Math.round((doneCount / total) * 100) : 0;
-return { belt: b, total, done: doneCount, percent };
-});
-let html = '<div class="space-y-3 mb-6">';
-beltStats.forEach(stat => {
-const beltIcons = { white:'⚪', blue:'🔵', purple:'🟣', brown:'🟤', black:'⚫' };
-html += `
-<div>
-<div class="flex justify-between text-xs font-medium mb-1">
-<span>${beltIcons[stat.belt]} ${stat.belt === 'white' ? 'Белый' : stat.belt === 'blue' ? 'Синий' : stat.belt === 'purple' ? 'Фиолетовый' : stat.belt === 'brown' ? 'Коричневый' : 'Чёрный'} пояс</span>
-<span class="text-slate-500">${stat.done}/${stat.total} (${stat.percent}%)</span>
-</div>
-<div class="w-full bg-slate-200 rounded-full h-2">
-<div class="bg-blue-600 h-2 rounded-full transition-all duration-500" style="width: ${stat.percent}%"></div>
-</div>
-</div>`;
-});
-html += '</div>';
-if (inProgress.length === 0 && done.length === 0) {
-html += '<p class="text-center text-slate-500 py-4">Вы пока не отметили ни одной техники.</p>';
-} else {
-if (inProgress.length > 0) {
-html += `<h3 class="font-bold text-slate-700 mb-2 text-sm">📚 В процессе (${inProgress.length})</h3><div class="space-y-2 mb-4">`;
-inProgress.forEach(n => { html += `<div onclick="focusNode(${n.id}); closeProgressModal()" class="p-2 bg-amber-50 border border-amber-200 rounded-lg cursor-pointer hover:bg-amber-100 transition flex items-center gap-2 text-sm"><span>${groupIcons[n.group] || '🥋'}</span><span class="font-medium">${n.label}</span></div>`; });
-html += `</div>`;
-}
-if (done.length > 0) {
-html += `<h3 class="font-bold text-slate-700 mb-2 text-sm">✅ Изучено (${done.length})</h3><div class="space-y-2">`;
-done.forEach(n => { html += `<div onclick="focusNode(${n.id}); closeProgressModal()" class="p-2 bg-emerald-50 border border-emerald-200 rounded-lg cursor-pointer hover:bg-emerald-100 transition flex items-center gap-2 text-sm"><span>${groupIcons[n.group] || '🥋'}</span><span class="font-medium">${n.label}</span></div>`; });
-html += `</div>`;
-}
-}
-list.innerHTML = html;
-document.getElementById('progressModal').classList.remove('hidden');
+  const list = document.getElementById('progressListContent');
+  const inProgress = bjjNodesData.filter(n => progress[n.id] === 'in_progress');
+  const done = bjjNodesData.filter(n => progress[n.id] === 'done');
+  const beltStats = beltOrder.map(b => {
+    const total = bjjNodesData.filter(n => n.belt === b).length;
+    const doneCount = done.filter(n => n.belt === b).length;
+    const percent = total > 0 ? Math.round((doneCount / total) * 100) : 0;
+    return { belt: b, total, done: doneCount, percent };
+  });
+  let html = '<div class="space-y-3 mb-6">';
+  beltStats.forEach(stat => {
+    const beltIcons = { white:'⚪', blue:'🔵', purple:'🟣', brown:'🟤', black:'⚫' };
+    html += `<div><div class="flex justify-between text-xs font-medium mb-1"><span>${beltIcons[stat.belt]} ${stat.belt === 'white' ? 'Белый' : stat.belt === 'blue' ? 'Синий' : stat.belt === 'purple' ? 'Фиолетовый' : stat.belt === 'brown' ? 'Коричневый' : 'Чёрный'} пояс</span><span class="text-slate-500">${stat.done}/${stat.total} (${stat.percent}%)</span></div><div class="w-full bg-slate-200 rounded-full h-2"><div class="bg-blue-600 h-2 rounded-full transition-all duration-500" style="width: ${stat.percent}%"></div></div></div>`;
+  });
+  html += '</div>';
+  if (inProgress.length === 0 && done.length === 0) {
+    html += '<p class="text-center text-slate-500 py-4">Вы пока не отметили ни одной техники.</p>';
+  } else {
+    if (inProgress.length > 0) {
+      html += `<h3 class="font-bold text-slate-700 mb-2 text-sm">📚 В процессе (${inProgress.length})</h3><div class="space-y-2 mb-4">`;
+      inProgress.forEach(n => { html += `<div onclick="focusNode(${n.id}); closeProgressModal()" class="p-2 bg-amber-50 border border-amber-200 rounded-lg cursor-pointer hover:bg-amber-100 transition flex items-center gap-2 text-sm"><span>${groupIcons[n.group] || '🥋'}</span><span class="font-medium">${n.label}</span></div>`; });
+      html += `</div>`;
+    }
+    if (done.length > 0) {
+      html += `<h3 class="font-bold text-slate-700 mb-2 text-sm">✅ Изучено (${done.length})</h3><div class="space-y-2">`;
+      done.forEach(n => { html += `<div onclick="focusNode(${n.id}); closeProgressModal()" class="p-2 bg-emerald-50 border border-emerald-200 rounded-lg cursor-pointer hover:bg-emerald-100 transition flex items-center gap-2 text-sm"><span>${groupIcons[n.group] || '🥋'}</span><span class="font-medium">${n.label}</span></div>`; });
+      html += `</div>`;
+    }
+  }
+  list.innerHTML = html;
+  document.getElementById('progressModal').classList.remove('hidden');
 };
 window.closeProgressModal = () => document.getElementById('progressModal').classList.add('hidden');
 window.exportProgress = () => {
-const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(progress));
-const downloadAnchorNode = document.createElement('a');
-downloadAnchorNode.setAttribute("href", dataStr);
-downloadAnchorNode.setAttribute("download", "bjj_progress_backup.json");
-document.body.appendChild(downloadAnchorNode);
-downloadAnchorNode.click();
-downloadAnchorNode.remove();
-triggerHaptic('medium');
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(progress));
+  const downloadAnchorNode = document.createElement('a');
+  downloadAnchorNode.setAttribute("href", dataStr);
+  downloadAnchorNode.setAttribute("download", "bjj_progress_backup.json");
+  document.body.appendChild(downloadAnchorNode);
+  downloadAnchorNode.click();
+  downloadAnchorNode.remove();
+  triggerHaptic('medium');
 };
 window.importProgress = (input) => {
-const file = input.files[0];
-if (!file) return;
-const reader = new FileReader();
-reader.onload = async (e) => {
-try {
-const importedData = JSON.parse(e.target.result);
-if (typeof importedData === 'object' && importedData !== null) {
-progress = importedData;
-localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
-await syncProgressToServer(progress);
-updateGlobalProgress();
-updateNodeColors();
-alert('✅ Прогресс успешно восстановлен!');
-closeInfoModal();
-} else { alert('❌ Неверный формат файла'); }
-} catch (err) { alert('❌ Ошибка чтения файла'); }
-};
-reader.readAsText(file);
-input.value = '';
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    try {
+      const importedData = JSON.parse(e.target.result);
+      if (typeof importedData === 'object' && importedData !== null) {
+        progress = importedData;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+        await syncProgressToServer(progress);
+        updateGlobalProgress();
+        updateNodeColors();
+        alert('✅ Прогресс успешно восстановлен!');
+        closeInfoModal();
+      } else { alert('❌ Неверный формат файла'); }
+    } catch (err) { alert('❌ Ошибка чтения файла'); }
+  };
+  reader.readAsText(file);
+  input.value = '';
 };
 initApp();
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('service-worker.js').catch(console.error);
