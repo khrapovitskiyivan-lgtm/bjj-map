@@ -168,6 +168,13 @@ body.dark .icon-btn:hover { background: #475569; }
 </header>
 <main class="flex-1 flex flex-col relative">
 <div id="mynetwork"></div>
+  <!-- Быстрые фильтры по категориям -->
+<div class="absolute bottom-4 left-4 right-20 flex gap-2 overflow-x-auto pb-1 z-10" style="scrollbar-width: none; -ms-overflow-style: none;">
+  <button onclick="focusOnCategory('position')" class="flex-shrink-0 px-3 py-1.5 bg-cyan-500 text-white rounded-full text-xs font-medium shadow-md active:scale-95 transition">📍 Позиции</button>
+  <button onclick="focusOnCategory('submission')" class="flex-shrink-0 px-3 py-1.5 bg-red-500 text-white rounded-full text-xs font-medium shadow-md active:scale-95 transition">🔒 Сабмишены</button>
+  <button onclick="focusOnCategory('guard_pass')" class="flex-shrink-0 px-3 py-1.5 bg-blue-500 text-white rounded-full text-xs font-medium shadow-md active:scale-95 transition">🚪 Проходы</button>
+  <button onclick="focusOnCategory('sweep')" class="flex-shrink-0 px-3 py-1.5 bg-orange-500 text-white rounded-full text-xs font-medium shadow-md active:scale-95 transition">🔄 Свипы</button>
+</div>
 <button onclick="fitGraph()" class="absolute bottom-4 right-4 w-12 h-12 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-600 shadow-lg hover:bg-slate-50 active:scale-95 transition z-10" title="Центрировать граф">
 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 <path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
