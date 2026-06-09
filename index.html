@@ -635,28 +635,37 @@ if (window.scrollY <= 0 && e.touches[0].clientY > 0) e.preventDefault();
             triggerHaptic('medium');
         };
 
-        class BottomSheet {
-            constructor() {
-                this.sheet = document.getElementById('bottomSheet');
-                this.overlay = document.getElementById('bottomSheetOverlay');
-                this.handle = document.getElementById('bottomSheetHandle');
-                this.startY = 0; this.isDragging = false;
-                this.handle.addEventListener('touchstart', (e) => this.startDrag(e));
-                document.addEventListener('touchmove', (e) => this.onDrag(e));
-                document.addEventListener('touchend', () => this.endDrag());
-                this.overlay.addEventListener('click', () => this.hide());
-            }
-            show() { this.sheet.classList.add('active'); this.overlay.classList.add('active'); triggerHaptic('medium'); }
-            hide() { this.sheet.classList.remove('active'); this.overlay.classList.remove('active'); this.sheet.style.transform = ''; }
-            startDrag(e) { this.startY = e.touches[0].clientY; this.isDragging = true; }
-            onDrag(e) { if (!this.isDragging) return; const diff = e.touches[0].clientY - this.startY; if (diff > 0) this.sheet.style.transform = `translateY(${diff}px)`; }
-            endDrag() {
-                if (!this.isDragging) return; this.isDragging = false;
-                const currentTransform = this.sheet.style.transform;
-                const diff = currentTransform ? parseInt(currentTransform.replace('translateY(', '').replace('px)', '')) : 0;
-                if (diff > 100) this.hide(); else this.sheet.style.transform = '';
-            }
-        }
+class BottomSheet {
+constructor() {
+this.sheet = document.getElementById('bottomSheet');
+this.overlay = document.getElementById('bottomSheetOverlay');
+this.handle = document.getElementById('bottomSheetHandle');
+this.content = document.getElementById('nodeDetails');
+this.startY = 0; this.isDragging = false;
+this.handle.addEventListener('touchstart', (e) => this.startDrag(e));
+document.addEventListener('touchmove', (e) => this.onDrag(e));
+document.addEventListener('touchend', () => this.endDrag());
+this.overlay.addEventListener('click', () => this.hide());
+}
+show() { this.sheet.classList.add('active'); this.overlay.classList.add('active'); triggerHaptic('medium'); }
+hide() { this.sheet.classList.remove('active'); this.overlay.classList.remove('active'); this.sheet.style.transform = ''; }
+startDrag(e) { 
+this.startY = e.touches[0].clientY; 
+this.isDragging = true; 
+}
+onDrag(e) { 
+if (!this.isDragging) return;
+if (e.target.closest('.bottom-sheet-content') && this.content.scrollTop > 0) return;
+const diff = e.touches[0].clientY - this.startY; 
+if (diff > 0) this.sheet.style.transform = `translateY(${diff}px)`; 
+}
+endDrag() {
+if (!this.isDragging) return; this.isDragging = false;
+const currentTransform = this.sheet.style.transform;
+const diff = currentTransform ? parseInt(currentTransform.replace('translateY(', '').replace('px)', '')) : 0;
+if (diff > 100) this.hide(); else this.sheet.style.transform = '';
+}
+}
         const bottomSheet = new BottomSheet();
 
         function renderNodeDetails(nodeId) {
