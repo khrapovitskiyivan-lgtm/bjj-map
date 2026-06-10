@@ -718,27 +718,78 @@ const techniqueDetails = {
 356: { mechanics: "Борцовский поворот из черепахи.", keyPoints: "Захват корпуса, вращение.", when: "Соперник в позиции черепахи.", mistakes: "Соперник защищает корпус." }
 };
 
-// === СОЗДАНИЕ УЗЛОВ С УРОВНЯМИ ПО ПОЯСАМ ===
-// 0 = белый (низ), 1 = синий, 2 = фиолетовый, 3 = коричневый, 4 = черный (верх)
+// === 1. ДОБАВЛЯЕМ УРОВНИ (LEVEL) ДЛЯ ИЕРАРХИИ ПО ПОЯСАМ ===
 const beltLevels = { 'white': 0, 'blue': 1, 'purple': 2, 'brown': 3, 'black': 4 };
-
 const nodesDataWithLevels = bjjNodesData.map(n => ({
-    id: n.id,
-    label: n.label,
-    group: n.group,
-    title: n.title,
-    desc: n.desc,
-    belt: n.belt,
-    gi: n.gi,
-    noGi: n.noGi,
-    legal_ibjjf_gi: n.legal_ibjjf_gi,
-    legal_ibjjf_nogi: n.legal_ibjjf_nogi,
-    legal_adcc: n.legal_adcc,
-    points: n.points,
+    id: n.id, 
+    label: n.label, 
+    group: n.group, 
+    title: n.title, 
+    desc: n.desc, 
+    belt: n.belt, 
+    gi: n.gi, 
+    noGi: n.noGi, 
+    legal_ibjjf_gi: n.legal_ibjjf_gi, 
+    legal_ibjjf_nogi: n.legal_ibjjf_nogi, 
+    legal_adcc: n.legal_adcc, 
+    points: n.points, 
     tags: n.tags,
-    level: beltLevels[n.belt] !== undefined ? beltLevels[n.belt] : 0 // Присваиваем уровень
+    level: beltLevels[n.belt] !== undefined ? beltLevels[n.belt] : 0 // 0 = белый (низ), 4 = чёрный (верх)
 }));
 
+const nodes = new vis.DataSet(nodesDataWithLevels);
+const edges = new vis.DataSet(bjjEdgesData);
+
+// === 2. ВКЛЮЧАЕМ ИЕРАРХИЧЕСКУЮ РАСКЛАДКУ (ПИРАМИДА) ===
+const network = new vis.Network(document.getElementById('mynetwork'), { nodes, edges }, {
+    groups, 
+    nodes: { 
+        size: window.innerWidth < 768 ? 26 : 20, 
+        font: { size: window.innerWidth < 768 ? 13 : 11, color: '#ffffff', strokeWidth: 2, strokeColor: '#000000' },
+        borderWidth: 2,
+        shadow: { enabled: true, color: 'rgba(0,0,0,0.3)', size: 10 }
+    },
+    edges: { 
+        arrows: { to: { enabled: true, scaleFactor: 0.6 } }, 
+        color: { color: '#94a3b8', highlight: '#3b82f6', hover: '#3b82f6' },
+        width: 1.5, 
+        selectionWidth: 3, 
+        smooth: { type: 'curvedCW', roundness: 0.2 }
+    },
+    // 🔑 НАСТРОЙКА ПИРАМИДЫ
+    layout: {
+        hierarchical: {
+            enabled: true,
+            direction: 'DU', // DU = Down to Up (уровень 0 внизу, уровень 4 наверху)
+            sortMethod: 'directed',
+            levelSeparation: 160, // Расстояние между поясами по вертикали
+            nodeSpacing: 140,     // Расстояние между техниками одного пояса
+            shakeTowards: 'leaves'
+        }
+    },
+    // 🔑 ФИЗИКА, АДАПТИРОВАННАЯ ПОД ИЕРАРХИЮ (чтобы узлы не наезжали друг на друга)
+    physics: {
+        enabled: true,
+        hierarchicalRepulsion: {
+            centralGravity: 0.0,
+            springLength: 100,
+            springConstant: 0.01,
+            nodeDistance: 120,
+            damping: 0.09
+        },
+        solver: 'hierarchicalRepulsion',
+        stabilization: { 
+            enabled: true,
+            iterations: 200 // Увеличили для более красивого и стабильного выравнивания
+        }
+    },
+    interaction: { 
+        hover: true, 
+        dragNodes: true, 
+        dragView: true, 
+        zoomView: true 
+    }
+});
 const nodes = new vis.DataSet(nodesDataWithLevels);
 const edges = new vis.DataSet(bjjEdgesData);
 
