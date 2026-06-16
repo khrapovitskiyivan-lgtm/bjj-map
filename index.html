@@ -316,90 +316,96 @@ body.dark .icon-btn:hover { background: #475569; }
 </head>
 <body class="min-h-screen flex flex-col">
 <header class="p-3 bg-white shadow-sm border-b border-slate-200 sticky top-0 z-50">
-<div class="flex items-center justify-between gap-2 mb-3">
-<button onclick="toggleDarkMode()" class="icon-btn bg-slate-100 hover:bg-slate-200 text-slate-600" id="themeToggle" title="Тема">
-<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-<path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
-</svg>
-</button>
-<h1 class="text-lg font-bold text-slate-800 flex items-center gap-1 flex-shrink-0">
-<span class="header-logo">🥋</span> BJJ Map
-</h1>
-<button onclick="openStyleModal()" class="icon-btn bg-slate-100 hover:bg-slate-200 text-slate-600" title="Стиль и пояс">
-<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-<path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-<path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-<button id="globalProgressBtn" onclick="toggleProgressModal()" class="text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50 px-2.5 py-1.5 rounded-full transition border border-blue-200 dark:border-blue-800 flex-shrink-0" title="Мой прогресс">0%</button>
-<button onclick="toggleInfoModal()" class="icon-btn bg-slate-100 hover:bg-slate-200 text-slate-600" title="Информация">
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-    <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-  </svg>
-</button>
-<button onclick="toggleMenu()" class="icon-btn bg-slate-100 hover:bg-slate-200 text-slate-600" title="Меню">
-<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-<path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
-</svg>
-</button>
-</div>
-<div class="relative">
-  <div class="flex gap-2">
-<div class="relative w-full">
-  <div class="flex gap-2 w-full">
-    <div class="relative flex-1">
-      <input type="text" id="searchInput" placeholder="Поиск техники..." 
-        class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition" 
-        style="font-size: 16px !important;" autocomplete="off">
-      <svg class="absolute right-3 top-3 w-4 h-4 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+  <div class="flex items-center justify-between gap-2 mb-3">
+    <button onclick="toggleDarkMode()" class="icon-btn bg-slate-100 hover:bg-slate-200 text-slate-600" id="themeToggle" title="Тема">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
       </svg>
-    </div>
-    <button onclick="toggleSearchFilters()" class="flex-shrink-0 w-10 h-10 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 active:scale-95 transition" title="Фильтры поиска">
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+    </button>
+    
+    <h1 class="text-lg font-bold text-slate-800 flex items-center gap-1 flex-shrink-0">
+      <span class="header-logo">🥋</span> BJJ Map
+    </h1>
+    
+    <!-- ИСПРАВЛЕНО: добавлены закрывающие теги </svg> и </button> -->
+    <button onclick="openStyleModal()" class="icon-btn bg-slate-100 hover:bg-slate-200 text-slate-600" title="Стиль и пояс">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+      </svg>
+    </button>
+    
+    <button id="globalProgressBtn" onclick="toggleProgressModal()" class="text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50 px-2.5 py-1.5 rounded-full transition border border-blue-200 dark:border-blue-800 flex-shrink-0" title="Мой прогресс">0%</button>
+    
+    <button onclick="toggleInfoModal()" class="icon-btn bg-slate-100 hover:bg-slate-200 text-slate-600" title="Информация">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+    </button>
+    
+    <button onclick="toggleMenu()" class="icon-btn bg-slate-100 hover:bg-slate-200 text-slate-600" title="Меню">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+      </svg>
     </button>
   </div>
-  
-  <div id="searchFiltersContainer" class="hidden mt-2 p-3 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl transition-all duration-300">
-    <div class="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 px-1 uppercase tracking-wider">Фильтр по категории:</div>
-    <div id="searchChips" class="flex flex-wrap gap-1.5">
-      <button class="search-chip active" data-filter="all">Все</button>
-      <button class="search-chip" data-filter="position">📍 Позиции</button>
-      <button class="search-chip" data-filter="submission">🔒 Сабмишены</button>
-      <button class="search-chip" data-filter="sweep">🔄 Свипы</button>
-      <button class="search-chip" data-filter="guard_pass">🚪 Проходы</button>
-      <button class="search-chip" data-filter="takedown">🤼 Тейкдауны</button>
-      <button class="search-chip" data-filter="escape">🛡️ Защиты</button>
-      <button class="search-chip" data-filter="transition">➡️ Переходы</button>
+
+  <div class="relative">
+    <div class="flex gap-2 w-full">
+      <div class="relative flex-1">
+        <input type="text" id="searchInput" placeholder="Поиск техники..." class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition" style="font-size: 16px !important;" autocomplete="off">
+        <svg class="absolute right-3 top-3 w-4 h-4 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+      </div>
+      <button onclick="toggleSearchFilters()" class="flex-shrink-0 w-10 h-10 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 active:scale-95 transition" title="Фильтры поиска">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+      </button>
     </div>
+    
+    <div id="searchFiltersContainer" class="hidden mt-2 p-3 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl transition-all duration-300">
+      <div class="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 px-1 uppercase tracking-wider">Фильтр по категории:</div>
+      <div id="searchChips" class="flex flex-wrap gap-1.5">
+        <button class="search-chip active" data-filter="all">Все</button>
+        <button class="search-chip" data-filter="position">📍 Позиции</button>
+        <button class="search-chip" data-filter="submission">🔒 Сабмишены</button>
+        <button class="search-chip" data-filter="sweep">🔄 Свипы</button>
+        <button class="search-chip" data-filter="guard_pass">🚪 Проходы</button>
+        <button class="search-chip" data-filter="takedown">🤼 Тейкдауны</button>
+        <button class="search-chip" data-filter="escape">🛡️ Защиты</button>
+        <button class="search-chip" data-filter="transition">➡️ Переходы</button>
+      </div>
+    </div>
+    
+    <div id="searchHistory" class="hidden absolute top-full left-0 right-0 mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg z-50"></div>
+    <div id="searchResults" class="hidden absolute top-full left-0 right-0 mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg max-h-80 overflow-y-auto z-50"></div>
   </div>
 
-  <div id="searchHistory" class="hidden absolute top-full left-0 right-0 mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg z-50"></div>
-  <div id="searchResults" class="hidden absolute top-full left-0 right-0 mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg max-h-80 overflow-y-auto z-50"></div>
-</div>
-<div id="settingsMenu" class="hidden mt-3 p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-4 fade-in">
-<div>
-<div class="text-xs font-semibold text-slate-500 uppercase mb-2">Формат</div>
-<div class="flex gap-2">
-<button id="giToggleBtn" onclick="toggleGiFilter()" class="flex-1 py-1.5 rounded-lg bg-white border border-slate-300 text-xs font-medium active">Gi</button>
-</div>
-</div>
-<div>
-<div class="text-xs font-semibold text-slate-500 uppercase mb-2">Правила</div>
-<div class="flex gap-2 overflow-x-auto pb-1">
-<button class="rule-btn active-rule whitespace-nowrap px-2 py-1 rounded-full bg-white border border-slate-300 text-xs font-medium" data-rule="none">Без огр.</button>
-<button class="rule-btn whitespace-nowrap px-2 py-1 rounded-full bg-white border border-slate-300 text-xs font-medium" data-rule="ibjjf_gi">IBJJF Gi</button>
-<button class="rule-btn whitespace-nowrap px-2 py-1 rounded-full bg-white border border-slate-300 text-xs font-medium" data-rule="ibjjf_nogi">No-Gi</button>
-<button class="rule-btn whitespace-nowrap px-2 py-1 rounded-full bg-white border border-slate-300 text-xs font-medium" data-rule="adcc">ADCC</button>
-</div>
-</div>
-<div>
-<div class="text-xs font-semibold text-slate-500 uppercase mb-2">Категории</div>
-<div class="flex gap-2 overflow-x-auto pb-1">
-<button class="filter-btn whitespace-nowrap px-3 py-1.5 rounded-full bg-white border border-slate-300 text-slate-700 font-medium text-sm" data-filter="position">Позиции</button>
-<button class="filter-btn whitespace-nowrap px-3 py-1.5 rounded-full bg-white border border-slate-300 text-slate-700 font-medium text-sm" data-filter="transition">Переходы</button>
-<button class="filter-btn whitespace-nowrap px-3 py-1.5 rounded-full bg-white border border-slate-300 text-slate-700 font-medium text-sm" data-filter="submission">Сабмишены</button>
-</div>
-</div>
-</div>
+  <div id="settingsMenu" class="hidden mt-3 p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-4 fade-in">
+    <div>
+      <div class="text-xs font-semibold text-slate-500 uppercase mb-2">Формат</div>
+      <div class="flex gap-2">
+        <button id="giToggleBtn" onclick="toggleGiFilter()" class="flex-1 py-1.5 rounded-lg bg-white border border-slate-300 text-xs font-medium active">Gi</button>
+      </div>
+    </div>
+    <div>
+      <div class="text-xs font-semibold text-slate-500 uppercase mb-2">Правила</div>
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="rule-btn active-rule whitespace-nowrap px-2 py-1 rounded-full bg-white border border-slate-300 text-xs font-medium" data-rule="none">Без огр.</button>
+        <button class="rule-btn whitespace-nowrap px-2 py-1 rounded-full bg-white border border-slate-300 text-xs font-medium" data-rule="ibjjf_gi">IBJJF Gi</button>
+        <button class="rule-btn whitespace-nowrap px-2 py-1 rounded-full bg-white border border-slate-300 text-xs font-medium" data-rule="ibjjf_nogi">No-Gi</button>
+        <button class="rule-btn whitespace-nowrap px-2 py-1 rounded-full bg-white border border-slate-300 text-xs font-medium" data-rule="adcc">ADCC</button>
+      </div>
+    </div>
+    <div>
+      <div class="text-xs font-semibold text-slate-500 uppercase mb-2">Категории</div>
+      <div class="flex gap-2 overflow-x-auto pb-1">
+        <button class="filter-btn whitespace-nowrap px-3 py-1.5 rounded-full bg-white border border-slate-300 text-slate-700 font-medium text-sm" data-filter="position">Позиции</button>
+        <button class="filter-btn whitespace-nowrap px-3 py-1.5 rounded-full bg-white border border-slate-300 text-slate-700 font-medium text-sm" data-filter="transition">Переходы</button>
+        <button class="filter-btn whitespace-nowrap px-3 py-1.5 rounded-full bg-white border border-slate-300 text-slate-700 font-medium text-sm" data-filter="submission">Сабмишены</button>
+      </div>
+    </div>
+  </div>
 </header>
 <main class="flex-1 flex flex-col relative">
 <div id="mynetwork"></div>
@@ -1167,94 +1173,36 @@ animation: { duration: 500, easingFunction: 'easeInOutQuad' }
 triggerHaptic('light');
 }
 };
+
 window.toggleMenu = () => {
-document.getElementById('settingsMenu').classList.toggle('hidden');
-triggerHaptic('light');
+  document.getElementById('settingsMenu').classList.toggle('hidden');
+  triggerHaptic('light');
 };
-let giFilterState = 'gi', currentCategoryFilter = null, currentRule = 'none';
-let styleProfile = JSON.parse(localStorage.getItem('bjj_style_profile') || '{"belt": "white"}');
-const beltOrder = ['white', 'blue', 'purple', 'brown', 'black'];
-function applyAllFilters() {
-const userBelt = styleProfile.belt || 'white';
-const maxBeltIndex = beltOrder.indexOf(userBelt);
-const preferredTags = [];
-if (styleProfile.flexibility) preferredTags.push('flexibility');
-if (styleProfile.pressure) preferredTags.push('pressure');
-if (styleProfile.long_limbs) preferredTags.push('long_limbs');
-if (styleProfile.speed) preferredTags.push('speed');
-nodes.forEach(n => {
-const nodeBeltIndex = beltOrder.indexOf(n.belt);
-const passBelt = nodeBeltIndex <= maxBeltIndex;
-if (!passBelt) { nodes.update({ id: n.id, hidden: true }); return; }
-if (currentCategoryFilter !== null && n.group !== currentCategoryFilter) { nodes.update({ id: n.id, hidden: true }); return; }
-if ((giFilterState === 'gi' && !n.gi) || (giFilterState === 'nogi' && !n.noGi)) { nodes.update({ id: n.id, hidden: true }); return; }
-let passRule = true;
-if (currentRule === 'ibjjf_gi') passRule = n.legal_ibjjf_gi;
-else if (currentRule === 'ibjjf_nogi') passRule = n.legal_ibjjf_nogi;
-else if (currentRule === 'adcc') passRule = n.legal_adcc;
-if (!passRule) { nodes.update({ id: n.id, hidden: false, opacity: 0.3 }); return; }
-if (preferredTags.length > 0) {
-const hasMatchingTag = n.tags.some(tag => preferredTags.includes(tag));
-if (!hasMatchingTag && n.tags.length > 0) {
-nodes.update({ id: n.id, hidden: true });
-return;
-} else if (!hasMatchingTag && n.tags.length === 0) {
-nodes.update({ id: n.id, hidden: false, opacity: 0.5 });
-return;
-}
-}
-nodes.update({ id: n.id, hidden: false, opacity: 1.0 });
-});
-edges.forEach(e => {
-const from = nodes.get(e.from), to = nodes.get(e.to);
-if (from && to) edges.update({ id: e.id, hidden: from.hidden || to.hidden });
-});
-}
-document.querySelectorAll('.filter-btn').forEach(btn => {
-btn.addEventListener('click', function() {
-const val = this.dataset.filter;
-if (this.classList.contains('active') && currentCategoryFilter === val) {
-document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-currentCategoryFilter = null;
-} else {
-document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-this.classList.add('active'); currentCategoryFilter = val;
-}
-applyAllFilters(); triggerHaptic('light');
-});
-});
-document.querySelectorAll('.rule-btn').forEach(btn => {
-btn.addEventListener('click', function() {
-document.querySelectorAll('.rule-btn').forEach(b => b.classList.remove('active-rule'));
-this.classList.add('active-rule'); currentRule = this.dataset.rule; applyAllFilters(); triggerHaptic('light');
-});
-});
-window.toggleGiFilter = () => {
-giFilterState = giFilterState === 'gi' ? 'nogi' : 'gi';
-document.getElementById('giToggleBtn').textContent = giFilterState === 'gi' ? 'Gi' : 'No-Gi';
-document.getElementById('giToggleBtn').classList.toggle('active', giFilterState === 'gi');
-applyAllFilters(); triggerHaptic('light');
+
+window.toggleProgressModal = () => {
+  const modal = document.getElementById('progressModal');
+  if (modal.classList.contains('hidden')) {
+    openProgressModal(); // Генерируем контент и показываем
+  } else {
+    modal.classList.add('hidden');
+  }
+  triggerHaptic('light');
 };
-document.addEventListener('click', function(e) {
-if (e.target.closest('.belt-btn')) {
-const btn = e.target.closest('.belt-btn');
-document.querySelectorAll('.belt-btn').forEach(b => b.classList.remove('active-belt'));
-btn.classList.add('active-belt');
-triggerHaptic('light');
-}
-});
-window.openStyleModal = () => {
-document.getElementById('styleModal').classList.remove('hidden');
-document.getElementById('styleFlex').checked = !!styleProfile.flexibility;
-document.getElementById('stylePressure').checked = !!styleProfile.pressure;
-document.getElementById('styleLong').checked = !!styleProfile.long_limbs;
-document.getElementById('styleSpeed').checked = !!styleProfile.speed;
-document.querySelectorAll('.belt-btn').forEach(btn => {
-btn.classList.toggle('active-belt', btn.dataset.belt === (styleProfile.belt || 'white'));
-});
+
+window.toggleInfoModal = () => {
+  const modal = document.getElementById('infoModal');
+  if (modal.classList.contains('hidden')) {
+    modal.classList.remove('hidden');
+    switchTab(0); // Всегда открываем на первой вкладке
+  } else {
+    modal.classList.add('hidden');
+  }
+  triggerHaptic('light');
 };
-window.closeStyleModal = () => document.getElementById('styleModal').classList.add('hidden');
-window.saveStyleProfile = () => {
+
+// Вспомогательная функция для закрытия (если используется где-то еще)
+window.closeProgressModal = () => document.getElementById('progressModal').classList.add('hidden');
+window.closeInfoModal = () => document.getElementById('infoModal').classList.add('hidden');
 const activeBeltBtn = document.querySelector('.belt-btn.active-belt');
 styleProfile = {
 belt: activeBeltBtn ? activeBeltBtn.dataset.belt : 'white',
