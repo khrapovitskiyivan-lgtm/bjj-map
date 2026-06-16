@@ -1117,14 +1117,124 @@ const techniqueDetails = {
 };
 
 // ===== ИНИЦИАЛИЗАЦИЯ ГРАФА =====
-const nodes = new vis.DataSet(bjjNodesData.map(n => ({ id: n.id, label: n.label, group: n.group, title: n.title, desc: n.desc, belt: n.belt, gi: n.gi, noGi: n.noGi, legal_ibjjf_gi: n.legal_ibjjf_gi, legal_ibjjf_nogi: n.legal_ibjjf_nogi, legal_adcc: n.legal_adcc, points: n.points, tags: n.tags })));
-const edges = new vis.DataSet(bjjEdgesData);
-const network = new vis.Network(document.getElementById('mynetwork'), { nodes, edges }, {
-groups, nodes: { size: window.innerWidth < 768 ? 28 : 22, font: { size: window.innerWidth < 768 ? 14 : 12, color: '#ffffff', strokeWidth: 3, strokeColor: '#000000' } },
-edges: { arrows: { to: { enabled: true, scaleFactor: 0.8 } }, font: { size: 0 }, color: '#cbd5e1', width: 2, selectionWidth: 4 },
-physics: { solver: 'forceAtlas2Based', forceAtlas2Based: { gravitationalConstant: -50 }, stabilization: { iterations: 150 } },
-interaction: { hover: true, dragNodes: true, dragView: true, zoomView: true }
+const container = document.getElementById('mynetwork');
+const data = {
+  nodes: new vis.DataSet(bjjNodesData),
+  edges: new vis.DataSet(bjjEdgesData)
+};
+
+const options = {
+  nodes: {
+    shape: 'dot',
+    size: 16,
+    font: {
+      size: 12,
+      color: '#334155'
+    },
+    borderWidth: 2,
+    shadow: true
+  },
+  edges: {
+    width: 1,
+    shadow: false,
+    arrows: { to: { enabled: true, scaleFactor: 0.5 } },
+    color: { color: '#94a3b8', highlight: '#3b82f6' },
+    smooth: { type: 'continuous', roundness: 0.3 }
+  },
+  physics: {
+    enabled: true,
+    barnesHut: {
+      gravitationalConstant: -3000,
+      centralGravity: 0.3,
+      springLength: 100,
+      springConstant: 0.04,
+      damping: 0.09
+    }
+  },
+  interaction: {
+    hover: true,
+    tooltipDelay: 200,
+    hideEdgesOnDrag: true
+  },
+  layout: {
+    improvedLayout: bjjNodesData.length < 100
+  }
+};
+
+const network = new vis.Network(container, data, options);
+
+// Обработчик клика по узлу
+network.on('click', function(params) {
+  if (params.nodes.length > 0) {
+    const nodeId = params.nodes[0];
+    renderNodeDetails(nodeId);
+    bottomSheet.show();
+  }
 });
+
+// Функция центрирования
+window.fitGraph = () => {
+  network.fit({ animation: { duration: 500, easingFunction: 'easeInOutQuad' } });
+};// ===== ИНИЦИАЛИЗАЦИЯ ГРАФА =====
+const container = document.getElementById('mynetwork');
+const data = {
+  nodes: new vis.DataSet(bjjNodesData),
+  edges: new vis.DataSet(bjjEdgesData)
+};
+
+const options = {
+  nodes: {
+    shape: 'dot',
+    size: 16,
+    font: {
+      size: 12,
+      color: '#334155'
+    },
+    borderWidth: 2,
+    shadow: true
+  },
+  edges: {
+    width: 1,
+    shadow: false,
+    arrows: { to: { enabled: true, scaleFactor: 0.5 } },
+    color: { color: '#94a3b8', highlight: '#3b82f6' },
+    smooth: { type: 'continuous', roundness: 0.3 }
+  },
+  physics: {
+    enabled: true,
+    barnesHut: {
+      gravitationalConstant: -3000,
+      centralGravity: 0.3,
+      springLength: 100,
+      springConstant: 0.04,
+      damping: 0.09
+    }
+  },
+  interaction: {
+    hover: true,
+    tooltipDelay: 200,
+    hideEdgesOnDrag: true
+  },
+  layout: {
+    improvedLayout: bjjNodesData.length < 100
+  }
+};
+
+const network = new vis.Network(container, data, options);
+
+// Обработчик клика по узлу
+network.on('click', function(params) {
+  if (params.nodes.length > 0) {
+    const nodeId = params.nodes[0];
+    renderNodeDetails(nodeId);
+    bottomSheet.show();
+  }
+});
+
+// Функция центрирования
+window.fitGraph = () => {
+  network.fit({ animation: { duration: 500, easingFunction: 'easeInOutQuad' } });
+};
 
 const STORAGE_KEY = 'bjj_learned_v3';
 let progress = {};
