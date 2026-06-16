@@ -334,13 +334,15 @@ body.dark .icon-btn:hover { background: #475569; }
       </svg>
     </button>
     
-    <button id="globalProgressBtn" onclick="toggleProgressModal()" class="text-xs font-bold text-blue-600 bg-blue-50 dark:bg-blue-900/30 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50 px-2.5 py-1.5 rounded-full transition border border-blue-200 dark:border-blue-800 flex-shrink-0" title="Мой прогресс">0%</button>
-    
-    <button onclick="toggleInfoModal()" class="icon-btn bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300" title="Информация">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-      </svg>
-    </button>
+<!-- Кнопка прогресса -->
+<button id="globalProgressBtn" onclick="openProgressModal()" class="text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50 px-2.5 py-1.5 rounded-full transition border border-blue-200 dark:border-blue-800 flex-shrink-0" title="Мой прогресс">0%</button>
+
+<!-- Кнопка информации -->
+<button onclick="openInfoModal()" class="icon-btn bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300" title="Информация">
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+  </svg>
+</button>
     
     <button onclick="toggleMenu()" class="icon-btn bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300" title="Меню">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -1700,7 +1702,16 @@ const modalContent = {
 </div>`
 };
 
-window.openInfoModal = () => { document.getElementById('infoModal').classList.remove('hidden'); switchTab(0); };
+// === ФУНКЦИИ ДЛЯ МОДАЛОК (классические open/close) ===
+
+window.openInfoModal = () => {
+  document.getElementById('infoModal').classList.remove('hidden');
+  switchTab(0); // Всегда открываем на первой вкладке
+};
+
+window.closeInfoModal = () => {
+  document.getElementById('infoModal').classList.add('hidden');
+};
 
 window.openProgressModal = () => {
   const list = document.getElementById('progressListContent');
@@ -1712,7 +1723,7 @@ window.openProgressModal = () => {
     const percent = total > 0 ? Math.round((doneCount / total) * 100) : 0;
     return { belt: b, total, done: doneCount, percent };
   });
-  
+
   let html = '<div class="space-y-3 mb-6">';
   beltStats.forEach(stat => {
     const beltIcons = { white:'⚪', blue:'🔵', purple:'🟣', brown:'🟤', black:'⚫' };
@@ -1728,24 +1739,33 @@ window.openProgressModal = () => {
       </div>`;
   });
   html += '</div>';
-  
+
   if (inProgress.length === 0 && done.length === 0) {
     html += '<p class="text-center text-slate-500 py-4">Вы пока не отметили ни одной техники.</p>';
   } else {
     if (inProgress.length > 0) {
       html += `<h3 class="font-bold text-slate-700 dark:text-slate-200 mb-2 text-sm sticky top-0 bg-white dark:bg-slate-800 py-1 z-10">📚 В процессе (${inProgress.length})</h3><div class="space-y-2 mb-4">`;
-      inProgress.forEach(n => { html += `<div onclick="focusNode(${n.id}); toggleProgressModal()" class="p-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg cursor-pointer hover:bg-amber-100 dark:hover:bg-amber-900/40 transition flex items-center gap-2 text-sm"><span>${groupIcons[n.group] || '🥋'}</span><span class="font-medium">${n.label}</span></div>`; });
+      inProgress.forEach(n => { 
+        html += `<div onclick="focusNode(${n.id}); closeProgressModal()" class="p-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg cursor-pointer hover:bg-amber-100 dark:hover:bg-amber-900/40 transition flex items-center gap-2 text-sm"><span>${groupIcons[n.group] || '🥋'}</span><span class="font-medium">${n.label}</span></div>`; 
+      });
       html += `</div>`;
     }
     if (done.length > 0) {
       html += `<h3 class="font-bold text-slate-700 dark:text-slate-200 mb-2 text-sm sticky top-0 bg-white dark:bg-slate-800 py-1 z-10">✅ Изучено (${done.length})</h3><div class="space-y-2">`;
-      done.forEach(n => { html += `<div onclick="focusNode(${n.id}); toggleProgressModal()" class="p-2 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg cursor-pointer hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition flex items-center gap-2 text-sm"><span>${groupIcons[n.group] || '🥋'}</span><span class="font-medium">${n.label}</span></div>`; });
+      done.forEach(n => { 
+        html += `<div onclick="focusNode(${n.id}); closeProgressModal()" class="p-2 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg cursor-pointer hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition flex items-center gap-2 text-sm"><span>${groupIcons[n.group] || '🥋'}</span><span class="font-medium">${n.label}</span></div>`; 
+      });
       html += `</div>`;
     }
   }
+  
   list.innerHTML = html;
-  list.scrollTop = 0; // Сброс прокрутки вверх при открытии
+  list.scrollTop = 0; // Гарантированный сброс прокрутки вверх при открытии
   document.getElementById('progressModal').classList.remove('hidden');
+};
+
+window.closeProgressModal = () => {
+  document.getElementById('progressModal').classList.add('hidden');
 };
 
 window.exportProgress = () => {
