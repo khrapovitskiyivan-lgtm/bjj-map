@@ -1175,52 +1175,7 @@ network.on('click', function(params) {
 // Функция центрирования
 window.fitGraph = () => {
   network.fit({ animation: { duration: 500, easingFunction: 'easeInOutQuad' } });
-};// ===== ИНИЦИАЛИЗАЦИЯ ГРАФА =====
-const container = document.getElementById('mynetwork');
-const data = {
-  nodes: new vis.DataSet(bjjNodesData),
-  edges: new vis.DataSet(bjjEdgesData)
 };
-
-const options = {
-  nodes: {
-    shape: 'dot',
-    size: 16,
-    font: {
-      size: 12,
-      color: '#334155'
-    },
-    borderWidth: 2,
-    shadow: true
-  },
-  edges: {
-    width: 1,
-    shadow: false,
-    arrows: { to: { enabled: true, scaleFactor: 0.5 } },
-    color: { color: '#94a3b8', highlight: '#3b82f6' },
-    smooth: { type: 'continuous', roundness: 0.3 }
-  },
-  physics: {
-    enabled: true,
-    barnesHut: {
-      gravitationalConstant: -3000,
-      centralGravity: 0.3,
-      springLength: 100,
-      springConstant: 0.04,
-      damping: 0.09
-    }
-  },
-  interaction: {
-    hover: true,
-    tooltipDelay: 200,
-    hideEdgesOnDrag: true
-  },
-  layout: {
-    improvedLayout: bjjNodesData.length < 100
-  }
-};
-
-const network = new vis.Network(container, data, options);
 
 // Обработчик клика по узлу
 network.on('click', function(params) {
