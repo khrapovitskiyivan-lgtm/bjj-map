@@ -16,6 +16,23 @@
 <script src="https://telegram.org/js/telegram-web-app.js" onerror="console.log('Telegram Web App недоступен')"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
+  /* Onboarding Animations */
+#onboarding-modal.active #onboarding-card {
+  transform: scale(1);
+  opacity: 1;
+}
+#onboarding-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #cbd5e1;
+  transition: all 0.3s;
+}
+#onboarding-dot.active {
+  background-color: #3b82f6;
+  width: 16px;
+  border-radius: 4px;
+}
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 body {
 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -1369,6 +1386,82 @@ input.value = '';
 };
 initApp();
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('service-worker.js').catch(console.error);
+  // === ONBOARDING LOGIC ===
+const onboardingSteps = [
+  { icon: "🥋", title: "Добро пожаловать!", text: "Это интерактивная карта техник БЖЖ. Изучайте последовательности и развивайтесь вместе с нами." },
+  { icon: "☰", title: "Настройка", text: "Нажмите на меню ☰, чтобы выбрать свой пояс и стиль. Карта скроет сложные техники и подстроится под вас." },
+  { icon: "📍", title: "Навигация", text: "Нажимайте на узлы графа, чтобы открыть карточки с описаниями, механикой и видео." },
+  { icon: "✅", title: "Прогресс", text: "В карточке техники отмечайте статус: 'Не начал', 'В процессе', 'Изучено'. Доступные техники подсвечиваются." },
+  { icon: "🚀", title: "Готово!", text: "Удачи на татами! Выберите пояс в меню, чтобы начать изучение." }
+];
+
+let currentStep = 0;
+
+function showOnboarding() {
+  const modal = document.getElementById('onboarding-modal');
+  const card = document.getElementById('onboarding-card');
+  modal.classList.remove('hidden');
+  setTimeout(() => modal.classList.add('active'), 10);
+  renderOnboardingStep();
+}
+
+function renderOnboardingStep() {
+  const step = onboardingSteps[currentStep];
+  document.getElementById('onboarding-content').innerHTML = `
+    <div class="text-4xl mb-3">${step.icon}</div>
+    <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-2">${step.title}</h3>
+    <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">${step.text}</p>
+  `;
+  
+  // Dots
+  const dotsContainer = document.getElementById('onboarding-dots');
+  dotsContainer.innerHTML = onboardingSteps.map((_, i) => 
+    `<div id="onboarding-dot-${i}" class="${i === currentStep ? 'active' : ''}" style="width:${i===currentStep?16:6}px;height:6px;border-radius:${i===currentStep?4:50}%;background:${i===currentStep?'#3b82f6':'#cbd5e1'};transition:all 0.3s;"></div>`
+  ).join('');
+
+  // Button Text
+  const btn = document.getElementById('btn-next-onboarding');
+  btn.textContent = currentStep === onboardingSteps.length - 1 ? 'Начать' : 'Далее';
+}
+
+function nextOnboardingStep() {
+  if (typeof window.Telegram?.WebApp?.HapticFeedback !== 'undefined') window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+  
+  if (currentStep < onboardingSteps.length - 1) {
+    currentStep++;
+    renderOnboardingStep();
+  } else {
+    closeOnboarding();
+  }
+}
+
+function closeOnboarding(skip = false) {
+  const modal = document.getElementById('onboarding-modal');
+  modal.classList.remove('active');
+  setTimeout(() => modal.classList.add('hidden'), 300);
+  localStorage.setItem('bjj_onboarding_seen', 'true');
+}
+
+// Check on load
+window.addEventListener('DOMContentLoaded', () => {
+  if (!localStorage.getItem('bjj_onboarding_seen')) {
+    setTimeout(showOnboarding, 500);
+  }
+});
 </script>
+  <!-- === ONBOARDING MODAL === -->
+<div id="onboarding-modal" class="fixed inset-0 z-[2000] flex items-center justify-center p-4 hidden">
+  <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeOnboarding()"></div>
+  <div class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-2xl p-6 shadow-2xl relative z-10 transform scale-90 opacity-0 transition-all duration-300" id="onboarding-card">
+    <div id="onboarding-content" class="text-center">
+      <!-- Контент загружается через JS -->
+    </div>
+    <div class="flex justify-between items-center mt-6 pt-4 border-t border-slate-100 dark:border-slate-700">
+      <button onclick="closeOnboarding(true)" class="text-sm text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition">Пропустить</button>
+      <div id="onboarding-dots" class="flex gap-1.5"></div>
+      <button id="btn-next-onboarding" onclick="nextOnboardingStep()" class="px-4 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition shadow-lg shadow-blue-500/30">Далее</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
