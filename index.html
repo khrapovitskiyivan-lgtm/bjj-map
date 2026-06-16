@@ -483,8 +483,6 @@ body.dark .icon-btn:hover { background: #475569; }
 window.toggleSearchFilters = () => {
   const container = document.getElementById('searchFiltersContainer');
   container.classList.toggle('hidden');
-  
-  // Если открываем фильтры, закрываем результаты и историю, чтобы не мешали
   if (!container.classList.contains('hidden')) {
     document.getElementById('searchResults').classList.add('hidden');
     document.getElementById('searchHistory').classList.add('hidden');
