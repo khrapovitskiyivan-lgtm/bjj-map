@@ -16,155 +16,6 @@
 <script src="https://telegram.org/js/telegram-web-app.js" onerror="console.log('Telegram Web App недоступен')"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-  /* Стили для чипов поиска */
-.search-chip {
-  padding: 6px 12px;
-  border-radius: 999px;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  font-size: 12px;
-  font-weight: 500;
-  color: #475569;
-  white-space: nowrap;
-  transition: all 0.2s;
-  cursor: pointer;
-}
-.search-chip:hover { background: #f1f5f9; }
-.search-chip.active {
-  background: #3b82f6;
-  color: white;
-  border-color: #3b82f6;
-  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
-}
-
-/* Тёмная тема для чипов */
-body.dark .search-chip {
-  background: #1e293b;
-  border-color: #334155;
-  color: #cbd5e1;
-}
-body.dark .search-chip:hover { background: #334155; }
-body.dark .search-chip.active {
-  background: #3b82f6;
-  color: white;
-  border-color: #3b82f6;
-}
-  body.dark #progressListContent .sticky {
-  background: #1e293b !important;
-}
-  /* Чипы быстрого фильтра */
-.search-chip {
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
-  font-size: 11px;
-  font-weight: 500;
-  color: #475569;
-  white-space: nowrap;
-  transition: all 0.2s;
-  cursor: pointer;
-}
-.search-chip:hover { background: #e2e8f0; }
-.search-chip.active {
-  background: #3b82f6;
-  color: white;
-  border-color: #3b82f6;
-}
-body.dark .search-chip {
-  background: #334155;
-  border-color: #475569;
-  color: #cbd5e1;
-}
-body.dark .search-chip.active {
-  background: #3b82f6;
-  color: white;
-}
-
-/* История поиска */
-.search-history-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 14px;
-  cursor: pointer;
-  border-bottom: 1px solid #f1f5f9;
-  transition: background 0.15s;
-}
-.search-history-item:hover { background: #f8fafc; }
-body.dark .search-history-item { border-color: #334155; }
-body.dark .search-history-item:hover { background: #1e293b; }
-
-/* Подсветка совпадений */
-.search-highlight {
-  background: #fef08a;
-  color: #854d0e;
-  padding: 0 2px;
-  border-radius: 2px;
-  font-weight: 600;
-}
-body.dark .search-highlight {
-  background: #854d0e;
-  color: #fef08a;
-}
-
-/* Бейдж категории в результате */
-.search-cat-badge {
-  font-size: 10px;
-  padding: 2px 6px;
-  border-radius: 4px;
-  background: #e0e7ff;
-  color: #4338ca;
-  font-weight: 600;
-}
-body.dark .search-cat-badge {
-  background: #312e81;
-  color: #c7d2fe;
-}
-
-/* Бейдж пояса */
-.search-belt-badge {
-  font-size: 10px;
-  padding: 2px 6px;
-  border-radius: 4px;
-  background: #f1f5f9;
-  color: #64748b;
-}
-body.dark .search-belt-badge {
-  background: #334155;
-  color: #94a3b8;
-}
-
-/* Кнопка очистки истории */
-.clear-history-btn {
-  font-size: 11px;
-  color: #ef4444;
-  padding: 8px 14px;
-  cursor: pointer;
-  border-top: 1px solid #e2e8f0;
-  text-align: center;
-  font-weight: 500;
-}
-.clear-history-btn:hover { background: #fef2f2; }
-body.dark .clear-history-btn { border-color: #475569; }
-body.dark .clear-history-btn:hover { background: #450a0a; }
-  /* Onboarding Animations */
-#onboarding-modal.active #onboarding-card {
-  transform: scale(1);
-  opacity: 1;
-}
-#onboarding-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background-color: #cbd5e1;
-  transition: all 0.3s;
-}
-#onboarding-dot.active {
-  background-color: #3b82f6;
-  width: 16px;
-  border-radius: 4px;
-}
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 body {
 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -204,89 +55,28 @@ background: #3b82f6 !important;
 color: white !important;
 border-color: #3b82f6 !important;
 }
-  .bottom-sheet.active .bottom-sheet-content {
-  animation: fadeSlideUp 0.4s ease-out 0.1s both;
-}
-
-@keyframes fadeSlideUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-.bottom-sheet-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s ease;
-  z-index: 998;
-}
-.bottom-sheet-overlay.active {
-  opacity: 1;
-  pointer-events: auto;
-}
+.bottom-sheet-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 998; }
+.bottom-sheet-overlay.active { opacity: 1; pointer-events: auto; }
 .bottom-sheet {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  /* Полупрозрачный белый фон */
-  background: rgba(255, 255, 255, 0.72);
-  /* Размытие фона за панелью */
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  /* Тонкая светлая граница сверху для эффекта стекла */
-  border-top: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 24px 24px 0 0;
-  /* Мягкая тень */
-  box-shadow: 
-    0 -8px 32px rgba(0, 0, 0, 0.12),
-    0 0 0 1px rgba(255, 255, 255, 0.1) inset;
-  transform: translateY(100%);
-  transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
-  z-index: 999;
-  max-height: 90vh;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior-y: contain;
-  padding-bottom: 80px;
+position: fixed;
+bottom: 0;
+left: 0;
+right: 0;
+background: white;
+border-radius: 20px 20px 0 0;
+box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+transform: translateY(100%);
+transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+z-index: 999;
+max-height: 90vh;
+overflow-y: auto;
+-webkit-overflow-scrolling: touch;
+overscroll-behavior-y: contain;
+padding-bottom: 80px;
 }
-body.dark .bottom-sheet {
-  background: rgba(15, 23, 42, 0.75);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 
-    0 -8px 32px rgba(0, 0, 0, 0.4),
-    0 0 0 1px rgba(255, 255, 255, 0.05) inset;
-}
+body.dark .bottom-sheet { background: #1e293b; }
 .bottom-sheet.active { transform: translateY(0); }
-.bottom-sheet-handle {
-  width: 40px;
-  height: 4px;
-  background: rgba(148, 163, 184, 0.5);
-  border-radius: 2px;
-  margin: 12px auto;
-  cursor: grab;
-  transition: background 0.2s;
-}
-  .bottom-sheet-handle:hover {
-  background: rgba(148, 163, 184, 0.8);
-}
-
-body.dark .bottom-sheet-handle {
-  background: rgba(148, 163, 184, 0.3);
-}
-
-body.dark .bottom-sheet-handle:hover {
-  background: rgba(148, 163, 184, 0.6);
-}
+.bottom-sheet-handle { width: 40px; height: 4px; background: #cbd5e0; border-radius: 2px; margin: 12px auto; cursor: grab; }
 body.dark .bottom-sheet-handle { background: #475569; }
 .bottom-sheet-content { padding: 0 20px 20px; }
 body.dark header { background: #1e293b; border-color: #334155; }
@@ -315,101 +105,66 @@ body.dark .icon-btn:hover { background: #475569; }
 </style>
 </head>
 <body class="min-h-screen flex flex-col">
-<header class="p-3 bg-white dark:bg-slate-800 shadow-sm border-b border-slate-200 dark:border-slate-700 sticky top-0 z-50">
-  <div class="flex items-center justify-between gap-2 mb-3">
-    <button onclick="toggleDarkMode()" class="icon-btn bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300" id="themeToggle" title="Тема">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
-      </svg>
-    </button>
-    
-    <h1 class="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-1 flex-shrink-0">
-      <span class="header-logo">🥋</span> BJJ Map
-    </h1>
-    
-    <button onclick="openStyleModal()" class="icon-btn bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300" title="Стиль и пояс">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-      </svg>
-    </button>
-    
-<!-- Кнопка прогресса -->
-<button id="globalProgressBtn" onclick="openProgressModal()" class="text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50 px-2.5 py-1.5 rounded-full transition border border-blue-200 dark:border-blue-800 flex-shrink-0" title="Мой прогресс">0%</button>
-
-<!-- Кнопка информации -->
-<button onclick="openInfoModal()" class="icon-btn bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300" title="Информация">
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-    <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-  </svg>
+<header class="p-3 bg-white shadow-sm border-b border-slate-200 sticky top-0 z-50">
+<div class="flex items-center justify-between gap-2 mb-3">
+<button onclick="toggleDarkMode()" class="icon-btn bg-slate-100 hover:bg-slate-200 text-slate-600" id="themeToggle" title="Тема">
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+<path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+</svg>
 </button>
-    
-    <button onclick="toggleMenu()" class="icon-btn bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300" title="Меню">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
-      </svg>
-    </button>
-  </div>
-
-  <!-- ИСПРАВЛЕННАЯ СТРУКТУРА ПОИСКА (без лишних вложенных div) -->
-  <div class="relative">
-    <div class="flex gap-2">
-      <div class="relative flex-1">
-        <input type="text" id="searchInput" placeholder="Поиск техники..." 
-          class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition" 
-          style="font-size: 16px !important;" autocomplete="off">
-        <svg class="absolute right-3 top-3 w-4 h-4 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-        </svg>
-      </div>
-      <button onclick="toggleSearchFilters()" class="flex-shrink-0 w-10 h-10 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 active:scale-95 transition" title="Фильтры поиска">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
-      </button>
-    </div>
-    
-    <div id="searchFiltersContainer" class="hidden mt-2 p-3 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl transition-all duration-300">
-      <div class="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 px-1 uppercase tracking-wider">Фильтр по категории:</div>
-      <div id="searchChips" class="flex flex-wrap gap-1.5">
-        <button class="search-chip active" data-filter="all">Все</button>
-        <button class="search-chip" data-filter="position">📍 Позиции</button>
-        <button class="search-chip" data-filter="submission">🔒 Сабмишены</button>
-        <button class="search-chip" data-filter="sweep">🔄 Свипы</button>
-        <button class="search-chip" data-filter="guard_pass">🚪 Проходы</button>
-        <button class="search-chip" data-filter="takedown">🤼 Тейкдауны</button>
-        <button class="search-chip" data-filter="escape">🛡️ Защиты</button>
-        <button class="search-chip" data-filter="transition">➡️ Переходы</button>
-      </div>
-    </div>
-    
-    <div id="searchHistory" class="hidden absolute top-full left-0 right-0 mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg z-50"></div>
-    <div id="searchResults" class="hidden absolute top-full left-0 right-0 mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg max-h-80 overflow-y-auto z-50"></div>
-  </div>
-
-  <div id="settingsMenu" class="hidden mt-3 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 space-y-4 fade-in">
-    <div>
-      <div class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-2">Формат</div>
-      <div class="flex gap-2">
-        <button id="giToggleBtn" onclick="toggleGiFilter()" class="flex-1 py-1.5 rounded-lg bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-xs font-medium active">Gi</button>
-      </div>
-    </div>
-    <div>
-      <div class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-2">Правила</div>
-      <div class="flex gap-2 overflow-x-auto pb-1">
-        <button class="rule-btn active-rule whitespace-nowrap px-2 py-1 rounded-full bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-xs font-medium" data-rule="none">Без огр.</button>
-        <button class="rule-btn whitespace-nowrap px-2 py-1 rounded-full bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-xs font-medium" data-rule="ibjjf_gi">IBJJF Gi</button>
-        <button class="rule-btn whitespace-nowrap px-2 py-1 rounded-full bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-xs font-medium" data-rule="ibjjf_nogi">No-Gi</button>
-        <button class="rule-btn whitespace-nowrap px-2 py-1 rounded-full bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-xs font-medium" data-rule="adcc">ADCC</button>
-      </div>
-    </div>
-    <div>
-      <div class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-2">Категории</div>
-      <div class="flex gap-2 overflow-x-auto pb-1">
-        <button class="filter-btn whitespace-nowrap px-3 py-1.5 rounded-full bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 font-medium text-sm" data-filter="position">Позиции</button>
-        <button class="filter-btn whitespace-nowrap px-3 py-1.5 rounded-full bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 font-medium text-sm" data-filter="transition">Переходы</button>
-        <button class="filter-btn whitespace-nowrap px-3 py-1.5 rounded-full bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 font-medium text-sm" data-filter="submission">Сабмишены</button>
-      </div>
-    </div>
-  </div>
+<h1 class="text-lg font-bold text-slate-800 flex items-center gap-1 flex-shrink-0">
+<span class="header-logo">🥋</span> BJJ Map
+</h1>
+<button onclick="openStyleModal()" class="icon-btn bg-slate-100 hover:bg-slate-200 text-slate-600" title="Стиль и пояс">
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+<path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+<path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+</svg>
+</button>
+<button id="globalProgressBtn" onclick="openProgressModal()" class="text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 px-2.5 py-1.5 rounded-full transition border border-blue-200 flex-shrink-0" title="Мой прогресс">0%</button>
+<button onclick="openInfoModal()" class="icon-btn bg-slate-100 hover:bg-slate-200 text-slate-600" title="Информация">
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+<path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+</svg>
+</button>
+<button onclick="toggleMenu()" class="icon-btn bg-slate-100 hover:bg-slate-200 text-slate-600" title="Меню">
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+<path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+</svg>
+</button>
+</div>
+<div class="relative">
+<input type="text" id="searchInput" placeholder="Поиск техники..." class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition" style="font-size: 16px !important;">
+<svg class="absolute right-3 top-3 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+</svg>
+<div id="searchResults" class="absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg max-h-60 overflow-y-auto hidden z-50"></div>
+</div>
+<div id="settingsMenu" class="hidden mt-3 p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-4 fade-in">
+<div>
+<div class="text-xs font-semibold text-slate-500 uppercase mb-2">Формат</div>
+<div class="flex gap-2">
+<button id="giToggleBtn" onclick="toggleGiFilter()" class="flex-1 py-1.5 rounded-lg bg-white border border-slate-300 text-xs font-medium active">Gi</button>
+</div>
+</div>
+<div>
+<div class="text-xs font-semibold text-slate-500 uppercase mb-2">Правила</div>
+<div class="flex gap-2 overflow-x-auto pb-1">
+<button class="rule-btn active-rule whitespace-nowrap px-2 py-1 rounded-full bg-white border border-slate-300 text-xs font-medium" data-rule="none">Без огр.</button>
+<button class="rule-btn whitespace-nowrap px-2 py-1 rounded-full bg-white border border-slate-300 text-xs font-medium" data-rule="ibjjf_gi">IBJJF Gi</button>
+<button class="rule-btn whitespace-nowrap px-2 py-1 rounded-full bg-white border border-slate-300 text-xs font-medium" data-rule="ibjjf_nogi">No-Gi</button>
+<button class="rule-btn whitespace-nowrap px-2 py-1 rounded-full bg-white border border-slate-300 text-xs font-medium" data-rule="adcc">ADCC</button>
+</div>
+</div>
+<div>
+<div class="text-xs font-semibold text-slate-500 uppercase mb-2">Категории</div>
+<div class="flex gap-2 overflow-x-auto pb-1">
+<button class="filter-btn whitespace-nowrap px-3 py-1.5 rounded-full bg-white border border-slate-300 text-slate-700 font-medium text-sm" data-filter="position">Позиции</button>
+<button class="filter-btn whitespace-nowrap px-3 py-1.5 rounded-full bg-white border border-slate-300 text-slate-700 font-medium text-sm" data-filter="transition">Переходы</button>
+<button class="filter-btn whitespace-nowrap px-3 py-1.5 rounded-full bg-white border border-slate-300 text-slate-700 font-medium text-sm" data-filter="submission">Сабмишены</button>
+</div>
+</div>
+</div>
 </header>
 <main class="flex-1 flex flex-col relative">
 <div id="mynetwork"></div>
@@ -426,16 +181,14 @@ body.dark .icon-btn:hover { background: #475569; }
 <div class="text-center py-4 text-slate-400"><p class="text-sm">Нажмите на узел графа,<br>чтобы увидеть детали</p></div>
 </div>
 </div>
-<div id="progressModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] flex items-center justify-center hidden" style="overscroll-behavior: contain;">
-  <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl w-11/12 max-w-md max-h-[85vh] flex flex-col overflow-hidden shadow-2xl">
-    <!-- flex-shrink-0 не дает заголовку сжиматься -->
-    <div class="p-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800 flex-shrink-0">
-      <h2 class="text-lg font-bold text-slate-800 dark:text-white text-center flex-1">Мой прогресс</h2>
-      <button onclick="toggleProgressModal()" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 transition">✕</button>
-    </div>
-    <!-- min-h-0 и touch-action: pan-y заставляют мобильный браузер скроллить именно этот блок, а не всю страницу -->
-    <div class="overflow-y-auto p-4 flex-1 min-h-0 overscroll-y-contain touch-pan-y" id="progressListContent" style="overscroll-behavior-y: contain; -webkit-overflow-scrolling: touch; touch-action: pan-y;"></div>
-  </div>
+<div id="progressModal" class="fixed inset-0 bg-black/20 backdrop-blur-sm z-[100] flex items-center justify-center hidden">
+<div class="bg-white border border-slate-200 rounded-2xl w-11/12 max-w-md max-h-[90vh] flex flex-col overflow-hidden shadow-xl">
+<div class="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
+<h2 class="text-lg font-bold text-slate-800">Мой прогресс</h2>
+<button onclick="closeProgressModal()" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-200 text-slate-500 transition">✕</button>
+</div>
+<div class="overflow-y-auto p-4" id="progressListContent"></div>
+</div>
 </div>
 <div id="styleModal" class="fixed inset-0 bg-black/20 backdrop-blur-sm z-[100] flex items-center justify-center hidden">
 <div class="bg-white border border-slate-200 rounded-2xl w-11/12 max-w-md p-5 shadow-xl max-h-[90vh] overflow-y-auto">
@@ -465,32 +218,19 @@ body.dark .icon-btn:hover { background: #475569; }
 </div>
 </div>
 </div>
-<div id="infoModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] flex items-center justify-center hidden" style="overscroll-behavior: contain;">
-  <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl w-11/12 max-w-md max-h-[85vh] flex flex-col overflow-hidden shadow-2xl">
-    <div class="p-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 flex-shrink-0 flex justify-between items-center">
-      <h2 class="text-lg font-bold text-slate-800 dark:text-white text-center flex-1">О приложении</h2>
-      <button onclick="toggleInfoModal()" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 transition">✕</button>
-    </div>
-    <div class="flex border-b border-slate-200 dark:border-slate-700 text-xs flex-shrink-0 bg-white dark:bg-slate-800">
-      <button class="tab-btn flex-1 py-3 font-semibold text-blue-600 border-b-2 border-blue-600" data-tab="0" onclick="switchTab(0)">О карте</button>
-      <button class="tab-btn flex-1 py-3 font-semibold text-slate-400" data-tab="1" onclick="switchTab(1)">Как пользоваться</button>
-      <button class="tab-btn flex-1 py-3 font-semibold text-slate-400" data-tab="2" onclick="switchTab(2)">Бэкап</button>
-    </div>
-    <div class="overflow-y-auto p-5 text-sm text-slate-700 dark:text-slate-300 space-y-4 flex-1 min-h-0" id="modalContent" style="-webkit-overflow-scrolling: touch; overscroll-behavior-y: contain; touch-action: pan-y;"></div>
-  </div>
+<div id="infoModal" class="fixed inset-0 bg-black/20 backdrop-blur-sm z-[100] flex items-center justify-center hidden">
+<div class="bg-white border border-slate-200 rounded-2xl w-11/12 max-w-md max-h-[80vh] flex flex-col overflow-hidden shadow-xl">
+<div class="flex border-b border-slate-200 text-xs">
+<button class="tab-btn flex-1 py-3 font-semibold text-blue-600 border-b-2 border-blue-600" data-tab="0" onclick="switchTab(0)">О карте</button>
+<button class="tab-btn flex-1 py-3 font-semibold text-slate-400" data-tab="1" onclick="switchTab(1)">Как пользоваться</button>
+<button class="tab-btn flex-1 py-3 font-semibold text-slate-400" data-tab="2" onclick="switchTab(2)">Бэкап</button>
+</div>
+<div class="overflow-y-auto p-5 text-sm text-slate-700 space-y-4" id="modalContent"></div>
+<button onclick="closeInfoModal()" class="m-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl text-slate-700 font-medium transition">Закрыть</button>
+</div>
 </div>
 <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importProgress(this)">
 <script>
-  // Переключение видимости фильтров поиска
-window.toggleSearchFilters = () => {
-  const container = document.getElementById('searchFiltersContainer');
-  container.classList.toggle('hidden');
-  if (!container.classList.contains('hidden')) {
-    document.getElementById('searchResults').classList.add('hidden');
-    document.getElementById('searchHistory').classList.add('hidden');
-  }
-  triggerHaptic('light');
-};
 if (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp) {
 try { window.Telegram.WebApp.ready(); window.Telegram.WebApp.expand(); } catch (e) {}
 }
@@ -1118,81 +858,15 @@ const techniqueDetails = {
 396: { mechanics: "Большая внутренняя подсечка.", keyPoints: "Глубокая подсечка изнутри, толчок.", when: "Когда обе ноги соперника нагружены.", mistakes: "Недостаточный толчок." },
 397: { mechanics: "Бросок через бедро с подбивом ноги.", keyPoints: "Подхват бедра, подбив ноги.", when: "В клинче.", mistakes: "Плохой захват." }
 };
-
 // ===== ИНИЦИАЛИЗАЦИЯ ГРАФА =====
-const container = document.getElementById('mynetwork');
-const data = {
-  nodes: new vis.DataSet(bjjNodesData),
-  edges: new vis.DataSet(bjjEdgesData)
-};
-
-const options = {
-  nodes: {
-    shape: 'dot',
-    size: 16,
-    font: {
-      size: 12,
-      color: '#334155'
-    },
-    borderWidth: 2,
-    shadow: true
-  },
-  edges: {
-    width: 1,
-    shadow: false,
-    arrows: { to: { enabled: true, scaleFactor: 0.5 } },
-    color: { color: '#94a3b8', highlight: '#3b82f6' },
-    smooth: { type: 'continuous', roundness: 0.3 }
-  },
-  physics: {
-    enabled: true,
-    barnesHut: {
-      gravitationalConstant: -3000,
-      centralGravity: 0.3,
-      springLength: 100,
-      springConstant: 0.04,
-      damping: 0.09
-    }
-  },
-  interaction: {
-    hover: true,
-    tooltipDelay: 200,
-    hideEdgesOnDrag: true
-  },
-  layout: {
-    improvedLayout: bjjNodesData.length < 100
-  }
-};
-
-const network = new vis.Network(container, data, options);
-
-// Обработчик клика по узлу
-network.on('click', function(params) {
-  if (params.nodes.length > 0) {
-    const nodeId = params.nodes[0];
-    renderNodeDetails(nodeId);
-    bottomSheet.show();
-  }
+const nodes = new vis.DataSet(bjjNodesData.map(n => ({ id: n.id, label: n.label, group: n.group, title: n.title, desc: n.desc, belt: n.belt, gi: n.gi, noGi: n.noGi, legal_ibjjf_gi: n.legal_ibjjf_gi, legal_ibjjf_nogi: n.legal_ibjjf_nogi, legal_adcc: n.legal_adcc, points: n.points, tags: n.tags })));
+const edges = new vis.DataSet(bjjEdgesData);
+const network = new vis.Network(document.getElementById('mynetwork'), { nodes, edges }, {
+groups, nodes: { size: window.innerWidth < 768 ? 28 : 22, font: { size: window.innerWidth < 768 ? 14 : 12, color: '#ffffff', strokeWidth: 3, strokeColor: '#000000' } },
+edges: { arrows: { to: { enabled: true, scaleFactor: 0.8 } }, font: { size: 0 }, color: '#cbd5e1', width: 2, selectionWidth: 4 },
+physics: { solver: 'forceAtlas2Based', forceAtlas2Based: { gravitationalConstant: -50 }, stabilization: { iterations: 150 } },
+interaction: { hover: true, dragNodes: true, dragView: true, zoomView: true }
 });
-
-// Функция центрирования
-window.fitGraph = () => {
-  network.fit({ animation: { duration: 500, easingFunction: 'easeInOutQuad' } });
-};
-
-// Обработчик клика по узлу
-network.on('click', function(params) {
-  if (params.nodes.length > 0) {
-    const nodeId = params.nodes[0];
-    renderNodeDetails(nodeId);
-    bottomSheet.show();
-  }
-});
-
-// Функция центрирования
-window.fitGraph = () => {
-  network.fit({ animation: { duration: 500, easingFunction: 'easeInOutQuad' } });
-};
 
 const STORAGE_KEY = 'bjj_learned_v3';
 let progress = {};
@@ -1240,36 +914,94 @@ animation: { duration: 500, easingFunction: 'easeInOutQuad' }
 triggerHaptic('light');
 }
 };
-
 window.toggleMenu = () => {
-  document.getElementById('settingsMenu').classList.toggle('hidden');
-  triggerHaptic('light');
+document.getElementById('settingsMenu').classList.toggle('hidden');
+triggerHaptic('light');
 };
-
-// Оставьте только этот блок для модалок:
-window.toggleInfoModal = () => {
-  const modal = document.getElementById('infoModal');
-  if (modal.classList.contains('hidden')) {
-    modal.classList.remove('hidden');
-    switchTab(0);
-  } else {
-    modal.classList.add('hidden');
-  }
-  triggerHaptic('light');
+let giFilterState = 'gi', currentCategoryFilter = null, currentRule = 'none';
+let styleProfile = JSON.parse(localStorage.getItem('bjj_style_profile') || '{"belt": "white"}');
+const beltOrder = ['white', 'blue', 'purple', 'brown', 'black'];
+function applyAllFilters() {
+const userBelt = styleProfile.belt || 'white';
+const maxBeltIndex = beltOrder.indexOf(userBelt);
+const preferredTags = [];
+if (styleProfile.flexibility) preferredTags.push('flexibility');
+if (styleProfile.pressure) preferredTags.push('pressure');
+if (styleProfile.long_limbs) preferredTags.push('long_limbs');
+if (styleProfile.speed) preferredTags.push('speed');
+nodes.forEach(n => {
+const nodeBeltIndex = beltOrder.indexOf(n.belt);
+const passBelt = nodeBeltIndex <= maxBeltIndex;
+if (!passBelt) { nodes.update({ id: n.id, hidden: true }); return; }
+if (currentCategoryFilter !== null && n.group !== currentCategoryFilter) { nodes.update({ id: n.id, hidden: true }); return; }
+if ((giFilterState === 'gi' && !n.gi) || (giFilterState === 'nogi' && !n.noGi)) { nodes.update({ id: n.id, hidden: true }); return; }
+let passRule = true;
+if (currentRule === 'ibjjf_gi') passRule = n.legal_ibjjf_gi;
+else if (currentRule === 'ibjjf_nogi') passRule = n.legal_ibjjf_nogi;
+else if (currentRule === 'adcc') passRule = n.legal_adcc;
+if (!passRule) { nodes.update({ id: n.id, hidden: false, opacity: 0.3 }); return; }
+if (preferredTags.length > 0) {
+const hasMatchingTag = n.tags.some(tag => preferredTags.includes(tag));
+if (!hasMatchingTag && n.tags.length > 0) {
+nodes.update({ id: n.id, hidden: true });
+return;
+} else if (!hasMatchingTag && n.tags.length === 0) {
+nodes.update({ id: n.id, hidden: false, opacity: 0.5 });
+return;
+}
+}
+nodes.update({ id: n.id, hidden: false, opacity: 1.0 });
+});
+edges.forEach(e => {
+const from = nodes.get(e.from), to = nodes.get(e.to);
+if (from && to) edges.update({ id: e.id, hidden: from.hidden || to.hidden });
+});
+}
+document.querySelectorAll('.filter-btn').forEach(btn => {
+btn.addEventListener('click', function() {
+const val = this.dataset.filter;
+if (this.classList.contains('active') && currentCategoryFilter === val) {
+document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+currentCategoryFilter = null;
+} else {
+document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+this.classList.add('active'); currentCategoryFilter = val;
+}
+applyAllFilters(); triggerHaptic('light');
+});
+});
+document.querySelectorAll('.rule-btn').forEach(btn => {
+btn.addEventListener('click', function() {
+document.querySelectorAll('.rule-btn').forEach(b => b.classList.remove('active-rule'));
+this.classList.add('active-rule'); currentRule = this.dataset.rule; applyAllFilters(); triggerHaptic('light');
+});
+});
+window.toggleGiFilter = () => {
+giFilterState = giFilterState === 'gi' ? 'nogi' : 'gi';
+document.getElementById('giToggleBtn').textContent = giFilterState === 'gi' ? 'Gi' : 'No-Gi';
+document.getElementById('giToggleBtn').classList.toggle('active', giFilterState === 'gi');
+applyAllFilters(); triggerHaptic('light');
 };
-
-window.toggleProgressModal = () => {
-  const modal = document.getElementById('progressModal');
-  if (modal.classList.contains('hidden')) {
-    openProgressModal();
-  } else {
-    modal.classList.add('hidden');
-  }
-  triggerHaptic('light');
+document.addEventListener('click', function(e) {
+if (e.target.closest('.belt-btn')) {
+const btn = e.target.closest('.belt-btn');
+document.querySelectorAll('.belt-btn').forEach(b => b.classList.remove('active-belt'));
+btn.classList.add('active-belt');
+triggerHaptic('light');
+}
+});
+window.openStyleModal = () => {
+document.getElementById('styleModal').classList.remove('hidden');
+document.getElementById('styleFlex').checked = !!styleProfile.flexibility;
+document.getElementById('stylePressure').checked = !!styleProfile.pressure;
+document.getElementById('styleLong').checked = !!styleProfile.long_limbs;
+document.getElementById('styleSpeed').checked = !!styleProfile.speed;
+document.querySelectorAll('.belt-btn').forEach(btn => {
+btn.classList.toggle('active-belt', btn.dataset.belt === (styleProfile.belt || 'white'));
+});
 };
-
-window.closeProgressModal = () => document.getElementById('progressModal').classList.add('hidden');
-window.closeInfoModal = () => document.getElementById('infoModal').classList.add('hidden');
+window.closeStyleModal = () => document.getElementById('styleModal').classList.add('hidden');
+window.saveStyleProfile = () => {
 const activeBeltBtn = document.querySelector('.belt-btn.active-belt');
 styleProfile = {
 belt: activeBeltBtn ? activeBeltBtn.dataset.belt : 'white',
@@ -1445,236 +1177,25 @@ if (navigator.share) { navigator.share({ title: n.title, text: text, url: url })
 else { navigator.clipboard.writeText(`${text}\n${url}`).then(() => alert('Ссылка скопирована!')); }
 triggerHaptic('medium');
 };
-// ===== УМНЫЙ ПОИСК =====
 const searchInput = document.getElementById('searchInput');
 const searchResults = document.getElementById('searchResults');
-const searchHistory = document.getElementById('searchHistory');
-const searchChips = document.getElementById('searchChips');
-
-let currentSearchFilter = 'all';
-const SEARCH_HISTORY_KEY = 'bjj_search_history';
-const MAX_HISTORY = 5;
-
-// Загрузка истории
-function getSearchHistory() {
-  try {
-    return JSON.parse(localStorage.getItem(SEARCH_HISTORY_KEY) || '[]');
-  } catch { return []; }
-}
-
-function saveSearchHistory(query) {
-  if (!query || query.length < 2) return;
-  let history = getSearchHistory();
-  history = history.filter(q => q.toLowerCase() !== query.toLowerCase());
-  history.unshift(query);
-  history = history.slice(0, MAX_HISTORY);
-  localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(history));
-}
-
-function clearSearchHistory() {
-  localStorage.removeItem(SEARCH_HISTORY_KEY);
-  showSearchHistory('');
-}
-
-// Показать историю
-function showSearchHistory(query) {
-  const history = getSearchHistory();
-  if (query.length > 0 || history.length === 0) {
-    searchHistory.classList.add('hidden');
-    return;
-  }
-  
-  let html = '<div class="text-xs font-semibold text-slate-500 px-4 py-2">🕐 Недавние запросы</div>';
-  history.forEach(q => {
-    html += `<div class="search-history-item" onclick="applySearch('${q.replace(/'/g, "\\'")}')">
-      <span class="text-sm text-slate-700 dark:text-slate-200">🔍 ${q}</span>
-      <span class="text-slate-400 text-xs">›</span>
-    </div>`;
-  });
-  html += `<div class="clear-history-btn" onclick="clearSearchHistory()">Очистить историю</div>`;
-  
-  searchHistory.innerHTML = html;
-  searchHistory.classList.remove('hidden');
-}
-
-// Применить запрос из истории
-window.applySearch = (query) => {
-  searchInput.value = query;
-  searchHistory.classList.add('hidden');
-  performSearch(query);
-  triggerHaptic('light');
-};
-
-// Подсветка совпадений
-function highlightText(text, query) {
-  if (!query || query.length < 2) return text;
-  const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-  return text.replace(regex, '<span class="search-highlight">$1</span>');
-}
-
-// Основная функция поиска
-function performSearch(query) {
-  const q = query.toLowerCase().trim();
-  
-  if (q.length < 1) {
-    searchResults.classList.add('hidden');
-    if (getSearchHistory().length > 0) showSearchHistory(q);
-    return;
-  }
-  
-  // Сохраняем в историю
-  saveSearchHistory(query);
-  
-  // Поиск по всем полям
-  const matches = bjjNodesData.filter(n => {
-    // Фильтр по категории
-    if (currentSearchFilter !== 'all' && n.group !== currentSearchFilter) return false;
-    
-    // Поиск в названии
-    const inLabel = n.label.toLowerCase().includes(q);
-    const inTitle = n.title.toLowerCase().includes(q);
-    
-    // Поиск в описании
-    const inDesc = n.desc && n.desc.toLowerCase().includes(q);
-    
-    // Поиск в techniqueDetails (механика, ключевые детали, когда применять, ошибки)
-    const details = techniqueDetails[n.id] || {};
-    const inMechanics = details.mechanics && details.mechanics.toLowerCase().includes(q);
-    const inKeyPoints = details.keyPoints && details.keyPoints.toLowerCase().includes(q);
-    const inWhen = details.when && details.when.toLowerCase().includes(q);
-    const inMistakes = details.mistakes && details.mistakes.toLowerCase().includes(q);
-    
-    // Поиск по тегам стиля
-    const inTags = n.tags && n.tags.some(t => {
-      const tagMap = {
-        'flexibility': 'гибкость',
-        'pressure': 'давление',
-        'speed': 'скорость',
-        'long_limbs': 'длинные'
-      };
-      return t.includes(q) || (tagMap[t] && tagMap[t].includes(q));
-    });
-    
-    // Поиск по поясу
-    const beltMap = { 'white': 'белый', 'blue': 'синий', 'purple': 'фиолетовый', 'brown': 'коричневый', 'black': 'чёрный' };
-    const inBelt = beltMap[n.belt] && beltMap[n.belt].includes(q);
-    
-    return inLabel || inTitle || inDesc || inMechanics || inKeyPoints || inWhen || inMistakes || inTags || inBelt;
-  });
-  
-  // Сортировка: сначала точные совпадения в названии
-  matches.sort((a, b) => {
-    const aLabel = a.label.toLowerCase().includes(q);
-    const bLabel = b.label.toLowerCase().includes(q);
-    if (aLabel && !bLabel) return -1;
-    if (!aLabel && bLabel) return 1;
-    return 0;
-  });
-  
-  if (matches.length > 0) {
-    searchResults.innerHTML = `
-      <div class="text-xs font-semibold text-slate-500 px-4 py-2 border-b border-slate-100">
-        Найдено: ${matches.length}
-      </div>
-      ${matches.slice(0, 20).map(n => {
-        const catLabels = { position:'Позиция', submission:'Сабмишен', sweep:'Свип', guard_pass:'Проход', transition:'Переход', escape:'Защита', takedown:'Тейкдаун' };
-        const beltIcons = { white:'⚪', blue:'', purple:'🟣', brown:'', black:'⚫' };
-        const highlightedLabel = highlightText(n.label, q);
-        const highlightedTitle = highlightText(n.title, q);
-        
-        return `
-          <div onclick="focusNode(${n.id}); searchInput.value=''; searchResults.classList.add('hidden')" 
-            class="px-4 py-3 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-0 transition">
-            <div class="flex items-start gap-3">
-              <div class="flex-shrink-0 mt-0.5">
-                <span class="text-lg">${groupIcons[n.group] || ''}</span>
-              </div>
-              <div class="flex-1 min-w-0">
-                <div class="font-medium text-sm text-slate-800 mb-1">${highlightedLabel}</div>
-                <div class="text-xs text-slate-500 mb-1.5">${highlightedTitle}</div>
-                <div class="flex gap-1.5 flex-wrap">
-                  <span class="search-cat-badge">${catLabels[n.group]}</span>
-                  <span class="search-belt-badge">${beltIcons[n.belt]} ${n.belt}</span>
-                  ${n.tags.includes('speed') ? '<span class="search-belt-badge">⚡</span>' : ''}
-                  ${n.tags.includes('flexibility') ? '<span class="search-belt-badge">🧘</span>' : ''}
-                  ${n.tags.includes('pressure') ? '<span class="search-belt-badge">🦍</span>' : ''}
-                  ${n.tags.includes('long_limbs') ? '<span class="search-belt-badge">🕷️</span>' : ''}
-                </div>
-              </div>
-            </div>
-          </div>`;
-      }).join('')}
-    `;
-  } else {
-    searchResults.innerHTML = `
-      <div class="px-4 py-6 text-center">
-        <div class="text-3xl mb-2">🔍</div>
-        <div class="text-sm text-slate-500">Ничего не найдено</div>
-        <div class="text-xs text-slate-400 mt-1">Попробуйте другой запрос или снимите фильтр</div>
-      </div>`;
-  }
-  
-  searchResults.classList.remove('hidden');
-  searchHistory.classList.add('hidden');
-}
-
-// Обработчик ввода
 searchInput.addEventListener('input', (e) => {
-  const q = e.target.value.trim();
-  if (q.length === 0 && getSearchHistory().length > 0) {
-    showSearchHistory('');
-    searchResults.classList.add('hidden');
-  } else {
-    searchHistory.classList.add('hidden');
-    performSearch(q);
-  }
+const q = e.target.value.toLowerCase().trim();
+if (q.length < 1) { searchResults.classList.add('hidden'); return; }
+const matches = bjjNodesData.filter(n => n.label.toLowerCase().includes(q) || n.title.toLowerCase().includes(q));
+if (matches.length > 0) {
+searchResults.innerHTML = matches.map(n => `
+<div onclick="focusNode(${n.id}); searchInput.value=''; searchResults.classList.add('hidden')" class="px-4 py-3 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-0 flex items-center gap-3 transition">
+<span class="text-lg">${groupIcons[n.group] || '🥋'}</span>
+<div><div class="font-medium text-sm text-slate-800">${n.label}</div><div class="text-xs text-slate-500">${n.title}</div></div>
+</div>`).join('');
+searchResults.classList.remove('hidden');
+} else {
+searchResults.innerHTML = '<div class="px-4 py-3 text-sm text-slate-500">Ничего не найдено</div>';
+searchResults.classList.remove('hidden');
+}
 });
-
-// Фокус на поле — показать историю
-searchInput.addEventListener('focus', () => {
-  if (searchInput.value.trim().length === 0) {
-    showSearchHistory('');
-  }
-});
-
-// Обработчик чипов фильтров
-document.querySelectorAll('.search-chip').forEach(chip => {
-  chip.addEventListener('click', function() {
-    document.querySelectorAll('.search-chip').forEach(c => c.classList.remove('active'));
-    this.classList.add('active');
-    currentSearchFilter = this.dataset.filter;
-    triggerHaptic('light');
-    
-    // Повторить поиск с новым фильтром
-    const q = searchInput.value.trim();
-    if (q.length > 0) performSearch(q);
-  });
-});
-
-// Закрытие при клике вне
-document.addEventListener('click', (e) => {
-  if (!e.target.closest('.relative')) {
-    searchResults.classList.add('hidden');
-    searchHistory.classList.add('hidden');
-  }
-});
-
-// Enter — сохранить в историю
-searchInput.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') {
-    const q = searchInput.value.trim();
-    if (q) {
-      saveSearchHistory(q);
-      searchInput.blur();
-    }
-  }
-  if (e.key === 'Escape') {
-    searchInput.value = '';
-    searchResults.classList.add('hidden');
-    searchHistory.classList.add('hidden');
-    searchInput.blur();
-  }
-});
+document.addEventListener('click', (e) => { if (!e.target.closest('.relative') && !e.target.closest('#settingsMenu')) searchResults.classList.add('hidden'); });
 network.on('click', function(params) { if (params.nodes.length) renderNodeDetails(params.nodes[0]); });
 window.toggleDarkMode = () => {
 document.body.classList.toggle('dark');
@@ -1701,73 +1222,58 @@ const modalContent = {
 <button onclick="document.getElementById('importFile').click()" class="w-full py-3 bg-slate-200 text-slate-800 rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-slate-300 transition">Загрузить бэкап</button>
 </div>`
 };
-
-// === ФУНКЦИИ ДЛЯ МОДАЛОК (классические open/close) ===
-
-window.openInfoModal = () => {
-  document.getElementById('infoModal').classList.remove('hidden');
-  switchTab(0); // Всегда открываем на первой вкладке
+window.openInfoModal = () => { document.getElementById('infoModal').classList.remove('hidden'); switchTab(0); };
+window.closeInfoModal = () => document.getElementById('infoModal').classList.add('hidden');
+window.switchTab = (idx) => {
+document.getElementById('modalContent').innerHTML = modalContent[idx];
+document.querySelectorAll('.tab-btn').forEach((b, i) => {
+if (i === idx) { b.classList.add('text-blue-600', 'border-b-2', 'border-blue-600'); b.classList.remove('text-slate-400'); }
+else { b.classList.remove('text-blue-600', 'border-b-2', 'border-blue-600'); b.classList.add('text-slate-400'); }
+});
 };
-
-window.closeInfoModal = () => {
-  document.getElementById('infoModal').classList.add('hidden');
-};
-
 window.openProgressModal = () => {
-  const list = document.getElementById('progressListContent');
-  const inProgress = bjjNodesData.filter(n => progress[n.id] === 'in_progress');
-  const done = bjjNodesData.filter(n => progress[n.id] === 'done');
-  const beltStats = beltOrder.map(b => {
-    const total = bjjNodesData.filter(n => n.belt === b).length;
-    const doneCount = done.filter(n => n.belt === b).length;
-    const percent = total > 0 ? Math.round((doneCount / total) * 100) : 0;
-    return { belt: b, total, done: doneCount, percent };
-  });
-
-  let html = '<div class="space-y-3 mb-6">';
-  beltStats.forEach(stat => {
-    const beltIcons = { white:'⚪', blue:'🔵', purple:'🟣', brown:'🟤', black:'⚫' };
-    html += `
-      <div>
-        <div class="flex justify-between text-xs font-medium mb-1">
-          <span>${beltIcons[stat.belt]} ${stat.belt === 'white' ? 'Белый' : stat.belt === 'blue' ? 'Синий' : stat.belt === 'purple' ? 'Фиолетовый' : stat.belt === 'brown' ? 'Коричневый' : 'Чёрный'} пояс</span>
-          <span class="text-slate-500">${stat.done}/${stat.total} (${stat.percent}%)</span>
-        </div>
-        <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
-          <div class="bg-blue-600 h-2 rounded-full transition-all duration-500" style="width: ${stat.percent}%"></div>
-        </div>
-      </div>`;
-  });
-  html += '</div>';
-
-  if (inProgress.length === 0 && done.length === 0) {
-    html += '<p class="text-center text-slate-500 py-4">Вы пока не отметили ни одной техники.</p>';
-  } else {
-    if (inProgress.length > 0) {
-      html += `<h3 class="font-bold text-slate-700 dark:text-slate-200 mb-2 text-sm sticky top-0 bg-white dark:bg-slate-800 py-1 z-10">📚 В процессе (${inProgress.length})</h3><div class="space-y-2 mb-4">`;
-      inProgress.forEach(n => { 
-        html += `<div onclick="focusNode(${n.id}); closeProgressModal()" class="p-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg cursor-pointer hover:bg-amber-100 dark:hover:bg-amber-900/40 transition flex items-center gap-2 text-sm"><span>${groupIcons[n.group] || '🥋'}</span><span class="font-medium">${n.label}</span></div>`; 
-      });
-      html += `</div>`;
-    }
-    if (done.length > 0) {
-      html += `<h3 class="font-bold text-slate-700 dark:text-slate-200 mb-2 text-sm sticky top-0 bg-white dark:bg-slate-800 py-1 z-10">✅ Изучено (${done.length})</h3><div class="space-y-2">`;
-      done.forEach(n => { 
-        html += `<div onclick="focusNode(${n.id}); closeProgressModal()" class="p-2 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg cursor-pointer hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition flex items-center gap-2 text-sm"><span>${groupIcons[n.group] || '🥋'}</span><span class="font-medium">${n.label}</span></div>`; 
-      });
-      html += `</div>`;
-    }
-  }
-  
-  list.innerHTML = html;
-  list.scrollTop = 0; // Гарантированный сброс прокрутки вверх при открытии
-  document.getElementById('progressModal').classList.remove('hidden');
+const list = document.getElementById('progressListContent');
+const inProgress = bjjNodesData.filter(n => progress[n.id] === 'in_progress');
+const done = bjjNodesData.filter(n => progress[n.id] === 'done');
+const beltStats = beltOrder.map(b => {
+const total = bjjNodesData.filter(n => n.belt === b).length;
+const doneCount = done.filter(n => n.belt === b).length;
+const percent = total > 0 ? Math.round((doneCount / total) * 100) : 0;
+return { belt: b, total, done: doneCount, percent };
+});
+let html = '<div class="space-y-3 mb-6">';
+beltStats.forEach(stat => {
+const beltIcons = { white:'⚪', blue:'🔵', purple:'🟣', brown:'🟤', black:'⚫' };
+html += `
+<div>
+<div class="flex justify-between text-xs font-medium mb-1">
+<span>${beltIcons[stat.belt]} ${stat.belt === 'white' ? 'Белый' : stat.belt === 'blue' ? 'Синий' : stat.belt === 'purple' ? 'Фиолетовый' : stat.belt === 'brown' ? 'Коричневый' : 'Чёрный'} пояс</span>
+<span class="text-slate-500">${stat.done}/${stat.total} (${stat.percent}%)</span>
+</div>
+<div class="w-full bg-slate-200 rounded-full h-2">
+<div class="bg-blue-600 h-2 rounded-full transition-all duration-500" style="width: ${stat.percent}%"></div>
+</div>
+</div>`;
+});
+html += '</div>';
+if (inProgress.length === 0 && done.length === 0) {
+html += '<p class="text-center text-slate-500 py-4">Вы пока не отметили ни одной техники.</p>';
+} else {
+if (inProgress.length > 0) {
+html += `<h3 class="font-bold text-slate-700 mb-2 text-sm">📚 В процессе (${inProgress.length})</h3><div class="space-y-2 mb-4">`;
+inProgress.forEach(n => { html += `<div onclick="focusNode(${n.id}); closeProgressModal()" class="p-2 bg-amber-50 border border-amber-200 rounded-lg cursor-pointer hover:bg-amber-100 transition flex items-center gap-2 text-sm"><span>${groupIcons[n.group] || '🥋'}</span><span class="font-medium">${n.label}</span></div>`; });
+html += `</div>`;
+}
+if (done.length > 0) {
+html += `<h3 class="font-bold text-slate-700 mb-2 text-sm">✅ Изучено (${done.length})</h3><div class="space-y-2">`;
+done.forEach(n => { html += `<div onclick="focusNode(${n.id}); closeProgressModal()" class="p-2 bg-emerald-50 border border-emerald-200 rounded-lg cursor-pointer hover:bg-emerald-100 transition flex items-center gap-2 text-sm"><span>${groupIcons[n.group] || '🥋'}</span><span class="font-medium">${n.label}</span></div>`; });
+html += `</div>`;
+}
+}
+list.innerHTML = html;
+document.getElementById('progressModal').classList.remove('hidden');
 };
-
-window.closeProgressModal = () => {
-  document.getElementById('progressModal').classList.add('hidden');
-};
-
+window.closeProgressModal = () => document.getElementById('progressModal').classList.add('hidden');
 window.exportProgress = () => {
 const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(progress));
 const downloadAnchorNode = document.createElement('a');
@@ -1801,82 +1307,6 @@ input.value = '';
 };
 initApp();
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('service-worker.js').catch(console.error);
-  // === ONBOARDING LOGIC ===
-const onboardingSteps = [
-  { icon: "🥋", title: "Добро пожаловать!", text: "Это интерактивная карта техник БЖЖ. Изучайте последовательности и развивайтесь вместе с нами." },
-  { icon: "️", title: "Настройка", text: "Нажмите на шестерёнку ⚙️, чтобы выбрать свой пояс и стиль. Карта скроет сложные техники и подстроится под вас." },
-  { icon: "📍", title: "Навигация", text: "Нажимайте на узлы графа, чтобы открыть карточки с описаниями, механикой и видео." },
-  { icon: "✅", title: "Прогресс", text: "В карточке техники отмечайте статус: 'Не начал', 'В процессе', 'Изучено'. Доступные техники подсвечиваются." },
-  { icon: "🚀", title: "Готово!", text: "Удачи на татами! Выберите пояс в меню, чтобы начать изучение." }
-];
-
-let currentStep = 0;
-
-function showOnboarding() {
-  const modal = document.getElementById('onboarding-modal');
-  const card = document.getElementById('onboarding-card');
-  modal.classList.remove('hidden');
-  setTimeout(() => modal.classList.add('active'), 10);
-  renderOnboardingStep();
-}
-
-function renderOnboardingStep() {
-  const step = onboardingSteps[currentStep];
-  document.getElementById('onboarding-content').innerHTML = `
-    <div class="text-4xl mb-3">${step.icon}</div>
-    <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-2">${step.title}</h3>
-    <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">${step.text}</p>
-  `;
-  
-  // Dots
-  const dotsContainer = document.getElementById('onboarding-dots');
-  dotsContainer.innerHTML = onboardingSteps.map((_, i) => 
-    `<div id="onboarding-dot-${i}" class="${i === currentStep ? 'active' : ''}" style="width:${i===currentStep?16:6}px;height:6px;border-radius:${i===currentStep?4:50}%;background:${i===currentStep?'#3b82f6':'#cbd5e1'};transition:all 0.3s;"></div>`
-  ).join('');
-
-  // Button Text
-  const btn = document.getElementById('btn-next-onboarding');
-  btn.textContent = currentStep === onboardingSteps.length - 1 ? 'Начать' : 'Далее';
-}
-
-function nextOnboardingStep() {
-  if (typeof window.Telegram?.WebApp?.HapticFeedback !== 'undefined') window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
-  
-  if (currentStep < onboardingSteps.length - 1) {
-    currentStep++;
-    renderOnboardingStep();
-  } else {
-    closeOnboarding();
-  }
-}
-
-function closeOnboarding(skip = false) {
-  const modal = document.getElementById('onboarding-modal');
-  modal.classList.remove('active');
-  setTimeout(() => modal.classList.add('hidden'), 300);
-  localStorage.setItem('bjj_onboarding_seen', 'true');
-}
-
-// Check on load
-window.addEventListener('DOMContentLoaded', () => {
-  if (!localStorage.getItem('bjj_onboarding_seen')) {
-    setTimeout(showOnboarding, 500);
-  }
-});
 </script>
-  <!-- === ONBOARDING MODAL === -->
-<div id="onboarding-modal" class="fixed inset-0 z-[2000] flex items-center justify-center p-4 hidden">
-  <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeOnboarding()"></div>
-  <div class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-2xl p-6 shadow-2xl relative z-10 transform scale-90 opacity-0 transition-all duration-300" id="onboarding-card">
-    <div id="onboarding-content" class="text-center">
-      <!-- Контент загружается через JS -->
-    </div>
-    <div class="flex justify-between items-center mt-6 pt-4 border-t border-slate-100 dark:border-slate-700">
-      <button onclick="closeOnboarding(true)" class="text-sm text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition">Пропустить</button>
-      <div id="onboarding-dots" class="flex gap-1.5"></div>
-      <button id="btn-next-onboarding" onclick="nextOnboardingStep()" class="px-4 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition shadow-lg shadow-blue-500/30">Далее</button>
-    </div>
-  </div>
-</div>
 </body>
 </html>
