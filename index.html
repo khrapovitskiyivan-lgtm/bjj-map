@@ -16,6 +16,39 @@
 <script src="https://telegram.org/js/telegram-web-app.js" onerror="console.log('Telegram Web App недоступен')"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
+  /* Стили для чипов поиска */
+.search-chip {
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  font-size: 12px;
+  font-weight: 500;
+  color: #475569;
+  white-space: nowrap;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+.search-chip:hover { background: #f1f5f9; }
+.search-chip.active {
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+}
+
+/* Тёмная тема для чипов */
+body.dark .search-chip {
+  background: #1e293b;
+  border-color: #334155;
+  color: #cbd5e1;
+}
+body.dark .search-chip:hover { background: #334155; }
+body.dark .search-chip.active {
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+}
   /* Чипы быстрого фильтра */
 .search-chip {
   padding: 4px 10px;
@@ -246,31 +279,37 @@ body.dark .icon-btn:hover { background: #475569; }
 </svg>
 </button>
 </div>
-<div class="relative">
-  <input type="text" id="searchInput" placeholder="Поиск техники, механики, ошибок..." 
-    class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition" 
-    style="font-size: 16px !important;" autocomplete="off">
-  <svg class="absolute right-3 top-3 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-  </svg>
-  
-  <!-- Быстрые фильтры -->
-  <div id="searchChips" class="flex gap-1.5 mt-2 overflow-x-auto pb-1">
-    <button class="search-chip active" data-filter="all">Все</button>
-    <button class="search-chip" data-filter="position">📍 Позиции</button>
-    <button class="search-chip" data-filter="submission">🔒 Сабмишены</button>
-    <button class="search-chip" data-filter="sweep">🔄 Свипы</button>
-    <button class="search-chip" data-filter="guard_pass"> Проходы</button>
-    <button class="search-chip" data-filter="takedown"> Тейкдауны</button>
-    <button class="search-chip" data-filter="escape">🛡️ Защиты</button>
-    <button class="search-chip" data-filter="transition">➡️ Переходы</button>
+<div class="relative w-full">
+  <div class="flex gap-2 w-full">
+    <div class="relative flex-1">
+      <input type="text" id="searchInput" placeholder="Поиск техники..." 
+        class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition" 
+        style="font-size: 16px !important;" autocomplete="off">
+      <svg class="absolute right-3 top-3 w-4 h-4 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+      </svg>
+    </div>
+    <button onclick="toggleSearchFilters()" class="flex-shrink-0 w-10 h-10 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 active:scale-95 transition" title="Фильтры поиска">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+    </button>
   </div>
   
-  <!-- История поиска -->
-  <div id="searchHistory" class="hidden absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg z-50"></div>
-  
-  <!-- Результаты -->
-  <div id="searchResults" class="absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg max-h-80 overflow-y-auto hidden z-50"></div>
+  <div id="searchFiltersContainer" class="hidden mt-2 p-3 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl transition-all duration-300">
+    <div class="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 px-1 uppercase tracking-wider">Фильтр по категории:</div>
+    <div id="searchChips" class="flex flex-wrap gap-1.5">
+      <button class="search-chip active" data-filter="all">Все</button>
+      <button class="search-chip" data-filter="position">📍 Позиции</button>
+      <button class="search-chip" data-filter="submission">🔒 Сабмишены</button>
+      <button class="search-chip" data-filter="sweep">🔄 Свипы</button>
+      <button class="search-chip" data-filter="guard_pass">🚪 Проходы</button>
+      <button class="search-chip" data-filter="takedown">🤼 Тейкдауны</button>
+      <button class="search-chip" data-filter="escape">🛡️ Защиты</button>
+      <button class="search-chip" data-filter="transition">➡️ Переходы</button>
+    </div>
+  </div>
+
+  <div id="searchHistory" class="hidden absolute top-full left-0 right-0 mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg z-50"></div>
+  <div id="searchResults" class="hidden absolute top-full left-0 right-0 mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg max-h-80 overflow-y-auto z-50"></div>
 </div>
 <div id="settingsMenu" class="hidden mt-3 p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-4 fade-in">
 <div>
@@ -313,13 +352,14 @@ body.dark .icon-btn:hover { background: #475569; }
 <div class="text-center py-4 text-slate-400"><p class="text-sm">Нажмите на узел графа,<br>чтобы увидеть детали</p></div>
 </div>
 </div>
-<div id="progressModal" class="fixed inset-0 bg-black/20 backdrop-blur-sm z-[100] flex items-center justify-center hidden">
-  <div class="bg-white border border-slate-200 rounded-2xl w-11/12 max-w-md max-h-[90vh] flex flex-col overflow-hidden shadow-xl">
-    <div class="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50 flex-shrink-0">
-      <h2 class="text-lg font-bold text-slate-800">Мой прогресс</h2>
-      <button onclick="closeProgressModal()" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-200 text-slate-500 transition">✕</button>
+<div id="progressModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] flex items-center justify-center hidden" style="overscroll-behavior: none;">
+  <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl w-11/12 max-w-md max-h-[85vh] flex flex-col overflow-hidden shadow-2xl">
+    <div class="p-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800 flex-shrink-0">
+      <h2 class="text-lg font-bold text-slate-800 dark:text-white">Мой прогресс</h2>
+      <button onclick="closeProgressModal()" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 transition">✕</button>
     </div>
-    <div class="overflow-y-auto p-4 flex-1 min-h-0" id="progressListContent"></div>
+    <!-- Добавлены классы overscroll-y-contain и touch-pan-y для изоляции скролла -->
+    <div class="overflow-y-auto p-4 flex-1 min-h-0 overscroll-y-contain touch-pan-y" id="progressListContent" style="overscroll-behavior-y: contain; -webkit-overflow-scrolling: touch;"></div>
   </div>
 </div>
 <div id="styleModal" class="fixed inset-0 bg-black/20 backdrop-blur-sm z-[100] flex items-center justify-center hidden">
@@ -363,6 +403,18 @@ body.dark .icon-btn:hover { background: #475569; }
 </div>
 <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importProgress(this)">
 <script>
+  // Переключение видимости фильтров поиска
+window.toggleSearchFilters = () => {
+  const container = document.getElementById('searchFiltersContainer');
+  container.classList.toggle('hidden');
+  
+  // Если открываем фильтры, закрываем результаты и историю, чтобы не мешали
+  if (!container.classList.contains('hidden')) {
+    document.getElementById('searchResults').classList.add('hidden');
+    document.getElementById('searchHistory').classList.add('hidden');
+  }
+  triggerHaptic('light');
+};
 if (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp) {
 try { window.Telegram.WebApp.ready(); window.Telegram.WebApp.expand(); } catch (e) {}
 }
