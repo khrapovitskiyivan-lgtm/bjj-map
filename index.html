@@ -55,6 +55,20 @@ background: #3b82f6 !important;
 color: white !important;
 border-color: #3b82f6 !important;
 }
+  .bottom-sheet.active .bottom-sheet-content {
+  animation: fadeSlideUp 0.4s ease-out 0.1s both;
+}
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 .bottom-sheet-overlay {
   position: fixed;
   inset: 0;
