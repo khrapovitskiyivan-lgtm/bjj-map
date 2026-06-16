@@ -280,7 +280,6 @@ const groups = { position: { color: { background: '#00BCD4' }, shape: 'dot', siz
 const groupIcons = { position: '', submission: '🔒', sweep: '🔄', guard_pass: '🚪', transition: '➡️', escape: '️', takedown: '🤼' };
 
 const bjjNodesData = [
-// === ЗАЩИТЫ (ESCAPES) - из таблицы Excel №1-10 ===
 { id: 130, label: "Вставание из закрытого гарда", group: "escape", title: "Stand up from Closed Guard", desc: "Открытие гарда в стойке.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
 { id: 131, label: "Upa escape из маунта", group: "escape", title: "Upa Escape from Mount", desc: "Мост и сброс соперника.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['speed'] },
 { id: 132, label: "Локтевой выход из маунта", group: "escape", title: "Elbow Escape from Mount", desc: "Протискивание локтя, уход в полугард.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
@@ -291,8 +290,6 @@ const bjjNodesData = [
 { id: 137, label: "Выход из скручивания пятки", group: "escape", title: "Heel Hook Escape", desc: "Раскрутка, уход пятки.", belt: 'brown', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
 { id: 337, label: "Wrestling Sprawl", group: "escape", title: "Wrestling Sprawl", desc: "Фундаментальный защитный спрэлл.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['speed'] },
 { id: 374, label: "Technical Stand Up", group: "escape", title: "Technical Stand Up", desc: "Техническое вставание с защитой.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
-
-// === ПЕРЕХОДЫ (TRANSITIONS) - из таблицы Excel №11-30 ===
 { id: 110, label: "Выход в открытый гард", group: "transition", title: "Open Guard Entry", desc: "Постановка стоп на бёдра.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
 { id: 111, label: "Закрытый → баттерфляй", group: "transition", title: "Closed to Butterfly", desc: "Смена гарда на баттерфляй.", belt: 'blue', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['speed'] },
 { id: 112, label: "Закрытый → паук гард", group: "transition", title: "Closed to Spider Guard", desc: "Переход на паук гард.", belt: 'blue', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['long_limbs'] },
@@ -313,8 +310,6 @@ const bjjNodesData = [
 { id: 356, label: "Gut Wrench Turn", group: "transition", title: "Gut Wrench Turn", desc: "Борцовский поворот из черепахи.", belt: 'purple', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['speed'] },
 { id: 369, label: "Granby Roll", group: "transition", title: "Granby Roll", desc: "Перекат через плечо для выхода из гарда.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['flexibility'] },
 { id: 370, label: "Pull Guard", group: "transition", title: "Pull Guard", desc: "Свод соперника в гард из стойки.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['speed'] },
-
-// === ПОЗИЦИИ (POSITIONS) - из таблицы Excel №31-68 ===
 { id: 1, label: "Закрытый гард (снизу)", group: "position", title: "Closed Guard (bottom)", desc: "Ноги обхватывают корпус.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
 { id: 2, label: "Закрытый гард (сверху)", group: "position", title: "Closed Guard (top)", desc: "Соперник в закрытом гарде.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
 { id: 3, label: "Полугард (снизу)", group: "position", title: "Half Guard (bottom)", desc: "Одна нога захвачена.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
@@ -350,12 +345,9 @@ const bjjNodesData = [
 { id: 366, label: "Kesa Gatame", group: "position", title: "Kesa Gatame (Scarf Hold)", desc: "Удержание шарфом, контроль головы и руки.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['pressure'] },
 { id: 367, label: "Ushiro Ashi Garami", group: "position", title: "Ushiro Ashi Garami", desc: "Задний узел ноги для атак на пятку.", belt: 'brown', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['flexibility'] },
 { id: 368, label: "Kimura Trap System", group: "position", title: "Kimura Trap System", desc: "Позиция контроля через кимуру.", belt: 'purple', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['pressure'] },
-// === НОВЫЕ ПОЗИЦИИ ИЗ ТАБЛИЦЫ (№66-68) ===
 { id: 380, label: "Rubber Guard", group: "position", title: "Rubber Guard", desc: "Гард с высокой гибкостью, ноги высоко на спине соперника.", belt: 'purple', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['flexibility'] },
 { id: 381, label: "Z-Guard / Knee Shield", group: "position", title: "Z-Guard / Knee Shield", desc: "Защита через коленный щит и контроль дистанции.", belt: 'blue', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['pressure'] },
 { id: 382, label: "Clamp Guard", group: "position", title: "Clamp Guard", desc: "Захват ноги соперника между ног.", belt: 'purple', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['flexibility'] },
-
-// === ПРОХОДЫ (GUARD PASSES) - из таблицы Excel №70-90 ===
 { id: 90, label: "Knee slice pass", group: "guard_pass", title: "Knee Slice Pass", desc: "Проход через колено в полугарде.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 3, tags: ['pressure'] },
 { id: 91, label: "Double under pass", group: "guard_pass", title: "Double Under Pass", desc: "Проход с захватом двух ног под плечи.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 3, tags: ['pressure'] },
 { id: 92, label: "Over-under pass", group: "guard_pass", title: "Over-Under Pass", desc: "Проход накладыванием корпуса (Сан-Паулу).", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 3, tags: ['pressure'] },
@@ -377,8 +369,6 @@ const bjjNodesData = [
 { id: 334, label: "Honeyhole Pass", group: "guard_pass", title: "Honeyhole Pass", desc: "Продвинутый проход халф-гарда с переходом в saddle.", belt: 'brown', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 3, tags: ['flexibility'] },
 { id: 376, label: "Standing Guard Break", group: "guard_pass", title: "Standing Guard Break", desc: "Разрушение гарда в стойке.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['pressure'] },
 { id: 377, label: "Toriando Variation", group: "guard_pass", title: "Toriando Variation", desc: "Вариация тореадор пасса.", belt: 'blue', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 3, tags: ['speed'] },
-
-// === САБМИШЕНЫ (SUBMISSIONS) - из таблицы Excel №91-160 ===
 { id: 30, label: "Рычаг локтя из гарда", group: "submission", title: "Armbar from Guard", desc: "Захват руки, переворот, разгибание локтя.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
 { id: 31, label: "Треугольник из гарда", group: "submission", title: "Triangle from Guard", desc: "Удушение ногами через захват шеи и руки.", belt: 'blue', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: ['long_limbs'] },
 { id: 32, label: "Кимура из гарда", group: "submission", title: "Kimura from Guard", desc: "Болевой на плечо с захватом руки снизу.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
@@ -448,8 +438,6 @@ const bjjNodesData = [
 { id: 383, label: "Wristlock", group: "submission", title: "Wristlock", desc: "Скручивание запястья соперника.", belt: 'purple', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
 { id: 384, label: "Kani Basami", group: "submission", title: "Kani Basami", desc: "Боковой рычаг на колено через ножницы.", belt: 'brown', gi: true, noGi: true, legal_ibjjf_gi: false, legal_ibjjf_nogi: false, legal_adcc: true, points: 0, tags: ['flexibility'] },
 { id: 385, label: "Achilles Lock", group: "submission", title: "Achilles Lock", desc: "Болевой на ахиллово сухожилие.", belt: 'purple', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 0, tags: [] },
-
-// === СВИПЫ (SWEEPS) - из таблицы Excel №160-184 ===
 { id: 70, label: "Свип «ножницы»", group: "sweep", title: "Scissors Sweep", desc: "Сбивание соперника скрестным движением ног.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: [] },
 { id: 71, label: "Свип «цветок»", group: "sweep", title: "Flower Sweep", desc: "Переворот через плечо с захватом ноги.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: [] },
 { id: 72, label: "Свип «хип-бамп»", group: "sweep", title: "Hip Bump Sweep", desc: "Подбив тазом и переворот.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ['speed'] },
@@ -468,7 +456,6 @@ const bjjNodesData = [
 { id: 324, label: "Spider Lasso Sweep", group: "sweep", title: "Spider Lasso Sweep", desc: "Свип с использованием лассо-хука.", belt: 'purple', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ['long_limbs', 'flexibility'] },
 { id: 325, label: "X-Guard Sweep", group: "sweep", title: "X-Guard Sweep", desc: "Классический свип из X-Guard.", belt: 'purple', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: [] },
 { id: 326, label: "Single Leg X Sweep", group: "sweep", title: "Single Leg X Sweep", desc: "Свип из SLX гарда.", belt: 'purple', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ['flexibility'] },
-// === НОВЫЕ СВИПЫ ИЗ ТАБЛИЦЫ (№178-184) ===
 { id: 386, label: "John Wayne Sweep", group: "sweep", title: "John Wayne Sweep (Knee Lever)", desc: "Свип из халфгарда через глубокий андерхук и движение 'как на лошадь'.", belt: 'blue', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ['pressure'] },
 { id: 387, label: "Double Ankle Sweep", group: "sweep", title: "Double Ankle Sweep", desc: "Свип через захват обеих лодыжек.", belt: 'blue', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ['speed'] },
 { id: 388, label: "Armpit/Knee Flower", group: "sweep", title: "Armpit/Knee Flower", desc: "Вариации свипа через подмышку/колено.", belt: 'purple', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: [] },
@@ -476,8 +463,6 @@ const bjjNodesData = [
 { id: 390, label: "Mermaid Sweep", group: "sweep", title: "Mermaid Sweep", desc: "Из Single Leg X одна нога обхватывает ногу соперника 'хвостом русалки'.", belt: 'purple', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ['speed'] },
 { id: 391, label: "Sickle Sweep", group: "sweep", title: "Sickle Sweep", desc: "Из баттерфляй или полугарда: голень/колено обхватывает ногу соперника сверху.", belt: 'blue', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ['flexibility', 'speed'] },
 { id: 392, label: "Pendulum Sweep", group: "sweep", title: "Pendulum Sweep (Pêndulo)", desc: "Из закрытого гарда: маховое движение второй ногой через плечо соперника.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ['speed', 'flexibility'] },
-
-// === ТЕЙКДАУНЫ (TAKEDOWNS) - из таблицы Excel №185-202 ===
 { id: 150, label: "Двойной проход", group: "takedown", title: "Double Leg Takedown", desc: "Проход в обе ноги.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ['speed'] },
 { id: 151, label: "Одинарный проход", group: "takedown", title: "Single Leg Takedown", desc: "Захват одной ноги.", belt: 'white', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: [] },
 { id: 152, label: "Бросок через бедро", group: "takedown", title: "Hip Throw", desc: "Бросок через бедро.", belt: 'blue', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ['pressure'] },
@@ -491,7 +476,6 @@ const bjjNodesData = [
 { id: 371, label: "De Ashi Barai", group: "takedown", title: "De Ashi Barai", desc: "Подсечка впереди стоящей ноги.", belt: 'blue', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ['speed'] },
 { id: 372, label: "Seoi Nage", group: "takedown", title: "Seoi Nage", desc: "Бросок через плечо с захватом руки.", belt: 'blue', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ['speed'] },
 { id: 373, label: "Tomoe Nage", group: "takedown", title: "Tomoe Nage", desc: "Бросок через голову с упором стопы.", belt: 'purple', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ['flexibility'] },
-// === НОВЫЕ ТЕЙКДАУНЫ ИЗ ТАБЛИЦЫ (№198-202) ===
 { id: 393, label: "Uki Waza", group: "takedown", title: "Uki Waza (Floating Technique)", desc: "Боковой бросок с падением на бок и тягой соперника.", belt: 'purple', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ['speed'] },
 { id: 394, label: "Osoto Gari", group: "takedown", title: "Osoto Gari", desc: "Большая внешняя подсечка.", belt: 'blue', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ['speed'] },
 { id: 395, label: "Kouchi Gari", group: "takedown", title: "Kouchi Gari", desc: "Маленькая внутренняя подсечка.", belt: 'blue', gi: true, noGi: true, legal_ibjjf_gi: true, legal_ibjjf_nogi: true, legal_adcc: true, points: 2, tags: ['speed'] },
@@ -500,7 +484,6 @@ const bjjNodesData = [
 ];
 
 const bjjEdgesData = [
-// === СУЩЕСТВУЮЩИЕ СВЯЗИ (из текущего кода) ===
 { from: 1, to: 30, trigger: "Соперник отклоняется назад" }, { from: 1, to: 31, trigger: "Соперник давит вниз" }, { from: 1, to: 32, trigger: "Соперник ставит руку на ковёр" },
 { from: 1, to: 34, trigger: "Соперник встаёт" }, { from: 1, to: 35, trigger: "Соперник открывает ворот" }, { from: 1, to: 70, trigger: "Соперник давит вперёд" },
 { from: 1, to: 71, trigger: "Соперник давит вниз" }, { from: 1, to: 72, trigger: "Соперник сидит ровно" }, { from: 1, to: 110, trigger: "Соперник встаёт" },
@@ -603,8 +586,6 @@ const bjjEdgesData = [
 { from: 14, to: 354, trigger: "Соперник поворачивается лицом к вам" },
 { from: 1, to: 355, trigger: "Соперник вытягивает ногу для прохода" },
 { from: 20, to: 356, trigger: "Соперник в позиции черепахи" },
-
-// === НОВЫЕ СВЯЗИ ДЛЯ ДОБАВЛЕННЫХ ТЕХНИК ===
 { from: 366, to: 357, trigger: "Соперник пытается выйти из шарфа" },
 { from: 16, to: 358, trigger: "Соперник делает гильотину из-под маунта" },
 { from: 17, to: 359, trigger: "Соперник защищает шею" },
@@ -636,11 +617,56 @@ const bjjEdgesData = [
 { from: 21, to: 394, trigger: "Соперник переносит вес" },
 { from: 21, to: 395, trigger: "Соперник в стойке" },
 { from: 21, to: 396, trigger: "Обе ноги соперника нагружены" },
-{ from: 21, to: 397, trigger: "Соперник в клинче" }
+{ from: 21, to: 397, trigger: "Соперник в клинче" },
+  { from: 1, to: 380, trigger: "Соперник давит в закрытом гарде" },
+{ from: 3, to: 381, trigger: "Соперник пытается пройти гард" },
+{ from: 4, to: 381, trigger: "Соперник восстанавливает гард" },
+{ from: 10, to: 382, trigger: "Соперник вытягивает ногу" },
+{ from: 364, to: 324, trigger: "Соперник поднимает корпус" },
+{ from: 365, to: 323, trigger: "Соперник пытается сделать knee cut" },
+{ from: 14, to: 366, trigger: "После прохода гарда" },
+{ from: 366, to: 357, trigger: "Соперник пытается выйти из шарфа" },
+{ from: 11, to: 367, trigger: "Соперник заходит в 50/50" },
+{ from: 367, to: 307, trigger: "Соперник выпрямляет ногу" },
+{ from: 4, to: 368, trigger: "Соперник делает андерхук" },
+{ from: 368, to: 32, trigger: "Соперник прячет руку" },
+{ from: 366, to: 357, trigger: "Соперник пытается выйти из шарфа" },
+{ from: 16, to: 358, trigger: "Соперник делает гильотину из-под маунта" },
+{ from: 17, to: 359, trigger: "Соперник защищает шею" },
+{ from: 17, to: 360, trigger: "Соперник прячет руку за спиной" },
+{ from: 303, to: 361, trigger: "Соперник проходит инвертированный гард" },
+{ from: 1, to: 362, trigger: "Рука соперника застряла между ног" },
+{ from: 21, to: 363, trigger: "Соперник низко наклонился" },
+{ from: 30, to: 383, trigger: "Соперник выставляет руку" },
+{ from: 3, to: 384, trigger: "Соперник опирается на ногу" },
+{ from: 49, to: 385, trigger: "Соперник выпрямляет ногу" },
+{ from: 4, to: 386, trigger: "Соперник давит вперёд из халф-гарда" },
+{ from: 3, to: 386, trigger: "Соперник имеет плохую осанку в полугарде" },
+{ from: 386, to: 14, trigger: "Свип завершён в сайд-контроль" },
+{ from: 1, to: 387, trigger: "Соперник стоит в гарде" },
+{ from: 5, to: 391, trigger: "Соперник в баттерфляе" },
+{ from: 3, to: 391, trigger: "Соперник в полугарде" },
+{ from: 300, to: 390, trigger: "Соперник переносит вес в Single Leg X" },
+{ from: 10, to: 390, trigger: "Соперник пытается освободиться из X-Guard" },
+{ from: 11, to: 390, trigger: "Соперник давит в сторону из 50/50" },
+{ from: 390, to: 14, trigger: "Свип завершён в сайд-контроль" },
+{ from: 390, to: 16, trigger: "Свип завершён в маунт" },
+{ from: 1, to: 392, trigger: "Соперник пытается встать из закрытого гарда" },
+{ from: 392, to: 16, trigger: "Свип завершён в маунт" },
+{ from: 392, to: 14, trigger: "Свип завершён в сайд-контроль" },
+{ from: 21, to: 393, trigger: "Соперник движется вперёд с импульсом" },
+{ from: 21, to: 394, trigger: "Соперник переносит вес" },
+{ from: 21, to: 395, trigger: "Соперник в стойке" },
+{ from: 21, to: 396, trigger: "Обе ноги соперника нагружены" },
+{ from: 21, to: 397, trigger: "Соперник в клинче" },
+{ from: 1, to: 369, trigger: "Соперник проходит гард" },
+{ from: 21, to: 370, trigger: "Дистанция закрыта" },
+{ from: 1, to: 376, trigger: "Соперник держит закрытый гард" },
+{ from: 1, to: 377, trigger: "Соперник играет открытый гард" },
+{ from: 20, to: 374, trigger: "После защиты от тейкдауна" }
 ];
 
 const techniqueDetails = {
-// === ЗАЩИТЫ (из таблицы Excel №1-10) ===
 130: { mechanics: "Открытие гарда в стойке.", keyPoints: "Толчок, вставание.", when: "Соперник держит гард.", mistakes: "Медленное вставание." },
 131: { mechanics: "Мост и сброс соперника.", keyPoints: "Уход бёдрами, поворот.", when: "В маунте.", mistakes: "Слабый мост." },
 132: { mechanics: "Протискивание локтя, уход в полугард.", keyPoints: "Локоть, упор, движение.", when: "В маунте.", mistakes: "Плохой упор." },
@@ -651,8 +677,6 @@ const techniqueDetails = {
 137: { mechanics: "Раскрутка, уход пятки.", keyPoints: "Вращение, выход.", when: "Попал в скручивание пятки.", mistakes: "Медленная реакция." },
 337: { mechanics: "Фундаментальный защитный спрэлл.", keyPoints: "Бёдра вниз, ноги назад.", when: "Соперник ныряет в ноги.", mistakes: "Медленный спрэлл." },
 374: { mechanics: "Вставание с защитой руки и головы.", keyPoints: "Рука на ковре, голова защищена.", when: "После свипа или выхода из гарда.", mistakes: "Открытая голова/рука." },
-
-// === ПЕРЕХОДЫ (из таблицы Excel №11-30) ===
 110: { mechanics: "Постановка стоп на бёдра соперника.", keyPoints: "Толчок, создание дистанции.", when: "Соперник встаёт.", mistakes: "Слабый толчок." },
 111: { mechanics: "Смена гарда на баттерфляй.", keyPoints: "Зацепы ногами, подъём.", when: "Соперник отступает.", mistakes: "Потеря зацепов." },
 112: { mechanics: "Переход на паучий гард.", keyPoints: "Захваты, стопы на бицепсах.", when: "Соперник тянет назад.", mistakes: "Плохие захваты." },
@@ -673,8 +697,6 @@ const techniqueDetails = {
 356: { mechanics: "Борцовский поворот из черепахи.", keyPoints: "Захват корпуса, вращение.", when: "Соперник в позиции черепахи.", mistakes: "Соперник защищает корпус." },
 369: { mechanics: "Перекат через плечо для выхода из гарда.", keyPoints: "Плечо на ковре, перекат, контроль головы.", when: "Соперник проходит гард.", mistakes: "Плохой контроль головы." },
 370: { mechanics: "Свод соперника в гард из стойки.", keyPoints: "Захваты, прыжок, ноги на бёдрах.", when: "Дистанция закрыта.", mistakes: "Прыжок без захвата." },
-
-// === ПОЗИЦИИ (из таблицы Excel №31-68) ===
 1: { mechanics: "Ноги скрещены за спиной, контроль бёдрами.", keyPoints: "Пятки тянут вниз, колени сжаты, захваты.", when: "База, восстановление после прохода.", mistakes: "Расслабленные ноги, нет контроля осанки." },
 2: { mechanics: "Внутри гарда, работа над проходом.", keyPoints: "Руки на бёдрах, поднятая спина.", when: "Стартовая позиция для прохода гарда.", mistakes: "Низкая осанка, позволяющая атаковать." },
 3: { mechanics: "Одна нога соперника между ваших ног.", keyPoints: "Упор на шее/плече, контроль головы.", when: "Переходная позиция, защита от прохода.", mistakes: "Плоское лежание без упора (фрейма)." },
@@ -713,8 +735,6 @@ const techniqueDetails = {
 380: { mechanics: "Гард с высокой гибкостью, ноги высоко на спине соперника.", keyPoints: "Контроль воротника, ноги обхватывают корпус.", when: "Против агрессивного давления.", mistakes: "Недостаточная гибкость." },
 381: { mechanics: "Защита через коленный щит и контроль дистанции.", keyPoints: "Колено между вами и соперником, захваты.", when: "Для восстановления гарда.", mistakes: "Потеря контроля щита." },
 382: { mechanics: "Захват ноги соперника между ног.", keyPoints: "Контроль бедра, давление ногами.", when: "Против проходов.", mistakes: "Слабый захват." },
-
-// === ПРОХОДЫ (из таблицы Excel №70-90) ===
 90: { mechanics: "Проход через колено в полугарде.", keyPoints: "Колено на бедре, давление на лицо.", when: "Из полугарда.", mistakes: "Соперник восстанавливает гард." },
 91: { mechanics: "Проход с захватом двух ног под плечи.", keyPoints: "Подъём, давление, контроль.", when: "Соперник поднимает бёдра.", mistakes: "Соперник захватывает шею." },
 92: { mechanics: "Проход накладыванием корпуса (Сан-Паулу).", keyPoints: "Захват руки сверху и снизу, давление.", when: "Соперник держит голову.", mistakes: "Соперник восстанавливает гард." },
@@ -736,8 +756,6 @@ const techniqueDetails = {
 334: { mechanics: "Продвинутый проход халф-гарда с переходом в saddle.", keyPoints: "Захват ноги, переход в седло.", when: "Соперник играет глубокий полугард.", mistakes: "Потеря контроля ноги." },
 376: { mechanics: "Разрушение закрытого гарда из стойки.", keyPoints: "Давление вниз, разрыв захватов.", when: "Соперник держит закрытый гард.", mistakes: "Слабое давление." },
 377: { mechanics: "Вариация тореадор пасса.", keyPoints: "Захват ног, обход.", when: "Соперник играет открытый гард.", mistakes: "Медленный проход." },
-
-// === САБМИШЕНЫ (из таблицы Excel №91-160) ===
 30: { mechanics: "Контроль руки, переворот соперника, разгибание локтя ногами.", keyPoints: "Колени сжаты, рука к груди, пятка вниз.", when: "Соперник ставит руку на ковёр или давит вниз.", mistakes: "Разведение коленей, хватка за запястье вместо контроля руки." },
 31: { mechanics: "Удушение ногами через захват шеи и руки соперника.", keyPoints: "Угол 90°, подтягивание колена, разрыв осанки.", when: "Соперник давит вперёд, рука проходит.", mistakes: "Недостаточный угол, соперник поднимает корпус." },
 32: { mechanics: "Болевой на плечо с захватом руки снизу (замок).", keyPoints: "Контроль запястья, нога на голове, вращение.", when: "Соперник ставит руку на ковёр.", mistakes: "Слабый контроль запястья, соперник выдёргивает руку." },
@@ -807,8 +825,6 @@ const techniqueDetails = {
 383: { mechanics: "Скручивание запястья соперника.", keyPoints: "Контроль кисти, вращение.", when: "Когда соперник выставляет руку.", mistakes: "Слабый захват кисти." },
 384: { mechanics: "Боковой рычаг на колено через ножницы.", keyPoints: "Ноги как ножницы, давление на колено.", when: "Из гарда или полугарда.", mistakes: "Неправильный угол." },
 385: { mechanics: "Болевой на ахиллово сухожилие.", keyPoints: "Давление на ахилл, контроль стопы.", when: "Из различных позиций.", mistakes: "Недостаточное давление." },
-
-// === СВИПЫ (из таблицы Excel №160-184) ===
 70: { mechanics: "Скрестное движение ног: одна блокирует, другая толкает.", keyPoints: "Одна нога блокирует бедро, другая толкает корпус.", when: "Соперник давит вперёд.", mistakes: "Слабое движение ног, нет координации." },
 71: { mechanics: "Переворот через плечо с захватом ноги.", keyPoints: "Контроль руки, подъём бедра, вращение.", when: "Соперник давит вниз.", mistakes: "Плохой контроль руки соперника." },
 72: { mechanics: "Взрывной подбив тазом и переворот.", keyPoints: "Тайминг, захват рукава, движение бёдрами.", when: "Соперник сидит ровно.", mistakes: "Медленное движение, потеря баланса." },
@@ -834,8 +850,6 @@ const techniqueDetails = {
 390: { mechanics: "Из Single Leg X одна нога обхватывает ногу соперника 'хвостом русалки', другая нога как рычаг. Вращением бёдер и тягой руки выполняется сваливание.", keyPoints: "Контроль бедра, захват 'хвоста', вращение корпуса, тяга руки соперника.", when: "Из Single Leg X, когда соперник переносит вес или пытается освободиться.", mistakes: "Слабый контроль бедра, неправильный угол 'хвоста', отсутствие контроля руки." },
 391: { mechanics: "Из баттерфляй или полугарда: голень/колено обхватывает ногу соперника сверху («крюк серпа»), вы тянете ногу к себе, одновременно толкая корпус соперника в противоположную сторону. За счёт рычага и вращения бёдер соперник перекатывается через вашу ногу.", keyPoints: "Плотный зацеп голенью за бедро/колено, контроль осанки руками, синхронное движение «тяни-толкай», поворот бёдер для завершения.", when: "Когда соперник стоит на одном колене или в стойке внутри гарда, переносит вес на переднюю ногу.", mistakes: "Слабый зацеп (нога соскальзывает), отсутствие контроля рук/осанки, разрозненные движения вместо синхронного рычага, попытка поднять силой." },
 392: { mechanics: "Из закрытого гарда: глубокий кросс-коллар и рукав, разрыв осанки, постановка стопы на бедро соперника и маховое движение второй ногой через его плечо (как маятник) для опрокидывания.", keyPoints: "Глубокий захват ворота, обязательный разрыв осанки, стопа firmly на бедре, носок маховой ноги смотрит в потолок, движение идёт от бёдер.", when: "Когда соперник пытается встать, давит вперёд в закрытом гарде, или когда удаётся сильно наклонить его корпус к себе.", mistakes: "Отсутствие разрыва осанки, соскальзывание стопы с бедра, низкий замах (толкаете вместо раскачивания), попытка перевернуть силой рук." },
-
-// === ТЕЙКДАУНЫ (из таблицы Excel №185-202) ===
 150: { mechanics: "Проход в обе ноги.", keyPoints: "Нырок, подъём, контроль.", when: "Соперник стоит прямо.", mistakes: "Слабый нырок." },
 151: { mechanics: "Захват одной ноги.", keyPoints: "Нырок, подъём.", when: "Соперник выставляет ногу.", mistakes: "Слабый контроль ноги." },
 152: { mechanics: "Бросок через бедро.", keyPoints: "Захват, поворот, бросок.", when: "Соперник давит вперёд.", mistakes: "Плохой захват." },
