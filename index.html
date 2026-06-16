@@ -16,6 +16,39 @@
 <script src="https://telegram.org/js/telegram-web-app.js" onerror="console.log('Telegram Web App недоступен')"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
+  /* Стили для чипов поиска */
+.search-chip {
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  font-size: 12px;
+  font-weight: 500;
+  color: #475569;
+  white-space: nowrap;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+.search-chip:hover { background: #f1f5f9; }
+.search-chip.active {
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+}
+
+/* Тёмная тема для чипов */
+body.dark .search-chip {
+  background: #1e293b;
+  border-color: #334155;
+  color: #cbd5e1;
+}
+body.dark .search-chip:hover { background: #334155; }
+body.dark .search-chip.active {
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+}
   body.dark #progressListContent .sticky {
   background: #1e293b !important;
 }
@@ -437,6 +470,18 @@ body.dark .icon-btn:hover { background: #475569; }
 </div>
 <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importProgress(this)">
 <script>
+  // Переключение видимости фильтров поиска
+window.toggleSearchFilters = () => {
+  const container = document.getElementById('searchFiltersContainer');
+  container.classList.toggle('hidden');
+  
+  // Если открываем фильтры, закрываем результаты и историю, чтобы не мешали
+  if (!container.classList.contains('hidden')) {
+    document.getElementById('searchResults').classList.add('hidden');
+    document.getElementById('searchHistory').classList.add('hidden');
+  }
+  triggerHaptic('light');
+};
 if (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp) {
 try { window.Telegram.WebApp.ready(); window.Telegram.WebApp.expand(); } catch (e) {}
 }
