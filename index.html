@@ -1244,28 +1244,28 @@ window.toggleMenu = () => {
   triggerHaptic('light');
 };
 
-window.toggleProgressModal = () => {
-  const modal = document.getElementById('progressModal');
-  if (modal.classList.contains('hidden')) {
-    openProgressModal(); // Генерируем контент и показываем
-  } else {
-    modal.classList.add('hidden');
-  }
-  triggerHaptic('light');
-};
-
+// Оставьте только этот блок для модалок:
 window.toggleInfoModal = () => {
   const modal = document.getElementById('infoModal');
   if (modal.classList.contains('hidden')) {
     modal.classList.remove('hidden');
-    switchTab(0); // Всегда открываем на первой вкладке
+    switchTab(0);
   } else {
     modal.classList.add('hidden');
   }
   triggerHaptic('light');
 };
 
-// Вспомогательная функция для закрытия (если используется где-то еще)
+window.toggleProgressModal = () => {
+  const modal = document.getElementById('progressModal');
+  if (modal.classList.contains('hidden')) {
+    openProgressModal();
+  } else {
+    modal.classList.add('hidden');
+  }
+  triggerHaptic('light');
+};
+
 window.closeProgressModal = () => document.getElementById('progressModal').classList.add('hidden');
 window.closeInfoModal = () => document.getElementById('infoModal').classList.add('hidden');
 const activeBeltBtn = document.querySelector('.belt-btn.active-belt');
