@@ -1917,7 +1917,7 @@ window.showDecisionOptions = (positionId) => {
   outgoingEdges.forEach(edge => {
     const target = bjjNodesData.find(n => n.id === edge.to);
     if (!target) return;
-    const item = { id: target.id, label: target.label, group: target.group, belt: target.belt, trigger: edge.trigger || 'Всегда доступно' };
+    const item = { id: target.id, label: target.label, group: target.group, belt: target.belt, trigger: 'Доступно' };
     if (target.group === 'submission') attacks.push(item);
     else if (target.group === 'sweep') sweeps.push(item);
     else if (target.group === 'transition') transitions.push(item);
