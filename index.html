@@ -15,6 +15,7 @@
 <script src="https://telegram.org/js/telegram-web-app.js" onerror="console.log('Telegram Web App недоступен')"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
+/* === БАЗОВЫЕ СТИЛИ === */
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; }
 body {
@@ -22,84 +23,120 @@ body {
   background-color: #f1f5f9; color: #1e293b;
   overscroll-behavior: none; -webkit-overflow-scrolling: touch;
   display: flex; flex-direction: column;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
 }
 body.dark { background-color: #0f172a; color: #e2e8f0; }
 
+/* === ГРАФ === */
 #mynetwork { width: 100%; flex: 1; min-height: 0; background: white; touch-action: none; }
 body.dark #mynetwork { background: #1e293b; }
 
+/* === HEADER === */
 header {
   flex-shrink: 0; padding: 12px; background: white;
   border-bottom: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); z-index: 50;
 }
 body.dark header { background: #1e293b; border-color: #334155; }
 
-/* === МОДАЛЬНЫЕ ОКНА === */
+/* === УНИВЕРСАЛЬНАЯ СИСТЕМА МОДАЛЬНЫХ ОКОН === */
 .modal-overlay {
-  position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5);
+  position: fixed; inset: 0;
+  background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
-  opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
-  z-index: 998; display: flex; align-items: flex-end; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 998;
+  display: flex; align-items: flex-end; justify-content: center;
 }
 .modal-overlay.active { opacity: 1; pointer-events: auto; }
+
 .modal-container {
-  background: white; border-radius: 24px 24px 0 0;
-  width: 100%; max-width: 500px; max-height: 92vh;
-  transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
-  display: flex; flex-direction: column; overflow: hidden;
+  background: white;
+  border-radius: 24px 24px 0 0;
+  width: 100%; max-width: 500px;
+  max-height: 92vh;
+  transform: translateY(100%);
+  transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+  display: flex; flex-direction: column;
+  overflow: hidden;
   box-shadow: 0 -10px 40px rgba(0,0,0,0.2);
 }
 body.dark .modal-container { background: #1e293b; color: #e2e8f0; }
 .modal-overlay.active .modal-container { transform: translateY(0); }
-.modal-handle { width: 40px; height: 4px; background: rgba(148, 163, 184, 0.5); border-radius: 2px; margin: 12px auto 8px; cursor: grab; flex-shrink: 0; }
+
+.modal-handle {
+  width: 40px; height: 4px;
+  background: rgba(148, 163, 184, 0.5);
+  border-radius: 2px; margin: 12px auto 8px;
+  cursor: grab; flex-shrink: 0;
+}
 body.dark .modal-handle { background: rgba(148, 163, 184, 0.3); }
+
 .modal-header {
-  padding: 16px 20px 12px; border-bottom: 1px solid #e2e8f0;
-  display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex; justify-content: space-between; align-items: center;
+  flex-shrink: 0;
 }
 body.dark .modal-header { border-color: #334155; }
 .modal-header h2 { font-size: 18px; font-weight: 700; margin: 0; }
+
 .modal-close {
   width: 32px; height: 32px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  background: transparent; border: none; color: #64748b; cursor: pointer;
-  transition: all 0.2s; font-size: 20px;
+  background: transparent; border: none; color: #64748b;
+  cursor: pointer; transition: all 0.2s; font-size: 20px;
 }
 .modal-close:hover { background: #f1f5f9; color: #1e293b; }
 body.dark .modal-close:hover { background: #334155; color: #e2e8f0; }
+
 .modal-body {
-  flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
-  overscroll-behavior-y: contain; padding: 16px 20px 20px; touch-action: pan-y;
+  flex: 1; overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  padding: 16px 20px 20px;
+  touch-action: pan-y;
 }
 
-/* Цвета заголовков модалок */
+/* Цветные заголовки модалок */
 .settings-modal .modal-header { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; border: none; }
 .settings-modal .modal-close { color: white; }
 .settings-modal .modal-close:hover { background: rgba(255,255,255,0.2); }
+
 .progress-modal .modal-header { background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; }
 .progress-modal .modal-close { color: white; }
 .progress-modal .modal-close:hover { background: rgba(255,255,255,0.2); }
+
 .style-modal .modal-header { background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; border: none; }
 .style-modal .modal-close { color: white; }
 .style-modal .modal-close:hover { background: rgba(255,255,255,0.2); }
+
 .info-modal .modal-header { background: linear-gradient(135deg, #64748b, #475569); color: white; border: none; }
 .info-modal .modal-close { color: white; }
 .info-modal .modal-close:hover { background: rgba(255,255,255,0.2); }
+
 .workout-modal .modal-header { background: linear-gradient(135deg, #f59e0b, #ef4444); color: white; border: none; }
 .workout-modal .modal-close { color: white; }
 .workout-modal .modal-close:hover { background: rgba(255,255,255,0.2); }
+
 .agame-modal .modal-header { background: linear-gradient(135deg, #ec4899, #db2777); color: white; border: none; }
 .agame-modal .modal-close { color: white; }
 .agame-modal .modal-close:hover { background: rgba(255,255,255,0.2); }
+
 .decision-modal .modal-header { background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; }
 .decision-modal .modal-close { color: white; }
 .decision-modal .modal-close:hover { background: rgba(255,255,255,0.2); }
+
 .scenario-modal .modal-header { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none; }
 .scenario-modal .modal-close { color: white; }
 .scenario-modal .modal-close:hover { background: rgba(255,255,255,0.2); }
 
-/* === FAB === */
-.fab-container { position: absolute; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 12px; z-index: 10; }
+/* === FAB КНОПКИ === */
+.fab-container {
+  position: absolute; bottom: 20px; right: 20px;
+  display: flex; flex-direction: column; gap: 12px; z-index: 10;
+}
 .fab-btn {
   width: 52px; height: 52px; border-radius: 50%;
   background: white; border: 1px solid #e2e8f0;
@@ -121,7 +158,8 @@ body.dark .fab-btn.primary { background: #3b82f6; border-color: #3b82f6; color: 
   position: absolute; bottom: 80px; left: 16px;
   background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);
   border-radius: 12px; padding: 10px 14px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08); font-size: 11px; z-index: 10; max-width: 200px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08); font-size: 11px;
+  z-index: 10; max-width: 200px;
 }
 body.dark .legend-container { background: rgba(30,41,59,0.95); color: #e2e8f0; }
 .legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
@@ -133,21 +171,41 @@ body.dark .legend-container { background: rgba(30,41,59,0.95); color: #e2e8f0; }
 .legend-line.setup { background: #64748b; }
 
 /* === BOTTOM SHEET === */
-.bottom-sheet-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); opacity: 0; pointer-events: none; transition: opacity 0.3s ease; z-index: 998; }
+.bottom-sheet-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s ease; z-index: 998;
+}
 .bottom-sheet-overlay.active { opacity: 1; pointer-events: auto; }
+
 .bottom-sheet {
   position: fixed; bottom: 0; left: 0; right: 0;
-  background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px) saturate(180%);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-top: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 24px 24px 0 0; box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.12);
-  transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+  border-radius: 24px 24px 0 0;
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.12);
+  transform: translateY(100%);
+  transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
   z-index: 999; max-height: 90vh; overflow-y: auto;
-  -webkit-overflow-scrolling: touch; overscroll-behavior-y: contain; padding-bottom: 80px;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  padding-bottom: 80px;
 }
-body.dark .bottom-sheet { background: rgba(15, 23, 42, 0.95); border-top: 1px solid rgba(255, 255, 255, 0.1); }
+body.dark .bottom-sheet {
+  background: rgba(15, 23, 42, 0.95);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
 .bottom-sheet.active { transform: translateY(0); }
-.bottom-sheet-handle { width: 40px; height: 4px; background: rgba(148, 163, 184, 0.5); border-radius: 2px; margin: 12px auto; cursor: grab; }
+.bottom-sheet-handle {
+  width: 40px; height: 4px;
+  background: rgba(148, 163, 184, 0.5);
+  border-radius: 2px; margin: 12px auto;
+  cursor: grab;
+}
 body.dark .bottom-sheet-handle { background: rgba(148, 163, 184, 0.3); }
 .bottom-sheet-content { padding: 0 20px 20px; }
 
@@ -188,6 +246,7 @@ body.dark .search-result-item:hover { background: #334155; }
 body.dark .filter-chip { background: #334155; border-color: #475569; color: #cbd5e1; }
 body.dark .filter-chip:hover { background: #475569; }
 body.dark .filter-chip.active { background: #3b82f6; color: white; }
+
 .belt-chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .belt-chip {
   padding: 8px 14px; border-radius: 999px; background: white;
@@ -471,13 +530,16 @@ body.dark .icon-btn:hover { background: #475569; }
         <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
       </svg>
     </div>
-    <div id="searchResults" class="search-results"></div>
+    <div id="searchHistory" class="hidden absolute top-full left-0 right-0 mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg z-50"></div>
+    <div id="searchResults" class="hidden absolute top-full left-0 right-0 mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg max-h-80 overflow-y-auto z-50"></div>
   </div>
 </header>
 
 <!-- MAIN -->
 <main class="flex-1 flex flex-col relative" style="min-height: 0;">
   <div id="mynetwork"></div>
+  
+  <!-- ЛЕГЕНДА СВЯЗЕЙ -->
   <div class="legend-container" id="legendContainer">
     <div class="text-xs font-bold mb-2 uppercase tracking-wider">Типы связей</div>
     <div class="legend-item"><div class="legend-line attack"></div><span>Атака / Сабмишен</span></div>
@@ -486,6 +548,8 @@ body.dark .icon-btn:hover { background: #475569; }
     <div class="legend-item"><div class="legend-line escape"></div><span>Защита / Исход</span></div>
     <div class="legend-item"><div class="legend-line setup"></div><span>Сетап / Контратака</span></div>
   </div>
+  
+  <!-- FAB КНОПКИ -->
   <div class="fab-container">
     <button onclick="toggleModal('scenarioModal')" class="fab-btn" title="Спарринг-сценарии">
       <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -614,6 +678,7 @@ const triggerHaptic = (type = 'light') => {
   if (typeof window.Telegram !== 'undefined' && window.Telegram?.WebApp?.HapticFeedback) window.Telegram.WebApp.HapticFeedback.impactOccurred(type);
   else if (navigator.vibrate) navigator.vibrate(type === 'light' ? 10 : 30);
 };
+
 function showToast(message, duration = 2500) {
   const toast = document.getElementById('toast');
   if (!toast) return;
@@ -664,9 +729,10 @@ const beltIcons = { white:'⚪', blue:'🔵', purple:'🟣', brown:'🟤', black
 const beltOrder = ['white', 'blue', 'purple', 'brown', 'black'];
 const beltNames = { white:'Белый', blue:'Синий', purple:'Фиолетовый', brown:'Коричневый', black:'Чёрный' };
 
-// === ДАННЫЕ УЗЛОВ (из BJJJ.xlsx) ===
-const bjjNodesRaw = [
-  [130,"Подъем из закрытого гарда","Stand up from Closed Guard","escape","Создание фрейма руками на бедрах соперника, разрыв его осанки, подъем через одно колено.","white",true,true,true,true,true,0,"fundamental,base,posture","2","90,91,92,93,99,376",1],
+// ============================================================
+// === ВСТАВЬТЕ ДАННЫЕ СЮДА ===
+// ============================================================
+// const bjjNodesRaw = [ [130,"Подъем из закрытого гарда","Stand up from Closed Guard","escape","Создание фрейма руками на бедрах соперника, разрыв его осанки, подъем через одно колено.","white",true,true,true,true,true,0,"fundamental,base,posture","2","90,91,92,93,99,376",1],
   [131,"Мост из маунта","Upa Escape from Mount","escape","Мощный мост через плечо с одновременным захватом дальней руки и стопы соперника.","white",true,true,true,true,true,0,"fundamental,leverage,bridge","15","132,71,419,3",1],
   [132,"Локтевой выход из маунта","Elbow Escape from Mount","escape","Создание фрейма локтем на бедре соперника, движение креветка, вставка колена.","white",true,true,true,true,true,0,"fundamental,hip_escape,framing","15,131","3,78,118,454",1],
   [133,"Креветка из сайд-контроля","Shrimp from Side Control","escape","Фрейм на шее и бедре соперника, мощный уход бедрами, вставка колена.","white",true,true,true,true,true,0,"fundamental,hip_escape,recovery","13","1,3,450",1],
@@ -928,44 +994,20 @@ const bjjNodesRaw = [
   [458,"Turtle to Mount","Turtle to Mount","transition","Из черепахи в маунт.","blue",true,true,true,true,true,0,"dominant,chain,turtle","19,20","16,37,113",2],
   [459,"North-South to Mount","North-South to Mount","transition","Из north-south в маунт.","purple",true,true,true,true,true,0,"dominant,chain,advanced","22,23","16,37,113",3],
   [460,"North-South to Side","North-South to Side","transition","Из north-south в сайд-контроль.","purple",true,true,true,true,true,0,"dominant,chain,advanced","22,23","14,90,44",3]
-];
-
-const bjjNodesData = bjjNodesRaw.map(n => ({
-  id: n[0], label: n[1], title: n[2], group: n[3], desc: n[4],
-  belt: n[5], gi: n[6], noGi: n[7],
-  legal_ibjjf_gi: n[8], legal_ibjjf_nogi: n[9], legal_adcc: n[10],
-  points: n[11],
-  tags: n[12] ? n[12].split(',').map(t => t.trim()) : [],
-  setup_from: n[13] ? n[13].split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id)) : [],
-  chain_to: n[14] ? n[14].split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id)) : [],
-  difficulty: n[15] || 1
-}));
-// === РЁБРА ГРАФА С ЦВЕТАМИ ПО ТИПАМ ===
-const edgeColors = {
-  attack:     { color: '#ef4444', highlight: '#dc2626', hover: '#f87171' },
-  sweep:      { color: '#f59e0b', highlight: '#d97706', hover: '#fbbf24' },
-  transition: { color: '#8b5cf6', highlight: '#7c3aed', hover: '#a78bfa' },
-  escape:     { color: '#10b981', highlight: '#059669', hover: '#34d399' },
-  setup:      { color: '#64748b', highlight: '#475569', hover: '#94a3b8' }
-};
-
-// Определяем тип связи на основе узлов
-function getEdgeType(fromId, toId) {
-  const fromNode = bjjNodesData.find(n => n.id === fromId);
-  const toNode = bjjNodesData.find(n => n.id === toId);
-  if (!fromNode || !toNode) return 'setup';
-  if (toNode.group === 'submission') return 'attack';
-  if (toNode.group === 'sweep') return 'sweep';
-  if (toNode.group === 'guard_pass') return 'attack';
-  if (toNode.group === 'takedown') return 'attack';
-  if (toNode.group === 'escape') return 'escape';
-  if (toNode.group === 'transition') return 'transition';
-  if (toNode.group === 'position') return 'transition';
-  return 'setup';
-}
-
-const techniqueDetails = {
-  // === ПОЗИЦИИ (1-25, 300-303, 336, 342, 364-368, 380-382) ===
+    ];
+// const bjjNodesData = bjjNodesRaw.map(n => ({
+//   id: n[0], label: n[1], title: n[2], group: n[3], desc: n[4],
+//   belt: n[5], gi: n[6], noGi: n[7],
+//   legal_ibjjf_gi: n[8], legal_ibjjf_nogi: n[9], legal_adcc: n[10],
+//   points: n[11],
+//   tags: n[12] ? n[12].split(',').map(t => t.trim()) : [],
+//   setup_from: n[13] ? n[13].split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id)) : [],
+//   chain_to: n[14] ? n[14].split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id)) : [],
+//   difficulty: n[15] || 1
+// }));
+// 
+// const techniqueDetails = {
+// === ПОЗИЦИИ (1-25, 300-303, 336, 342, 364-368, 380-382) ===
   1: { mechanics: "Ноги скрещены за спиной соперника, контроль бёдрами и захватами.", keyPoints: "Пятки тянут вниз, колени сжаты, активные захваты рукавов/воротника.", when: "Базовая позиция, восстановление после прохода или свипа.", mistakes: "Расслабленные ноги, отсутствие контроля осанки соперника." },
   2: { mechanics: "Находитесь внутри закрытого гарда, работаете над его вскрытием.", keyPoints: "Руки на бёдрах соперника, поднятая спина, контроль дистанции.", when: "Стартовая позиция для прохода гарда.", mistakes: "Низкая осанка, руки внутри гарда соперника." },
   3: { mechanics: "Одна нога соперника контролируется между ваших ног.", keyPoints: "Упор на шее/плече, коленный щит (Z-guard), контроль дальней руки.", when: "Переходная позиция, защита от прохода.", mistakes: "Плоское лежание без упора, потеря контроля головы." },
@@ -1263,34 +1305,44 @@ const techniqueDetails = {
 458: { mechanics: "Из черепахи в маунт: контроль и подъём.", keyPoints: "Контроль рук соперника, подъём колена, занятие маунта.", when: "В черепахе, когда соперник пытается встать.", mistakes: "Слабый контроль рук, недостаточный подъём." },
 459: { mechanics: "Из north-south в маунт: контроль и смещение.", keyPoints: "Контроль рук соперника, смещение в сторону, занятие маунта.", when: "В north-south, когда соперник пытается восстановить гард.", mistakes: "Слабый контроль рук, недостаточное смещение." },
 460: { mechanics: "Из north-south в сайд-контроль: контроль и смещение.", keyPoints: "Контроль рук соперника, смещение в сторону, занятие сайд-контроля.", when: "В north-south, когда соперник пытается восстановить гард.", mistakes: "Слабый контроль рук, недостаточное смещение." }
+// };
+// ============================================================
+
+// === ЦВЕТА СВЯЗЕЙ ===
+const edgeColors = {
+  attack:     { color: '#ef4444', highlight: '#dc2626', hover: '#f87171' },
+  sweep:      { color: '#f59e0b', highlight: '#d97706', hover: '#fbbf24' },
+  transition: { color: '#8b5cf6', highlight: '#7c3aed', hover: '#a78bfa' },
+  escape:     { color: '#10b981', highlight: '#059669', hover: '#34d399' },
+  setup:      { color: '#64748b', highlight: '#475569', hover: '#94a3b8' }
 };
 
-// === ИНИЦИАЛИЗАЦИЯ ГРАФА С ЦВЕТНЫМИ СВЯЗЯМИ ===
-const nodes = new vis.DataSet(bjjNodesData.map(n => ({
-  id: n.id, label: n.label, group: n.group, title: n.title, desc: n.desc,
-  belt: n.belt, gi: n.gi, noGi: n.noGi,
-  legal_ibjjf_gi: n.legal_ibjjf_gi, legal_ibjjf_nogi: n.legal_ibjjf_nogi, legal_adcc: n.legal_adcc,
-  points: n.points, tags: n.tags,
-  difficulty: n.difficulty || 1,
-  setup_from: n.setup_from || [],
-  chain_to: n.chain_to || []
-})));
+function getEdgeType(fromId, toId) {
+  const fromNode = bjjNodesData.find(n => n.id === fromId);
+  const toNode = bjjNodesData.find(n => n.id === toId);
+  if (!fromNode || !toNode) return 'setup';
+  if (toNode.group === 'submission') return 'attack';
+  if (toNode.group === 'sweep') return 'sweep';
+  if (toNode.group === 'guard_pass') return 'attack';
+  if (toNode.group === 'takedown') return 'attack';
+  if (toNode.group === 'escape') return 'escape';
+  if (toNode.group === 'transition') return 'transition';
+  if (toNode.group === 'position') return 'transition';
+  return 'setup';
+}
 
-// Генерируем рёбра из setup_from и chain_to
+// Генерация рёбер
 const bjjEdgesData = [];
 const edgeSet = new Set();
-
 bjjNodesData.forEach(node => {
-  // setup_from → node
-  node.setup_from.forEach(fromId => {
+  (node.setup_from || []).forEach(fromId => {
     const key = `${fromId}-${node.id}`;
     if (!edgeSet.has(key)) {
       edgeSet.add(key);
       bjjEdgesData.push({ from: fromId, to: node.id, type: 'setup' });
     }
   });
-  // node → chain_to
-  node.chain_to.forEach(toId => {
+  (node.chain_to || []).forEach(toId => {
     const key = `${node.id}-${toId}`;
     if (!edgeSet.has(key)) {
       edgeSet.add(key);
@@ -1299,7 +1351,6 @@ bjjNodesData.forEach(node => {
   });
 });
 
-// Добавляем цвета к рёбрам
 const edgesWithColors = bjjEdgesData.map((edge, idx) => {
   const type = getEdgeType(edge.from, edge.to);
   const colors = edgeColors[type] || edgeColors.setup;
@@ -1311,8 +1362,17 @@ const edgesWithColors = bjjEdgesData.map((edge, idx) => {
   };
 });
 
+// === ИНИЦИАЛИЗАЦИЯ ГРАФА ===
+const nodes = new vis.DataSet(bjjNodesData.map(n => ({
+  id: n.id, label: n.label, group: n.group, title: n.title, desc: n.desc,
+  belt: n.belt, gi: n.gi, noGi: n.noGi,
+  legal_ibjjf_gi: n.legal_ibjjf_gi, legal_ibjjf_nogi: n.legal_ibjjf_nogi, legal_adcc: n.legal_adcc,
+  points: n.points, tags: n.tags,
+  difficulty: n.difficulty || 1,
+  setup_from: n.setup_from || [],
+  chain_to: n.chain_to || []
+})));
 const edges = new vis.DataSet(edgesWithColors);
-
 const network = new vis.Network(document.getElementById('mynetwork'), { nodes, edges }, {
   groups,
   nodes: { size: window.innerWidth < 768 ? 28 : 22, font: { size: window.innerWidth < 768 ? 14 : 12, color: '#ffffff', strokeWidth: 3, strokeColor: '#000000' } },
@@ -1320,6 +1380,57 @@ const network = new vis.Network(document.getElementById('mynetwork'), { nodes, e
   physics: { solver: 'forceAtlas2Based', forceAtlas2Based: { gravitationalConstant: -50, centralGravity: 0.01, springLength: 120, springConstant: 0.08, damping: 0.4 }, stabilization: { iterations: 150 } },
   interaction: { hover: true, dragNodes: true, dragView: true, zoomView: true, navigationButtons: false, keyboard: false }
 });
+
+// === ПРОГРЕСС ===
+const STORAGE_KEY = 'bjj_learned_v4';
+let progress = {};
+
+async function initApp() {
+  const serverProgress = await loadProgressFromServer();
+  progress = serverProgress || JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+  updateGlobalProgress();
+  updateNodeColors();
+  applyAllFilters();
+}
+
+const setProgress = async (id, status) => {
+  progress[id] = status;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+  await syncProgressToServer(progress);
+  updateGlobalProgress();
+  updateNodeColors();
+  triggerHaptic('light');
+};
+
+function updateNodeColors() {
+  const learnedSet = new Set(Object.keys(progress).filter(id => progress[id] === 'done'));
+  const availableSet = new Set();
+  edges.forEach(edge => {
+    if (learnedSet.has(String(edge.from)) && !learnedSet.has(String(edge.to))) availableSet.add(edge.to);
+    if (learnedSet.has(String(edge.to)) && !learnedSet.has(String(edge.from))) availableSet.add(edge.from);
+  });
+  nodes.forEach(node => {
+    const status = progress[node.id] || 'not_started';
+    let color = status === 'done' ? { background: '#4CAF50', border: '#2E7D32' } :
+                status === 'in_progress' ? { background: '#f59e0b', border: '#d97706' } :
+                availableSet.has(node.id) ? { background: '#FFC107', border: '#FF9800' } :
+                { background: groups[node.group]?.color?.background || '#ccc', opacity: 0.6 };
+    nodes.update({ id: node.id, color });
+  });
+}
+
+function updateGlobalProgress() {
+  const total = bjjNodesData.length;
+  const done = Object.values(progress).filter(v => v === 'done').length;
+  document.getElementById('globalProgressBtn').textContent = `${Math.round((done / total) * 100)}%`;
+}
+
+window.fitGraph = () => {
+  if (network) {
+    network.fit({ animation: { duration: 500, easingFunction: 'easeInOutQuad' } });
+    triggerHaptic('light');
+  }
+};
 
 // === УНИВЕРСАЛЬНАЯ СИСТЕМА МОДАЛЬНЫХ ОКОН ===
 const modalState = {
@@ -1332,13 +1443,14 @@ window.toggleModal = (modalId) => {
   const modal = document.getElementById(modalId);
   if (!modal) return;
   const isActive = modal.classList.contains('active');
-  // Закрыть все другие модальные окна
+  
   Object.keys(modalState).forEach(id => {
     if (id !== modalId && modalState[id]) {
       document.getElementById(id).classList.remove('active');
       modalState[id] = false;
     }
   });
+  
   if (isActive) {
     modal.classList.remove('active');
     modalState[modalId] = false;
@@ -1346,7 +1458,7 @@ window.toggleModal = (modalId) => {
     modal.classList.add('active');
     modalState[modalId] = true;
     triggerHaptic('medium');
-    // Инициализация контента при открытии
+    
     if (modalId === 'progressModal') renderProgressModal();
     if (modalId === 'workoutModal') renderWorkoutModal();
     if (modalId === 'agameModal') renderAGameModal();
@@ -1358,7 +1470,6 @@ window.toggleModal = (modalId) => {
   }
 };
 
-// Закрытие по клику на overlay
 document.querySelectorAll('.modal-overlay').forEach(overlay => {
   overlay.addEventListener('click', function(e) {
     if (e.target === this) {
@@ -1369,7 +1480,6 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
   });
 });
 
-// Закрытие по Escape
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     Object.keys(modalState).forEach(id => {
@@ -1451,8 +1561,6 @@ window.setCategoryFilter = (filter) => { currentCategoryFilter = filter; applyAl
 
 // === STYLE MODAL ===
 let styleProfile = JSON.parse(localStorage.getItem('bjj_style_profile') || '{"belt": "white"}');
-const beltOrder = ['white', 'blue', 'purple', 'brown', 'black'];
-const beltNames = { white:'Белый', blue:'Синий', purple:'Фиолетовый', brown:'Коричневый', black:'Чёрный' };
 
 function renderStyleModal() {
   const content = document.getElementById('styleContent');
@@ -1502,7 +1610,6 @@ window.saveStyleProfile = () => {
 
 // === INFO MODAL ===
 let currentInfoTab = 'about';
-
 function renderInfoModal() {
   const content = document.getElementById('infoContent');
   const tabs = {
@@ -1512,8 +1619,117 @@ function renderInfoModal() {
   };
   content.innerHTML = `<div class="modal-tabs"><div class="modal-tab ${currentInfoTab === 'about' ? 'active' : ''}" onclick="switchInfoTab('about')">О карте</div><div class="modal-tab ${currentInfoTab === 'howto' ? 'active' : ''}" onclick="switchInfoTab('howto')">Как пользоваться</div><div class="modal-tab ${currentInfoTab === 'backup' ? 'active' : ''}" onclick="switchInfoTab('backup')">Бэкап</div></div><div class="pt-4 text-sm text-slate-700 dark:text-slate-200">${tabs[currentInfoTab]}</div>`;
 }
-
 window.switchInfoTab = (tab) => { currentInfoTab = tab; renderInfoModal(); triggerHaptic('light'); };
+
+// === ФИЛЬТРАЦИЯ ===
+function applyAllFilters() {
+  const userBelt = styleProfile.belt || 'white';
+  const maxBeltIndex = beltOrder.indexOf(userBelt);
+  const preferredTags = [];
+  if (styleProfile.flexibility) preferredTags.push('flexibility');
+  if (styleProfile.pressure) preferredTags.push('pressure');
+  if (styleProfile.long_limbs) preferredTags.push('long_limbs');
+  if (styleProfile.speed) preferredTags.push('speed');
+  
+  nodes.forEach(n => {
+    const nodeBeltIndex = beltOrder.indexOf(n.belt);
+    const passBelt = nodeBeltIndex <= maxBeltIndex;
+    if (!passBelt) { nodes.update({ id: n.id, hidden: true }); return; }
+    if (currentCategoryFilter !== null && n.group !== currentCategoryFilter) { nodes.update({ id: n.id, hidden: true }); return; }
+    if ((giFilterState === 'gi' && !n.gi) || (giFilterState === 'nogi' && !n.noGi)) { nodes.update({ id: n.id, hidden: true }); return; }
+    let passRule = true;
+    if (currentRule === 'ibjjf_gi') passRule = n.legal_ibjjf_gi;
+    else if (currentRule === 'ibjjf_nogi') passRule = n.legal_ibjjf_nogi;
+    else if (currentRule === 'adcc') passRule = n.legal_adcc;
+    if (!passRule) { nodes.update({ id: n.id, hidden: false, opacity: 0.3 }); return; }
+    if (preferredTags.length > 0) {
+      const hasMatchingTag = n.tags.some(tag => preferredTags.includes(tag));
+      if (!hasMatchingTag && n.tags.length > 0) { nodes.update({ id: n.id, hidden: true }); return; }
+      else if (!hasMatchingTag && n.tags.length === 0) { nodes.update({ id: n.id, hidden: false, opacity: 0.5 }); return; }
+    }
+    nodes.update({ id: n.id, hidden: false, opacity: 1.0 });
+  });
+  edges.forEach(e => {
+    const from = nodes.get(e.from), to = nodes.get(e.to);
+    if (from && to) edges.update({ id: e.id, hidden: from.hidden || to.hidden });
+  });
+}
+
+// === PROGRESS MODAL ===
+let currentProgressTab = 'progress';
+
+window.switchProgressTab = (tab) => {
+  currentProgressTab = tab;
+  document.querySelectorAll('#progressModal .modal-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.tab === tab);
+  });
+  renderProgressModal();
+  triggerHaptic('light');
+};
+
+function renderProgressModal() {
+  const content = document.getElementById('progressListContent');
+  const done = bjjNodesData.filter(n => progress[n.id] === 'done');
+  const inProgress = bjjNodesData.filter(n => progress[n.id] === 'in_progress');
+  const total = bjjNodesData.length;
+  const doneCount = done.length;
+  const percent = Math.round((doneCount / total) * 100);
+  
+  let html = '';
+  
+  if (currentProgressTab === 'progress') {
+    html += `
+      <div class="mb-5">
+        <div class="flex justify-between items-center mb-2">
+          <span class="text-sm font-semibold text-slate-700 dark:text-slate-200">Общий прогресс</span>
+          <span class="text-sm font-bold text-blue-600">${percent}%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-bar-fill" style="width: ${percent}%"></div></div>
+        <div class="flex justify-between text-xs text-slate-500 mt-1">
+          <span>${doneCount} из ${total} техник</span>
+          <span>В процессе: ${inProgress.length}</span>
+        </div>
+      </div>
+    `;
+    if (inProgress.length === 0 && done.length === 0) {
+      html += `<div class="text-center py-8"><div class="text-5xl mb-3">🎯</div><p class="text-sm text-slate-500">Вы пока не отметили ни одной техники</p></div>`;
+    } else {
+      if (inProgress.length > 0) {
+        html += `<h3 class="text-xs font-bold text-amber-700 dark:text-amber-300 uppercase tracking-wider mb-2">📚 В процессе (${inProgress.length})</h3>`;
+        inProgress.slice(0, 10).forEach(n => {
+          html += `<div class="technique-card in-progress" onclick="focusNode(${n.id}); toggleModal('progressModal')"><span class="technique-icon">${groupIcons[n.group] || '🥋'}</span><div class="flex-1 min-w-0"><div class="technique-label truncate">${n.label}</div><div class="text-xs text-amber-700 dark:text-amber-300">${catLabels[n.group]} · ${beltIcons[n.belt]} ${beltNames[n.belt]}</div></div></div>`;
+        });
+      }
+      if (done.length > 0) {
+        html += `<h3 class="text-xs font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider mb-2 mt-4">✅ Изучено (${done.length})</h3>`;
+        done.slice(0, 20).forEach(n => {
+          html += `<div class="technique-card done" onclick="focusNode(${n.id}); toggleModal('progressModal')"><span class="technique-icon">${groupIcons[n.group] || '🥋'}</span><div class="flex-1 min-w-0"><div class="technique-label truncate">${n.label}</div><div class="text-xs text-emerald-700 dark:text-emerald-300">${catLabels[n.group]} · ${beltIcons[n.belt]} ${beltNames[n.belt]}</div></div></div>`;
+        });
+      }
+    }
+  } else if (currentProgressTab === 'belts') {
+    html += `<h3 class="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider mb-3">Прогресс по поясам</h3>`;
+    beltOrder.forEach(belt => {
+      const beltTotal = bjjNodesData.filter(n => n.belt === belt).length;
+      const beltDone = done.filter(n => n.belt === belt).length;
+      const beltPercent = beltTotal > 0 ? Math.round((beltDone / beltTotal) * 100) : 0;
+      html += `<div class="progress-bar-container"><div class="progress-bar-header"><span class="progress-bar-label">${beltIcons[belt]} ${beltNames[belt]} пояс</span><span class="progress-bar-value">${beltDone}/${beltTotal} (${beltPercent}%)</span></div><div class="progress-bar"><div class="progress-bar-fill" style="width: ${beltPercent}%"></div></div></div>`;
+    });
+  } else if (currentProgressTab === 'stats') {
+    const byGroup = {};
+    Object.keys(catLabels).forEach(g => {
+      const total = bjjNodesData.filter(n => n.group === g).length;
+      const doneCount = done.filter(n => n.group === g).length;
+      byGroup[g] = { total, done: doneCount, percent: total > 0 ? Math.round((doneCount / total) * 100) : 0 };
+    });
+    html += `<h3 class="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider mb-3">Статистика по категориям</h3>`;
+    Object.entries(byGroup).forEach(([group, stats]) => {
+      html += `<div class="progress-bar-container"><div class="progress-bar-header"><span class="progress-bar-label">${groupIcons[group] || '🥋'} ${catLabels[group]}</span><span class="progress-bar-value">${stats.done}/${stats.total} (${stats.percent}%)</span></div><div class="progress-bar"><div class="progress-bar-fill" style="width: ${stats.percent}%"></div></div></div>`;
+    });
+  }
+  content.innerHTML = html;
+}
+
 // === WORKOUT GENERATOR ===
 let workoutConfig = { duration: 30, focus: 'all', intensity: 'medium' };
 
@@ -1549,14 +1765,11 @@ window.renderWorkoutModal = () => {
           <button class="filter-chip ${workoutConfig.intensity === 'hard' ? 'active' : ''}" onclick="setWorkoutIntensity('hard')">Тяжёлая</button>
         </div>
       </div>
-      <button onclick="generateWorkout()" class="btn-primary flex items-center justify-center gap-2">
-        <span>🎲</span><span>Сгенерировать тренировку</span>
-      </button>
+      <button onclick="generateWorkout()" class="btn-primary flex items-center justify-center gap-2"><span>🎲</span><span>Сгенерировать тренировку</span></button>
       <div id="workoutResult"></div>
     </div>
   `;
 };
-
 window.setWorkoutDuration = (d) => { workoutConfig.duration = d; renderWorkoutModal(); triggerHaptic('light'); };
 window.setWorkoutFocus = (f) => { workoutConfig.focus = f; renderWorkoutModal(); triggerHaptic('light'); };
 window.setWorkoutIntensity = (i) => { workoutConfig.intensity = i; renderWorkoutModal(); triggerHaptic('light'); };
@@ -1565,66 +1778,36 @@ window.generateWorkout = () => {
   const resultDiv = document.getElementById('workoutResult');
   const userBelt = styleProfile.belt || 'white';
   const maxBeltIndex = beltOrder.indexOf(userBelt);
-  
   let available = bjjNodesData.filter(n => {
     if (beltOrder.indexOf(n.belt) > maxBeltIndex) return false;
     if (workoutConfig.focus !== 'all' && n.group !== workoutConfig.focus) return false;
     if ((giFilterState === 'gi' && !n.gi) || (giFilterState === 'nogi' && !n.noGi)) return false;
     return true;
   });
-  
   const preferredTags = [];
   if (styleProfile.flexibility) preferredTags.push('flexibility');
   if (styleProfile.pressure) preferredTags.push('pressure');
   if (styleProfile.long_limbs) preferredTags.push('long_limbs');
   if (styleProfile.speed) preferredTags.push('speed');
-  
   available.sort((a, b) => {
     const aMatch = a.tags.some(t => preferredTags.includes(t)) ? 1 : 0;
     const bMatch = b.tags.some(t => preferredTags.includes(t)) ? 1 : 0;
     return bMatch - aMatch;
   });
-  
   const multiplier = workoutConfig.intensity === 'light' ? 0.5 : workoutConfig.intensity === 'hard' ? 1.5 : 1;
   const techniqueCount = Math.round((workoutConfig.duration / 10) * multiplier);
   const selected = available.slice(0, Math.min(techniqueCount, available.length));
-  
   if (selected.length === 0) {
     resultDiv.innerHTML = `<div class="text-center py-6"><div class="text-4xl mb-2">🤷</div><p class="text-sm text-slate-500">Нет доступных техник</p></div>`;
     return;
   }
-  
   const timePerDrill = Math.round(workoutConfig.duration / selected.length);
-  let html = `<div class="workout-result">
-    <div class="flex items-center gap-2 mb-3">
-      <span class="text-2xl">🏋️</span>
-      <div>
-        <div class="text-sm font-bold text-amber-900 dark:text-amber-200">Ваша тренировка</div>
-        <div class="text-xs text-amber-800 dark:text-amber-300">${workoutConfig.duration} мин · ${selected.length} упражнений</div>
-      </div>
-    </div>
-    <div class="space-y-2">`;
-  
+  let html = `<div class="workout-result"><div class="flex items-center gap-2 mb-3"><span class="text-2xl">🏋️</span><div><div class="text-sm font-bold text-amber-900 dark:text-amber-200">Ваша тренировка</div><div class="text-xs text-amber-800 dark:text-amber-300">${workoutConfig.duration} мин · ${selected.length} упражнений</div></div></div><div class="space-y-2">`;
   selected.forEach((tech, idx) => {
     const chainTo = bjjNodesData.find(n => n.id === tech.chain_to?.[0]);
-    html += `<div class="workout-drill">
-      <div class="flex items-start gap-3">
-        <div class="flex-shrink-0 w-8 h-8 rounded-full bg-amber-500 text-white flex items-center justify-center font-bold text-sm">${idx + 1}</div>
-        <div class="flex-1 min-w-0">
-          <div class="font-semibold text-sm text-slate-800 dark:text-slate-100 mb-1">${tech.label}</div>
-          <div class="text-xs text-slate-600 dark:text-slate-300 mb-2">${catLabels[tech.group]} · ${timePerDrill} мин</div>
-          ${chainTo ? `<div class="text-xs text-blue-600 dark:text-blue-300">→ ${chainTo.label}</div>` : ''}
-        </div>
-      </div>
-    </div>`;
+    html += `<div class="workout-drill"><div class="flex items-start gap-3"><div class="flex-shrink-0 w-8 h-8 rounded-full bg-amber-500 text-white flex items-center justify-center font-bold text-sm">${idx + 1}</div><div class="flex-1 min-w-0"><div class="font-semibold text-sm text-slate-800 dark:text-slate-100 mb-1">${tech.label}</div><div class="text-xs text-slate-600 dark:text-slate-300 mb-2">${catLabels[tech.group]} · ${timePerDrill} мин</div>${chainTo ? `<div class="text-xs text-blue-600 dark:text-blue-300">→ ${chainTo.label}</div>` : ''}</div></div></div>`;
   });
-  
-  html += `</div>
-    <button onclick="startWorkoutTimer(${workoutConfig.duration})" class="btn-primary mt-4 flex items-center justify-center gap-2">
-      <span>⏱️</span><span>Запустить таймер</span>
-    </button>
-  </div>`;
-  
+  html += `</div><button onclick="startWorkoutTimer(${workoutConfig.duration})" class="btn-primary mt-4 flex items-center justify-center gap-2"><span>⏱️</span><span>Запустить таймер</span></button></div>`;
   resultDiv.innerHTML = html;
   triggerHaptic('medium');
 };
@@ -1636,10 +1819,7 @@ window.startWorkoutTimer = (minutes) => {
   const overlay = document.createElement('div');
   overlay.id = 'workoutTimerOverlay';
   overlay.className = 'fixed inset-0 bg-black/80 backdrop-blur-sm z-[2000] flex items-center justify-center';
-  overlay.innerHTML = `<div class="text-center">
-    <div class="scenario-timer" id="workoutTimerDisplay">${formatTime(workoutTimeLeft)}</div>
-    <button onclick="stopWorkoutTimer()" class="btn-secondary mt-4">Остановить</button>
-  </div>`;
+  overlay.innerHTML = `<div class="text-center"><div class="scenario-timer" id="workoutTimerDisplay">${formatTime(workoutTimeLeft)}</div><button onclick="stopWorkoutTimer()" class="btn-secondary mt-4">Остановить</button></div>`;
   document.body.appendChild(overlay);
   workoutTimer = setInterval(() => {
     workoutTimeLeft--;
@@ -1664,71 +1844,36 @@ window.renderAGameModal = () => {
   const content = document.getElementById('agameContent');
   const done = bjjNodesData.filter(n => progress[n.id] === 'done');
   const inProgress = bjjNodesData.filter(n => progress[n.id] === 'in_progress');
-  
   const categoryStats = {};
   Object.keys(catLabels).forEach(group => {
     const total = bjjNodesData.filter(n => n.group === group).length;
     const doneCount = done.filter(n => n.group === group).length;
     categoryStats[group] = { total, done: doneCount, percent: total > 0 ? Math.round((doneCount / total) * 100) : 0 };
   });
-  
   const topCategories = Object.entries(categoryStats).filter(([_, s]) => s.done > 0).sort((a, b) => b[1].percent - a[1].percent).slice(0, 3);
   const weakCategories = Object.entries(categoryStats).filter(([_, s]) => s.total > 0).sort((a, b) => a[1].percent - b[1].percent).slice(0, 3);
-  
   const keyPositions = [
     { id: 1, label: 'Closed Guard' }, { id: 14, label: 'Side Control' }, { id: 16, label: 'Mount' },
     { id: 17, label: 'Back Control' }, { id: 3, label: 'Half Guard' }, { id: 5, label: 'Butterfly' },
     { id: 10, label: 'X-Guard' }, { id: 11, label: '50/50' }, { id: 21, label: 'Standing' }
   ];
-  
   const recommendations = [];
   if (categoryStats.submission && categoryStats.submission.percent < 30) recommendations.push({ icon: '🔒', text: 'Изучите базовые сабмишены: Armbar (30), Triangle (31), Kimura (32)' });
   if (categoryStats.sweep && categoryStats.sweep.percent < 30) recommendations.push({ icon: '🔄', text: 'Освойте свипы из закрытого гарда: Scissors (70), Flower (71)' });
   if (categoryStats.guard_pass && categoryStats.guard_pass.percent < 30) recommendations.push({ icon: '🚪', text: 'Изучите базовые проходы: Knee Slice (90), Toreando (93)' });
   if (categoryStats.escape && categoryStats.escape.percent < 50) recommendations.push({ icon: '🛡️', text: 'Укрепите защиты: Upa (131), Elbow Escape (132), Shrimp (133)' });
   if (recommendations.length === 0) recommendations.push({ icon: '✨', text: 'Отличная работа! Продолжайте изучать новые техники.' });
-  
   content.innerHTML = `
     <div class="space-y-5">
       <div class="p-4 bg-gradient-to-br from-pink-50 to-purple-50 dark:from-pink-900/20 dark:to-purple-900/20 rounded-xl border border-pink-200 dark:border-pink-800">
-        <div class="flex items-center gap-3 mb-3">
-          <div class="text-3xl">⭐</div>
-          <div>
-            <div class="text-sm font-bold text-pink-900 dark:text-pink-200">Ваш A-Game</div>
-            <div class="text-xs text-pink-700 dark:text-pink-300">Изучено ${done.length} из ${bjjNodesData.length} техник</div>
-          </div>
-        </div>
+        <div class="flex items-center gap-3 mb-3"><div class="text-3xl">⭐</div><div><div class="text-sm font-bold text-pink-900 dark:text-pink-200">Ваш A-Game</div><div class="text-xs text-pink-700 dark:text-pink-300">Изучено ${done.length} из ${bjjNodesData.length} техник</div></div></div>
         <div class="grid grid-cols-2 gap-2 text-xs">
           <div class="p-2 bg-white dark:bg-slate-800 rounded-lg"><div class="text-pink-600 dark:text-pink-400 font-bold">${done.length}</div><div class="text-slate-500">Изучено</div></div>
           <div class="p-2 bg-white dark:bg-slate-800 rounded-lg"><div class="text-amber-600 dark:text-amber-400 font-bold">${inProgress.length}</div><div class="text-slate-500">В процессе</div></div>
         </div>
       </div>
-      ${topCategories.length > 0 ? `<div class="modal-section">
-        <div class="modal-section-title">💪 Сильные стороны</div>
-        <div class="space-y-2">
-          ${topCategories.map(([group, stats]) => `<div class="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
-            <div class="flex items-center justify-between mb-1">
-              <span class="text-sm font-semibold text-emerald-900 dark:text-emerald-200">${groupIcons[group] || '🥋'} ${catLabels[group]}</span>
-              <span class="text-xs font-bold text-emerald-700 dark:text-emerald-300">${stats.percent}%</span>
-            </div>
-            <div class="stat-bar"><div class="stat-bar-fill bg-emerald-500" style="width: ${stats.percent}%"></div></div>
-            <div class="text-xs text-emerald-700 dark:text-emerald-300 mt-1">${stats.done} из ${stats.total}</div>
-          </div>`).join('')}
-        </div>
-      </div>` : ''}
-      ${weakCategories.length > 0 ? `<div class="modal-section">
-        <div class="modal-section-title">🎯 Точки роста</div>
-        <div class="space-y-2">
-          ${weakCategories.map(([group, stats]) => `<div class="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
-            <div class="flex items-center justify-between mb-1">
-              <span class="text-sm font-semibold text-amber-900 dark:text-amber-200">${groupIcons[group] || '🥋'} ${catLabels[group]}</span>
-              <span class="text-xs font-bold text-amber-700 dark:text-amber-300">${stats.percent}%</span>
-            </div>
-            <div class="stat-bar"><div class="stat-bar-fill bg-amber-500" style="width: ${stats.percent}%"></div></div>
-            <div class="text-xs text-amber-700 dark:text-amber-300 mt-1">${stats.done} из ${stats.total}</div>
-          </div>`).join('')}
-        </div>
-      </div>` : ''}
+      ${topCategories.length > 0 ? `<div class="modal-section"><div class="modal-section-title">💪 Сильные стороны</div><div class="space-y-2">${topCategories.map(([group, stats]) => `<div class="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800"><div class="flex items-center justify-between mb-1"><span class="text-sm font-semibold text-emerald-900 dark:text-emerald-200">${groupIcons[group] || '🥋'} ${catLabels[group]}</span><span class="text-xs font-bold text-emerald-700 dark:text-emerald-300">${stats.percent}%</span></div><div class="stat-bar"><div class="stat-bar-fill bg-emerald-500" style="width: ${stats.percent}%"></div></div><div class="text-xs text-emerald-700 dark:text-emerald-300 mt-1">${stats.done} из ${stats.total}</div></div>`).join('')}</div></div>` : ''}
+      ${weakCategories.length > 0 ? `<div class="modal-section"><div class="modal-section-title">🎯 Точки роста</div><div class="space-y-2">${weakCategories.map(([group, stats]) => `<div class="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800"><div class="flex items-center justify-between mb-1"><span class="text-sm font-semibold text-amber-900 dark:text-amber-200">${groupIcons[group] || '🥋'} ${catLabels[group]}</span><span class="text-xs font-bold text-amber-700 dark:text-amber-300">${stats.percent}%</span></div><div class="stat-bar"><div class="stat-bar-fill bg-amber-500" style="width: ${stats.percent}%"></div></div><div class="text-xs text-amber-700 dark:text-amber-300 mt-1">${stats.done} из ${stats.total}</div></div>`).join('')}</div></div>` : ''}
       <div class="modal-section">
         <div class="modal-section-title">🗺️ Тепловая карта позиций</div>
         <div class="position-grid">
@@ -1736,20 +1881,14 @@ window.renderAGameModal = () => {
             const status = progress[pos.id];
             const heat = status === 'done' ? 4 : status === 'in_progress' ? 2 : 0;
             const node = bjjNodesData.find(n => n.id === pos.id);
-            return `<div class="position-cell heat-${heat}" onclick="focusNode(${pos.id}); toggleModal('agameModal')">
-              <div class="text-lg">${groupIcons[node?.group] || '🥋'}</div>
-              <div>${pos.label}</div>
-            </div>`;
+            return `<div class="position-cell heat-${heat}" onclick="focusNode(${pos.id}); toggleModal('agameModal')"><div class="text-lg">${groupIcons[node?.group] || '🥋'}</div><div>${pos.label}</div></div>`;
           }).join('')}
         </div>
       </div>
       <div class="modal-section">
         <div class="modal-section-title">💡 Рекомендации</div>
         <div class="space-y-2">
-          ${recommendations.map(rec => `<div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800 flex gap-3">
-            <div class="text-2xl flex-shrink-0">${rec.icon}</div>
-            <div class="text-sm text-blue-900 dark:text-blue-200">${rec.text}</div>
-          </div>`).join('')}
+          ${recommendations.map(rec => `<div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800 flex gap-3"><div class="text-2xl flex-shrink-0">${rec.icon}</div><div class="text-sm text-blue-900 dark:text-blue-200">${rec.text}</div></div>`).join('')}
         </div>
       </div>
     </div>
@@ -1776,7 +1915,6 @@ window.renderDecisionModal = () => {
     { id: 11, label: 'Я в 50/50 гарде', icon: '⚖️' },
     { id: 300, label: 'Я в Single Leg X', icon: '✖️' }
   ];
-  
   content.innerHTML = `
     <div class="space-y-4">
       <div class="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
@@ -1786,10 +1924,7 @@ window.renderDecisionModal = () => {
       <div class="modal-section">
         <div class="modal-section-title">📍 Ваша позиция</div>
         <div class="grid grid-cols-2 gap-2">
-          ${positions.map(pos => `<button onclick="showDecisionOptions(${pos.id})" class="p-3 bg-white dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600 hover:border-emerald-500 dark:hover:border-emerald-500 transition text-left">
-            <div class="text-2xl mb-1">${pos.icon}</div>
-            <div class="text-xs font-medium text-slate-700 dark:text-slate-200">${pos.label}</div>
-          </button>`).join('')}
+          ${positions.map(pos => `<button onclick="showDecisionOptions(${pos.id})" class="p-3 bg-white dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600 hover:border-emerald-500 dark:hover:border-emerald-500 transition text-left"><div class="text-2xl mb-1">${pos.icon}</div><div class="text-xs font-medium text-slate-700 dark:text-slate-200">${pos.label}</div></button>`).join('')}
         </div>
       </div>
       <div id="decisionOptions"></div>
@@ -1801,10 +1936,8 @@ window.showDecisionOptions = (positionId) => {
   const optionsDiv = document.getElementById('decisionOptions');
   const position = bjjNodesData.find(n => n.id === positionId);
   if (!position) return;
-  
   const outgoingEdges = bjjEdgesData.filter(e => e.from === positionId);
   const attacks = [], sweeps = [], transitions = [], escapes = [];
-  
   outgoingEdges.forEach(edge => {
     const target = bjjNodesData.find(n => n.id === edge.to);
     if (!target) return;
@@ -1817,21 +1950,10 @@ window.showDecisionOptions = (positionId) => {
     else if (target.group === 'takedown') attacks.push(item);
     else transitions.push(item);
   });
-  
   const renderSection = (title, icon, items, color) => {
     if (items.length === 0) return '';
-    return `<div class="modal-section">
-      <div class="modal-section-title">${icon} ${title} (${items.length})</div>
-      <div class="space-y-2">
-        ${items.map(item => `<button onclick="focusNode(${item.id}); toggleModal('decisionModal')" class="w-full p-3 bg-${color}-50 dark:bg-${color}-900/20 rounded-lg border border-${color}-200 dark:border-${color}-800 text-left hover:shadow-md transition">
-          <div class="text-sm font-semibold text-${color}-900 dark:text-${color}-200 mb-1">${item.label}</div>
-          <div class="text-xs text-${color}-700 dark:text-${color}-300">📌 ${item.trigger}</div>
-          <div class="text-xs text-${color}-600 dark:text-${color}-400 mt-1">${beltIcons[item.belt] || '⚪'} ${beltNames[item.belt] || item.belt}</div>
-        </button>`).join('')}
-      </div>
-    </div>`;
+    return `<div class="modal-section"><div class="modal-section-title">${icon} ${title} (${items.length})</div><div class="space-y-2">${items.map(item => `<button onclick="focusNode(${item.id}); toggleModal('decisionModal')" class="w-full p-3 bg-${color}-50 dark:bg-${color}-900/20 rounded-lg border border-${color}-200 dark:border-${color}-800 text-left hover:shadow-md transition"><div class="text-sm font-semibold text-${color}-900 dark:text-${color}-200 mb-1">${item.label}</div><div class="text-xs text-${color}-700 dark:text-${color}-300">📌 ${item.trigger}</div><div class="text-xs text-${color}-600 dark:text-${color}-400 mt-1">${beltIcons[item.belt] || '⚪'} ${beltNames[item.belt] || item.belt}</div></button>`).join('')}</div></div>`;
   };
-  
   optionsDiv.innerHTML = `
     <div class="mt-4 p-3 bg-slate-100 dark:bg-slate-700 rounded-lg">
       <div class="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">📍 Вы выбрали:</div>
@@ -1841,10 +1963,7 @@ window.showDecisionOptions = (positionId) => {
     ${renderSection('Свипы', '🔄', sweeps, 'amber')}
     ${renderSection('Переходы', '➡️', transitions, 'purple')}
     ${renderSection('Защиты', '🛡️', escapes, 'emerald')}
-    ${outgoingEdges.length === 0 ? `<div class="mt-4 p-4 bg-slate-100 dark:bg-slate-700 rounded-lg text-center">
-      <div class="text-3xl mb-2">🤔</div>
-      <div class="text-sm text-slate-600 dark:text-slate-300">Для этой позиции пока нет связей</div>
-    </div>` : ''}
+    ${outgoingEdges.length === 0 ? `<div class="mt-4 p-4 bg-slate-100 dark:bg-slate-700 rounded-lg text-center"><div class="text-3xl mb-2">🤔</div><div class="text-sm text-slate-600 dark:text-slate-300">Для этой позиции пока нет связей</div></div>` : ''}
   `;
   optionsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
   triggerHaptic('medium');
@@ -1875,18 +1994,7 @@ window.renderScenarioModal = () => {
       <div class="modal-section">
         <div class="modal-section-title">🎯 Выберите сценарий</div>
         <div class="space-y-2">
-          ${scenarios.map(s => `<button onclick="startScenario('${s.id}')" class="scenario-card w-full text-left">
-            <div class="flex items-start gap-3">
-              <div class="text-3xl flex-shrink-0">${s.icon}</div>
-              <div class="flex-1 min-w-0">
-                <div class="font-semibold text-sm text-slate-800 dark:text-slate-100 mb-1">${s.title}</div>
-                <div class="text-xs text-slate-600 dark:text-slate-300 mb-2">${s.description}</div>
-                <div class="flex items-center gap-2 text-xs">
-                  <span class="px-2 py-0.5 bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-200 rounded">⏱️ ${Math.floor(s.duration / 60)} мин</span>
-                </div>
-              </div>
-            </div>
-          </button>`).join('')}
+          ${scenarios.map(s => `<button onclick="startScenario('${s.id}')" class="scenario-card w-full text-left"><div class="flex items-start gap-3"><div class="text-3xl flex-shrink-0">${s.icon}</div><div class="flex-1 min-w-0"><div class="font-semibold text-sm text-slate-800 dark:text-slate-100 mb-1">${s.title}</div><div class="text-xs text-slate-600 dark:text-slate-300 mb-2">${s.description}</div><div class="flex items-center gap-2 text-xs"><span class="px-2 py-0.5 bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-200 rounded">⏱️ ${Math.floor(s.duration / 60)} мин</span></div></div></div></button>`).join('')}
         </div>
       </div>
     </div>
@@ -1899,40 +2007,18 @@ window.startScenario = (scenarioId) => {
   activeScenario = scenario;
   scenarioTimeLeft = scenario.duration;
   toggleModal('scenarioModal');
-  
   const overlay = document.createElement('div');
   overlay.id = 'scenarioOverlay';
   overlay.className = 'fixed inset-0 bg-black/90 backdrop-blur-sm z-[2000] flex flex-col items-center justify-center p-4';
-  
   const startPositionsHtml = scenario.startPositions.map(id => {
     const pos = bjjNodesData.find(n => n.id === id);
     return pos ? `<div class="text-sm text-white/80">${pos.label}</div>` : '';
   }).join('');
-  
-  const goalPositionsHtml = scenario.goalPositions.length > 0 ? `<div class="mt-2">
-    <div class="text-xs text-white/60 mb-1">Целевые позиции:</div>
-    ${scenario.goalPositions.map(id => {
-      const pos = bjjNodesData.find(n => n.id === id);
-      return pos ? `<div class="text-sm text-emerald-400">✓ ${pos.label}</div>` : '';
-    }).join('')}
-  </div>` : '';
-  
-  overlay.innerHTML = `<div class="text-center max-w-md w-full">
-    <div class="text-5xl mb-3">${scenario.icon}</div>
-    <h2 class="text-2xl font-bold text-white mb-2">${scenario.title}</h2>
-    <p class="text-sm text-white/70 mb-4">${scenario.description}</p>
-    <div class="scenario-timer" id="scenarioTimerDisplay">${formatTime(scenarioTimeLeft)}</div>
-    <div class="bg-white/10 rounded-xl p-4 mb-4">
-      <div class="text-xs text-white/60 mb-2 uppercase tracking-wider">Стартовые позиции:</div>
-      ${startPositionsHtml}
-      ${goalPositionsHtml}
-    </div>
-    <div class="flex gap-2 justify-center">
-      <button onclick="focusScenarioPosition()" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium text-sm transition">📍 Показать позицию</button>
-      <button onclick="stopScenario()" class="px-4 py-2 bg-slate-500 hover:bg-slate-600 text-white rounded-lg font-medium text-sm transition">⏹️ Стоп</button>
-    </div>
-  </div>`;
-  
+  const goalPositionsHtml = scenario.goalPositions.length > 0 ? `<div class="mt-2"><div class="text-xs text-white/60 mb-1">Целевые позиции:</div>${scenario.goalPositions.map(id => {
+    const pos = bjjNodesData.find(n => n.id === id);
+    return pos ? `<div class="text-sm text-emerald-400">✓ ${pos.label}</div>` : '';
+  }).join('')}</div>` : '';
+  overlay.innerHTML = `<div class="text-center max-w-md w-full"><div class="text-5xl mb-3">${scenario.icon}</div><h2 class="text-2xl font-bold text-white mb-2">${scenario.title}</h2><p class="text-sm text-white/70 mb-4">${scenario.description}</p><div class="scenario-timer" id="scenarioTimerDisplay">${formatTime(scenarioTimeLeft)}</div><div class="bg-white/10 rounded-xl p-4 mb-4"><div class="text-xs text-white/60 mb-2 uppercase tracking-wider">Стартовые позиции:</div>${startPositionsHtml}${goalPositionsHtml}</div><div class="flex gap-2 justify-center"><button onclick="focusScenarioPosition()" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium text-sm transition">📍 Показать позицию</button><button onclick="stopScenario()" class="px-4 py-2 bg-slate-500 hover:bg-slate-600 text-white rounded-lg font-medium text-sm transition">⏹️ Стоп</button></div></div>`;
   document.body.appendChild(overlay);
   scenarioTimer = setInterval(() => {
     scenarioTimeLeft--;
@@ -1960,9 +2046,324 @@ window.stopScenario = () => {
   activeScenario = null;
 };
 
-// === ПОИСК (оставляем из старого кода, без изменений) ===
-// ... (весь код поиска из старого файла остаётся без изменений)
+// === BOTTOM SHEET ===
+class BottomSheet {
+  constructor() {
+    this.sheet = document.getElementById('bottomSheet');
+    this.overlay = document.getElementById('bottomSheetOverlay');
+    this.handle = document.getElementById('bottomSheetHandle');
+    this.startY = 0;
+    this.isDragging = false;
+    this.handle.addEventListener('touchstart', (e) => this.startDrag(e));
+    this.handle.addEventListener('touchmove', (e) => this.onDrag(e));
+    this.handle.addEventListener('touchend', () => this.endDrag());
+    this.overlay.addEventListener('click', () => this.hide());
+  }
+  show() {
+    this.sheet.classList.add('active');
+    this.overlay.classList.add('active');
+    triggerHaptic('medium');
+  }
+  hide() {
+    this.sheet.classList.remove('active');
+    this.overlay.classList.remove('active');
+    this.sheet.style.transform = '';
+  }
+  startDrag(e) { this.startY = e.touches[0].clientY; this.isDragging = true; }
+  onDrag(e) {
+    if (!this.isDragging) return;
+    e.preventDefault();
+    const diff = e.touches[0].clientY - this.startY;
+    if (diff > 0) this.sheet.style.transform = `translateY(${diff}px)`;
+  }
+  endDrag() {
+    if (!this.isDragging) return;
+    this.isDragging = false;
+    const currentTransform = this.sheet.style.transform;
+    const diff = currentTransform ? parseInt(currentTransform.replace('translateY(', '').replace('px)', '')) : 0;
+    if (diff > 100) this.hide();
+    else this.sheet.style.transform = '';
+  }
+}
+const bottomSheet = new BottomSheet();
 
-// === ИНИЦИАЛИЗАЦИЯ ПРИЛОЖЕНИЯ ===
+// === КАРТОЧКА ТЕХНИКИ ===
+function renderNodeDetails(nodeId) {
+  const n = bjjNodesData.find(x => x.id === nodeId);
+  if (!n) return;
+  const status = progress[nodeId] || 'not_started';
+  let badges = [];
+  if (n.gi) badges.push('<span class="px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded text-xs border border-indigo-200">🥋 Gi</span>');
+  if (n.noGi) badges.push('<span class="px-2 py-0.5 bg-cyan-50 text-cyan-600 rounded text-xs border border-cyan-200">🩳 No-Gi</span>');
+  let legal = [];
+  legal.push(n.legal_ibjjf_gi ? '✅ IBJJF Gi' : '🚫 IBJJF Gi');
+  legal.push(n.legal_ibjjf_nogi ? '✅ IBJJF No-Gi' : '🚫 IBJJF No-Gi');
+  legal.push(n.legal_adcc ? '✅ ADCC' : '🚫 ADCC');
+  let tags = [];
+  if (n.tags.includes('flexibility')) tags.push('🧘 Гибкость');
+  if (n.tags.includes('pressure')) tags.push('🦍 Давление');
+  if (n.tags.includes('long_limbs')) tags.push('🕷️ Длинные конечности');
+  if (n.tags.includes('speed')) tags.push('⚡ Скорость');
+  
+  const details = techniqueDetails[n.id] || {};
+  let detailsHtml = '';
+  if (details.mechanics) detailsHtml += `<div class="mb-3 p-3 bg-blue-50 dark:bg-slate-700 rounded-lg border border-blue-100 dark:border-slate-600"><div class="flex items-center gap-2 mb-1.5"><span class="text-lg">🔧</span><h3 class="text-xs font-bold text-blue-900 dark:text-blue-200 uppercase tracking-wider">Механика</h3></div><p class="text-sm text-slate-700 dark:text-slate-200 leading-relaxed">${details.mechanics}</p></div>`;
+  if (details.keyPoints) detailsHtml += `<div class="mb-3 p-3 bg-emerald-50 dark:bg-slate-700 rounded-lg border border-emerald-100 dark:border-slate-600"><div class="flex items-center gap-2 mb-1.5"><span class="text-lg">🎯</span><h3 class="text-xs font-bold text-emerald-900 dark:text-emerald-200 uppercase tracking-wider">Ключевые детали</h3></div><p class="text-sm text-slate-700 dark:text-slate-200 leading-relaxed">${details.keyPoints}</p></div>`;
+  if (details.when) detailsHtml += `<div class="mb-3 p-3 bg-amber-50 dark:bg-slate-700 rounded-lg border border-amber-100 dark:border-slate-600"><div class="flex items-center gap-2 mb-1.5"><span class="text-lg">⏱</span><h3 class="text-xs font-bold text-amber-900 dark:text-amber-200 uppercase tracking-wider">Когда применять</h3></div><p class="text-sm text-slate-700 dark:text-slate-200 leading-relaxed">${details.when}</p></div>`;
+  if (details.mistakes) detailsHtml += `<div class="mb-3 p-3 bg-red-50 dark:bg-slate-700 rounded-lg border border-red-100 dark:border-slate-600"><div class="flex items-center gap-2 mb-1.5"><span class="text-lg">⚠️</span><h3 class="text-xs font-bold text-red-900 dark:text-red-200 uppercase tracking-wider">Типичные ошибки</h3></div><p class="text-sm text-slate-700 dark:text-slate-200 leading-relaxed">${details.mistakes}</p></div>`;
+  
+  // Setup From
+  const setupFromNodes = (n.setup_from || []).map(id => bjjNodesData.find(x => x.id === id)).filter(Boolean);
+  if (setupFromNodes.length > 0) {
+    detailsHtml += `<div class="mb-3"><div class="flex items-center gap-2 mb-2"><span class="text-lg">📥</span><h3 class="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Вход из позиций (${setupFromNodes.length})</h3></div><div class="space-y-1">${setupFromNodes.map(node => `<button onclick="focusNode(${node.id})" class="w-full flex items-center gap-2 p-2 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 rounded-lg transition text-left text-sm border border-slate-200 dark:border-slate-600"><span class="text-slate-400">←</span><span class="flex-1 font-medium text-slate-700 dark:text-slate-200 truncate">${node.label}</span><span class="text-xs text-slate-500">${catLabels[node.group] || ''}</span></button>`).join('')}</div></div>`;
+  }
+  
+  // Chain To
+  const chainToNodes = (n.chain_to || []).map(id => bjjNodesData.find(x => x.id === id)).filter(Boolean);
+  if (chainToNodes.length > 0) {
+    detailsHtml += `<div class="mb-3"><div class="flex items-center gap-2 mb-2"><span class="text-lg">🔗</span><h3 class="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Цепочки атак (${chainToNodes.length})</h3></div><div class="space-y-1 max-h-60 overflow-y-auto">${chainToNodes.map(node => `<button onclick="focusNode(${node.id})" class="w-full flex items-center gap-2 p-2 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 hover:from-blue-100 hover:to-indigo-100 dark:hover:from-blue-900/30 dark:hover:to-indigo-900/30 rounded-lg transition text-left text-sm border border-blue-200 dark:border-blue-800"><span class="text-blue-500">→</span><span class="flex-1 font-medium text-slate-700 dark:text-slate-200 truncate">${node.label}</span><span class="text-xs text-slate-500">${catLabels[node.group] || ''}</span></button>`).join('')}</div></div>`;
+  }
+  
+  // Difficulty
+  const difficulty = n.difficulty || 1;
+  const difficultyLabels = {
+    1: { label: 'Базовый', color: 'emerald', icon: '🟢' },
+    2: { label: 'Начинающий', color: 'blue', icon: '🔵' },
+    3: { label: 'Продвинутый', color: 'amber', icon: '🟡' },
+    4: { label: 'Сложный', color: 'orange', icon: '🟠' },
+    5: { label: 'Мастерский', color: 'red', icon: '🔴' }
+  };
+  const diffInfo = difficultyLabels[difficulty] || difficultyLabels[1];
+  detailsHtml = `<div class="mb-3 p-3 bg-${diffInfo.color}-50 dark:bg-${diffInfo.color}-900/20 rounded-lg border border-${diffInfo.color}-200 dark:border-${diffInfo.color}-800"><div class="flex items-center gap-2 mb-1"><span class="text-lg">${diffInfo.icon}</span><h3 class="text-xs font-bold text-${diffInfo.color}-900 dark:text-${diffInfo.color}-200 uppercase tracking-wider">Сложность</h3></div><div class="flex items-center gap-2"><span class="text-sm font-semibold text-${diffInfo.color}-900 dark:text-${diffInfo.color}-200">${diffInfo.label}</span><div class="flex gap-0.5">${[1,2,3,4,5].map(i => `<span class="text-xs">${i <= difficulty ? '⭐' : '☆'}</span>`).join('')}</div></div></div>` + detailsHtml;
+  
+  document.getElementById('nodeDetails').innerHTML = `
+    <div class="fade-in">
+      <div class="flex justify-between items-start mb-3">
+        <div class="flex-1">
+          <h2 class="text-lg font-bold text-slate-800 mb-1">${n.title}</h2>
+          <div class="flex gap-2 flex-wrap">
+            <span class="px-2 py-0.5 bg-slate-100 rounded text-xs text-slate-600 border border-slate-200">${catLabels[n.group]}</span>
+            <span class="px-2 py-0.5 bg-slate-100 rounded text-xs text-slate-600 border border-slate-200">${beltIcons[n.belt]} ${beltNames[n.belt]}</span>
+            ${badges.join('')}
+          </div>
+          <div class="text-xs text-slate-500 mt-1.5 space-x-2">${legal.join(' · ')}</div>
+          ${tags.length ? `<div class="text-xs mt-1 flex flex-wrap gap-1">${tags.map(t => `<span class="px-2 py-0.5 bg-slate-100 rounded text-xs">${t}</span>`).join('')}</div>` : ''}
+        </div>
+        <button onclick="shareNode(${nodeId})" class="p-2 bg-slate-100 rounded-lg hover:bg-slate-200 transition text-slate-500 ml-2" title="Поделиться">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        </button>
+      </div>
+      ${detailsHtml}
+      <div class="mb-4">
+        <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Прогресс</h3>
+        <div class="grid grid-cols-3 gap-2">
+          <button onclick="updateProgress(${nodeId}, 'not_started')" class="progress-btn ${status==='not_started'?'active-not':'bg-slate-50 text-slate-500 border border-slate-200'} py-2 rounded-lg text-xs font-medium">Не начал</button>
+          <button onclick="updateProgress(${nodeId}, 'in_progress')" class="progress-btn ${status==='in_progress'?'active-progress':'bg-slate-50 text-slate-500 border border-slate-200'} py-2 rounded-lg text-xs font-medium">В процессе</button>
+          <button onclick="updateProgress(${nodeId}, 'done')" class="progress-btn ${status==='done'?'active-done':'bg-slate-50 text-slate-500 border border-slate-200'} py-2 rounded-lg text-xs font-medium">Изучено</button>
+        </div>
+      </div>
+    </div>
+  `;
+  bottomSheet.show();
+}
+
+window.updateProgress = (id, status) => { setProgress(id, status); renderNodeDetails(id); };
+window.focusNode = (id) => {
+  network.focus(id, { scale: 1.8, animation: true });
+  setTimeout(() => { network.selectNodes([id]); renderNodeDetails(id); }, 300);
+};
+window.shareNode = (nodeId) => {
+  const n = bjjNodesData.find(x => x.id === nodeId);
+  const text = `🥋 ${n.title}\n${n.desc}`;
+  const url = `${window.location.origin}${window.location.pathname}?node=${nodeId}`;
+  if (navigator.share) { navigator.share({ title: n.title, text: text, url: url }).catch(console.error); }
+  else { navigator.clipboard.writeText(`${text}\n${url}`).then(() => alert('Ссылка скопирована!')); }
+  triggerHaptic('medium');
+};
+
+// === ПОИСК ===
+const searchInput = document.getElementById('searchInput');
+const searchResults = document.getElementById('searchResults');
+const searchHistory = document.getElementById('searchHistory');
+const SEARCH_HISTORY_KEY = 'bjj_search_history';
+const MAX_HISTORY = 5;
+
+function getSearchHistory() {
+  try { return JSON.parse(localStorage.getItem(SEARCH_HISTORY_KEY) || '[]'); } catch { return []; }
+}
+function saveSearchHistory(query) {
+  if (!query || query.length < 2) return;
+  let history = getSearchHistory();
+  history = history.filter(q => q.toLowerCase() !== query.toLowerCase());
+  history.unshift(query);
+  history = history.slice(0, MAX_HISTORY);
+  localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(history));
+}
+function clearSearchHistory() {
+  localStorage.removeItem(SEARCH_HISTORY_KEY);
+  showSearchHistory('');
+}
+function showSearchHistory(query) {
+  const history = getSearchHistory();
+  if (query.length > 0 || history.length === 0) { searchHistory.classList.add('hidden'); return; }
+  let html = '<div class="text-xs font-semibold text-slate-500 px-4 py-2">🕐 Недавние запросы</div>';
+  history.forEach(q => {
+    html += `<div class="search-history-item" onclick="applySearch('${q.replace(/'/g, "\\'")}')"><span class="text-sm text-slate-700 dark:text-slate-200">🔍 ${q}</span><span class="text-slate-400 text-xs">›</span></div>`;
+  });
+  html += `<div class="clear-history-btn" onclick="clearSearchHistory()">Очистить историю</div>`;
+  searchHistory.innerHTML = html;
+  searchHistory.classList.remove('hidden');
+}
+window.applySearch = (query) => {
+  searchInput.value = query;
+  searchHistory.classList.add('hidden');
+  performSearch(query);
+  triggerHaptic('light');
+};
+function highlightText(text, query) {
+  if (!query || query.length < 2) return text;
+  const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+  return text.replace(regex, '<span class="search-highlight">$1</span>');
+}
+function performSearch(query) {
+  const q = query.toLowerCase().trim();
+  if (q.length < 1) { searchResults.classList.add('hidden'); if (getSearchHistory().length > 0) showSearchHistory(q); return; }
+  saveSearchHistory(query);
+  const matches = bjjNodesData.filter(n => {
+    const inLabel = n.label.toLowerCase().includes(q);
+    const inTitle = n.title.toLowerCase().includes(q);
+    const inDesc = n.desc && n.desc.toLowerCase().includes(q);
+    const details = techniqueDetails[n.id] || {};
+    const inMechanics = details.mechanics && details.mechanics.toLowerCase().includes(q);
+    const inKeyPoints = details.keyPoints && details.keyPoints.toLowerCase().includes(q);
+    const inWhen = details.when && details.when.toLowerCase().includes(q);
+    const inMistakes = details.mistakes && details.mistakes.toLowerCase().includes(q);
+    const inTags = n.tags && n.tags.some(t => {
+      const tagMap = { 'flexibility': 'гибкость', 'pressure': 'давление', 'speed': 'скорость', 'long_limbs': 'длинные' };
+      return t.includes(q) || (tagMap[t] && tagMap[t].includes(q));
+    });
+    const beltMap = { 'white': 'белый', 'blue': 'синий', 'purple': 'фиолетовый', 'brown': 'коричневый', 'black': 'чёрный' };
+    const inBelt = beltMap[n.belt] && beltMap[n.belt].includes(q);
+    return inLabel || inTitle || inDesc || inMechanics || inKeyPoints || inWhen || inMistakes || inTags || inBelt;
+  });
+  matches.sort((a, b) => {
+    const aLabel = a.label.toLowerCase().includes(q);
+    const bLabel = b.label.toLowerCase().includes(q);
+    if (aLabel && !bLabel) return -1;
+    if (!aLabel && bLabel) return 1;
+    return 0;
+  });
+  if (matches.length > 0) {
+    searchResults.innerHTML = `<div class="text-xs font-semibold text-slate-500 px-4 py-2 border-b border-slate-100">Найдено: ${matches.length}</div>${matches.slice(0, 20).map(n => {
+      const highlightedLabel = highlightText(n.label, q);
+      const highlightedTitle = highlightText(n.title, q);
+      return `<div onclick="focusNode(${n.id}); searchInput.value=''; searchResults.classList.add('hidden')" class="px-4 py-3 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-0 transition"><div class="flex items-start gap-3"><div class="flex-shrink-0 mt-0.5"><span class="text-lg">${groupIcons[n.group] || ''}</span></div><div class="flex-1 min-w-0"><div class="font-medium text-sm text-slate-800 mb-1">${highlightedLabel}</div><div class="text-xs text-slate-500 mb-1.5">${highlightedTitle}</div><div class="flex gap-1.5 flex-wrap"><span class="search-cat-badge">${catLabels[n.group]}</span><span class="search-belt-badge">${beltIcons[n.belt]} ${n.belt}</span></div></div></div></div>`;
+    }).join('')}`;
+  } else {
+    searchResults.innerHTML = `<div class="px-4 py-6 text-center"><div class="text-3xl mb-2">🔍</div><div class="text-sm text-slate-500">Ничего не найдено</div></div>`;
+  }
+  searchResults.classList.remove('hidden');
+  searchHistory.classList.add('hidden');
+}
+
+searchInput.addEventListener('input', (e) => {
+  const q = e.target.value.trim();
+  if (q.length === 0 && getSearchHistory().length > 0) { showSearchHistory(''); searchResults.classList.add('hidden'); }
+  else { searchHistory.classList.add('hidden'); performSearch(q); }
+});
+searchInput.addEventListener('focus', () => { if (searchInput.value.trim().length === 0) showSearchHistory(''); });
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.search-container')) { searchResults.classList.add('hidden'); searchHistory.classList.add('hidden'); }
+});
+searchInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') { const q = searchInput.value.trim(); if (q) { saveSearchHistory(q); searchInput.blur(); } }
+  if (e.key === 'Escape') { searchInput.value = ''; searchResults.classList.add('hidden'); searchHistory.classList.add('hidden'); searchInput.blur(); }
+});
+
+network.on('click', function(params) { if (params.nodes.length) renderNodeDetails(params.nodes[0]); });
+
+// === ТЁМНАЯ ТЕМА ===
+window.toggleDarkMode = () => {
+  document.body.classList.toggle('dark');
+  const isDark = document.body.classList.contains('dark');
+  localStorage.setItem('bjj_dark_mode', isDark);
+};
+if (localStorage.getItem('bjj_dark_mode') === 'true') { document.body.classList.add('dark'); }
+
+// === ЭКСПОРТ/ИМПОРТ ===
+window.exportProgress = () => {
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(progress));
+  const downloadAnchorNode = document.createElement('a');
+  downloadAnchorNode.setAttribute("href", dataStr);
+  downloadAnchorNode.setAttribute("download", "bjj_progress_backup.json");
+  document.body.appendChild(downloadAnchorNode);
+  downloadAnchorNode.click();
+  downloadAnchorNode.remove();
+  triggerHaptic('medium');
+};
+window.importProgress = (input) => {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    try {
+      const importedData = JSON.parse(e.target.result);
+      if (typeof importedData === 'object' && importedData !== null) {
+        progress = importedData;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+        await syncProgressToServer(progress);
+        updateGlobalProgress();
+        updateNodeColors();
+        alert('✅ Прогресс успешно восстановлен!');
+        toggleModal('infoModal');
+      } else { alert('❌ Неверный формат файла'); }
+    } catch (err) { alert('❌ Ошибка чтения файла'); }
+  };
+  reader.readAsText(file);
+  input.value = '';
+};
+
+// === ONBOARDING ===
+const onboardingSteps = [
+  { icon: "🥋", title: "Добро пожаловать!", text: "Это интерактивная карта техник БЖЖ. Изучайте последовательности и развивайтесь вместе с нами." },
+  { icon: "⚙️", title: "Настройка", text: "Нажмите на шестерёнку ⚙️, чтобы выбрать свой пояс и стиль. Карта скроет сложные техники и подстроится под вас." },
+  { icon: "📍", title: "Навигация", text: "Нажимайте на узлы графа, чтобы открыть карточки с описаниями, механикой и видео." },
+  { icon: "✅", title: "Прогресс", text: "В карточке техники отмечайте статус: 'Не начал', 'В процессе', 'Изучено'. Доступные техники подсвечиваются." },
+  { icon: "🚀", title: "Готово!", text: "Удачи на татами! Используйте новые функции: 🏋️ тренировки, ⭐ A-Game, 🤔 что делать если..., ⏱️ сценарии." }
+];
+let currentStep = 0;
+function showOnboarding() {
+  const modal = document.getElementById('onboarding-modal');
+  modal.classList.remove('hidden');
+  setTimeout(() => modal.classList.add('active'), 10);
+  renderOnboardingStep();
+}
+function renderOnboardingStep() {
+  const step = onboardingSteps[currentStep];
+  document.getElementById('onboarding-content').innerHTML = `<div class="text-4xl mb-3">${step.icon}</div><h3 class="text-lg font-bold text-slate-800 dark:text-white mb-2">${step.title}</h3><p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">${step.text}</p>`;
+  const dotsContainer = document.getElementById('onboarding-dots');
+  dotsContainer.innerHTML = onboardingSteps.map((_, i) => `<div id="onboarding-dot-${i}" style="width:${i===currentStep?16:6}px;height:6px;border-radius:${i===currentStep?4:50}%;background:${i===currentStep?'#3b82f6':'#cbd5e1'};transition:all 0.3s;"></div>`).join('');
+  const btn = document.getElementById('btn-next-onboarding');
+  btn.textContent = currentStep === onboardingSteps.length - 1 ? 'Начать' : 'Далее';
+}
+function nextOnboardingStep() {
+  triggerHaptic('light');
+  if (currentStep < onboardingSteps.length - 1) { currentStep++; renderOnboardingStep(); }
+  else closeOnboarding();
+}
+function closeOnboarding(skip = false) {
+  const modal = document.getElementById('onboarding-modal');
+  modal.classList.remove('active');
+  setTimeout(() => modal.classList.add('hidden'), 300);
+  localStorage.setItem('bjj_onboarding_seen', 'true');
+}
+
+// === ЗАПУСК ===
 initApp();
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('service-worker.js').catch(console.error);
+window.addEventListener('DOMContentLoaded', () => {
+  if (!localStorage.getItem('bjj_onboarding_seen')) setTimeout(showOnboarding, 500);
+});
+</script>
+</body>
+</html>
