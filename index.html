@@ -1907,21 +1907,21 @@ window.renderAGameModal = () => {
 window.renderDecisionModal = () => {
   const content = document.getElementById('decisionContent');
   const positions = [
-    { id: 1, label: 'Я в закрытом гарде снизу', icon: '🦵' },
-    { id: 2, label: 'Я в закрытом гарде сверху', icon: '🦶' },
-    { id: 3, label: 'Я в халф-гарде снизу', icon: '🦿' },
-    { id: 4, label: 'Я в халф-гарде сверху', icon: '🦶' },
-    { id: 5, label: 'Я в баттерфляе снизу', icon: '🦋' },
-    { id: 13, label: 'Я в сайд-контроле снизу', icon: '🛡️' },
-    { id: 14, label: 'Я в сайд-контроле сверху', icon: '⚔️' },
-    { id: 15, label: 'Я в маунте снизу', icon: '🆘' },
-    { id: 16, label: 'Я в маунте сверху', icon: '👑' },
-    { id: 17, label: 'Я контролирую спину', icon: '🎯' },
-    { id: 18, label: 'Соперник взял мою спину', icon: '🚨' },
-    { id: 19, label: 'Соперник в черепахе', icon: '🐢' },
-    { id: 21, label: 'Мы в стойке', icon: '🤼' },
-    { id: 11, label: 'Я в 50/50 гарде', icon: '⚖️' },
-    { id: 300, label: 'Я в Single Leg X', icon: '✖️' }
+    { id: 1, label: 'Я в закрытом гарде снизу', icon: '' },
+    { id: 2, label: 'Я в закрытом гарде сверху', icon: '' },
+    { id: 3, label: 'Я в халф-гарде снизу', icon: '' },
+    { id: 4, label: 'Я в халф-гарде сверху', icon: '' },
+    { id: 5, label: 'Я в баттерфляе снизу', icon: '' },
+    { id: 13, label: 'Я в сайд-контроле снизу', icon: '' },
+    { id: 14, label: 'Я в сайд-контроле сверху', icon: '' },
+    { id: 15, label: 'Я в маунте снизу', icon: '' },
+    { id: 16, label: 'Я в маунте сверху', icon: '' },
+    { id: 17, label: 'Я контролирую спину', icon: '' },
+    { id: 18, label: 'Соперник взял мою спину', icon: '' },
+    { id: 19, label: 'Соперник в черепахе', icon: '' },
+    { id: 21, label: 'Мы в стойке', icon: '' },
+    { id: 11, label: 'Я в 50/50 гарде', icon: '' },
+    { id: 300, label: 'Я в Single Leg X', icon: '' }
   ];
   content.innerHTML = `
     <div class="space-y-4">
@@ -2137,11 +2137,11 @@ function renderNodeDetails(nodeId) {
   // Difficulty
   const difficulty = n.difficulty || 1;
   const difficultyLabels = {
-    1: { label: 'Базовый', color: 'emerald', icon: '🟢' },
-    2: { label: 'Начинающий', color: 'blue', icon: '🔵' },
-    3: { label: 'Продвинутый', color: 'amber', icon: '🟡' },
-    4: { label: 'Сложный', color: 'orange', icon: '🟠' },
-    5: { label: 'Мастерский', color: 'red', icon: '🔴' }
+    1: { label: 'Базовый', color: 'emerald', icon: '' },
+    2: { label: 'Начинающий', color: 'blue', icon: '' },
+    3: { label: 'Продвинутый', color: 'amber', icon: '' },
+    4: { label: 'Сложный', color: 'orange', icon: '' },
+    5: { label: 'Мастерский', color: 'red', icon: '' }
   };
   const diffInfo = difficultyLabels[difficulty] || difficultyLabels[1];
   detailsHtml = `<div class="mb-3 p-3 bg-${diffInfo.color}-50 dark:bg-${diffInfo.color}-900/20 rounded-lg border border-${diffInfo.color}-200 dark:border-${diffInfo.color}-800"><div class="flex items-center gap-2 mb-1"><span class="text-lg">${diffInfo.icon}</span><h3 class="text-xs font-bold text-${diffInfo.color}-900 dark:text-${diffInfo.color}-200 uppercase tracking-wider">Сложность</h3></div><div class="flex items-center gap-2"><span class="text-sm font-semibold text-${diffInfo.color}-900 dark:text-${diffInfo.color}-200">${diffInfo.label}</span><div class="flex gap-0.5">${[1,2,3,4,5].map(i => `<span class="text-xs">${i <= difficulty ? '⭐' : '☆'}</span>`).join('')}</div></div></div>` + detailsHtml;
