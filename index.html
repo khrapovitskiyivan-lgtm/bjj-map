@@ -1456,9 +1456,12 @@ window.toggleModal = (modalId) => {
   });
   
   if (isActive) {
-    modal.classList.remove('active');
-    modalState[modalId] = false;
-  } else {
+modal.classList.remove('active');
+modalState[modalId] = false;
+if (modalId === 'agameModal') {
+selectedHeatmapPosition = null; // Сбрасываем выделение при закрытии
+}
+} else {
     modal.classList.add('active');
     modalState[modalId] = true;
     triggerHaptic('medium');
@@ -1853,58 +1856,59 @@ function formatTime(seconds) {
 
 // === A-GAME ANALYZER ===
 window.renderAGameModal = () => {
-  const content = document.getElementById('agameContent');
-  const done = bjjNodesData.filter(n => progress[n.id] === 'done');
-  const inProgress = bjjNodesData.filter(n => progress[n.id] === 'in_progress');
-  const categoryStats = {};
-  Object.keys(catLabels).forEach(group => {
-    const total = bjjNodesData.filter(n => n.group === group).length;
-    const doneCount = done.filter(n => n.group === group).length;
-    categoryStats[group] = { total, done: doneCount, percent: total > 0 ? Math.round((doneCount / total) * 100) : 0 };
-  });
-  const topCategories = Object.entries(categoryStats).filter(([_, s]) => s.done > 0).sort((a, b) => b[1].percent - a[1].percent).slice(0, 3);
-  const weakCategories = Object.entries(categoryStats).filter(([_, s]) => s.total > 0).sort((a, b) => a[1].percent - b[1].percent).slice(0, 3);
-  const keyPositions = [
-    { id: 1, label: 'Closed Guard' }, { id: 14, label: 'Side Control' }, { id: 16, label: 'Mount' },
-    { id: 17, label: 'Back Control' }, { id: 3, label: 'Half Guard' }, { id: 5, label: 'Butterfly' },
-    { id: 10, label: 'X-Guard' }, { id: 11, label: '50/50' }, { id: 21, label: 'Standing' }
-  ];
-  const recommendations = [];
-  if (categoryStats.submission && categoryStats.submission.percent < 30) recommendations.push({ icon: '🔒', text: 'Изучите базовые сабмишены: Armbar (30), Triangle (31), Kimura (32)' });
-  if (categoryStats.sweep && categoryStats.sweep.percent < 30) recommendations.push({ icon: '🔄', text: 'Освойте свипы из закрытого гарда: Scissors (70), Flower (71)' });
-  if (categoryStats.guard_pass && categoryStats.guard_pass.percent < 30) recommendations.push({ icon: '🚪', text: 'Изучите базовые проходы: Knee Slice (90), Toreando (93)' });
-  if (categoryStats.escape && categoryStats.escape.percent < 50) recommendations.push({ icon: '🛡️', text: 'Укрепите защиты: Upa (131), Elbow Escape (132), Shrimp (133)' });
-  if (recommendations.length === 0) recommendations.push({ icon: '✨', text: 'Отличная работа! Продолжайте изучать новые техники.' });
-  content.innerHTML = `
-    <div class="space-y-5">
-      <div class="p-4 bg-gradient-to-br from-pink-50 to-purple-50 dark:from-pink-900/20 dark:to-purple-900/20 rounded-xl border border-pink-200 dark:border-pink-800">
-        <div class="flex items-center gap-3 mb-3"><div class="text-3xl"></div><div><div class="text-sm font-bold text-pink-900 dark:text-pink-200"></div><div class="text-xs text-pink-700 dark:text-pink-300">Изучено ${done.length} из ${bjjNodesData.length} техник</div></div></div>
-        <div class="grid grid-cols-2 gap-2 text-xs">
-          <div class="p-2 bg-white dark:bg-slate-800 rounded-lg"><div class="text-pink-600 dark:text-pink-400 font-bold">${done.length}</div><div class="text-slate-500">Изучено</div></div>
-          <div class="p-2 bg-white dark:bg-slate-800 rounded-lg"><div class="text-amber-600 dark:text-amber-400 font-bold">${inProgress.length}</div><div class="text-slate-500">В процессе</div></div>
-        </div>
-      </div>
-      ${topCategories.length > 0 ? `<div class="modal-section"><div class="modal-section-title">💪 Сильные стороны</div><div class="space-y-2">${topCategories.map(([group, stats]) => `<div class="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800"><div class="flex items-center justify-between mb-1"><span class="text-sm font-semibold text-emerald-900 dark:text-emerald-200">${catLabels[group]}</span><span class="text-xs font-bold text-emerald-700 dark:text-emerald-300">${stats.percent}%</span></div><div class="stat-bar"><div class="stat-bar-fill bg-emerald-500" style="width: ${stats.percent}%"></div></div><div class="text-xs text-emerald-700 dark:text-emerald-300 mt-1">${stats.done} из ${stats.total}</div></div>`).join('')}</div></div>` : ''}
-      ${weakCategories.length > 0 ? `<div class="modal-section"><div class="modal-section-title">🎯 Точки роста</div><div class="space-y-2">${weakCategories.map(([group, stats]) => `<div class="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800"><div class="flex items-center justify-between mb-1"><span class="text-sm font-semibold text-amber-900 dark:text-amber-200">${catLabels[group]}</span><span class="text-xs font-bold text-amber-700 dark:text-amber-300">${stats.percent}%</span></div><div class="stat-bar"><div class="stat-bar-fill bg-amber-500" style="width: ${stats.percent}%"></div></div><div class="text-xs text-amber-700 dark:text-amber-300 mt-1">${stats.done} из ${stats.total}</div></div>`).join('')}</div></div>` : ''}
-      <div class="modal-section">
-        <div class="modal-section-title"> Тепловая карта позиций</div>
-        <div class="position-grid">
-          ${keyPositions.map(pos => {
-            const status = progress[pos.id];
-            const heat = status === 'done' ? 4 : status === 'in_progress' ? 2 : 0;
-            const node = bjjNodesData.find(n => n.id === pos.id);
-            return `<div class="position-cell heat-${heat}" onclick="focusNode(${pos.id}); toggleModal('agameModal')"><div class="text-lg">${groupIcons[node?.group] || '🥋'}</div><div>${pos.label}</div></div>`;
-          }).join('')}
-        </div>
-      </div>
-      <div class="modal-section">
-        <div class="modal-section-title">💡 Рекомендации</div>
-        <div class="space-y-2">
-          ${recommendations.map(rec => `<div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800 flex gap-3"><div class="text-2xl flex-shrink-0">${rec.icon}</div><div class="text-sm text-blue-900 dark:text-blue-200">${rec.text}</div></div>`).join('')}
-        </div>
-      </div>
-    </div>
-  `;
+const content = document.getElementById('agameContent');
+const done = bjjNodesData.filter(n => progress[n.id] === 'done');
+const inProgress = bjjNodesData.filter(n => progress[n.id] === 'in_progress');
+const categoryStats = {};
+Object.keys(catLabels).forEach(group => {
+const total = bjjNodesData.filter(n => n.group === group).length;
+const doneCount = done.filter(n => n.group === group).length;
+categoryStats[group] = { total, done: doneCount, percent: total > 0 ? Math.round((doneCount / total) * 100) : 0 };
+});
+const topCategories = Object.entries(categoryStats).filter(([_, s]) => s.done > 0).sort((a, b) => b[1].percent - a[1].percent).slice(0, 3);
+const weakCategories = Object.entries(categoryStats).filter(([_, s]) => s.total > 0).sort((a, b) => a[1].percent - b[1].percent).slice(0, 3);
+const keyPositions = [
+{ id: 1, label: 'Closed Guard' }, { id: 14, label: 'Side Control' }, { id: 16, label: 'Mount' },
+{ id: 17, label: 'Back Control' }, { id: 3, label: 'Half Guard' }, { id: 5, label: 'Butterfly' },
+{ id: 10, label: 'X-Guard' }, { id: 11, label: '50/50' }, { id: 21, label: 'Standing' }
+];
+const recommendations = [];
+if (categoryStats.submission && categoryStats.submission.percent < 30) recommendations.push({ icon: '🔒', text: 'Изучите базовые сабмишены: Armbar (30), Triangle (31), Kimura (32)' });
+if (categoryStats.sweep && categoryStats.sweep.percent < 30) recommendations.push({ icon: '🔄', text: 'Освойте свипы из закрытого гарда: Scissors (70), Flower (71)' });
+if (categoryStats.guard_pass && categoryStats.guard_pass.percent < 30) recommendations.push({ icon: '🚪', text: 'Изучите базовые проходы: Knee Slice (90), Toreando (93)' });
+if (categoryStats.escape && categoryStats.escape.percent < 50) recommendations.push({ icon: '🛡️', text: 'Укрепите защиты: Upa (131), Elbow Escape (132), Shrimp (133)' });
+if (recommendations.length === 0) recommendations.push({ icon: '✨', text: 'Отличная работа! Продолжайте изучать новые техники.' });
+content.innerHTML = `
+<div class="space-y-5">
+<div class="p-4 bg-gradient-to-br from-pink-50 to-purple-50 dark:from-pink-900/20 dark:to-purple-900/20 rounded-xl border border-pink-200 dark:border-pink-800">
+<div class="mb-3"><div class="text-sm text-pink-700 dark:text-pink-300">Изучено ${done.length} из ${bjjNodesData.length} техник</div></div>
+<div class="grid grid-cols-2 gap-2 text-xs">
+<div class="p-2 bg-white dark:bg-slate-800 rounded-lg"><div class="text-pink-600 dark:text-pink-400 font-bold">${done.length}</div><div class="text-slate-500">Изучено</div></div>
+<div class="p-2 bg-white dark:bg-slate-800 rounded-lg"><div class="text-amber-600 dark:text-amber-400 font-bold">${inProgress.length}</div><div class="text-slate-500">В процессе</div></div>
+</div>
+</div>
+${topCategories.length > 0 ? `<div class="modal-section"><div class="modal-section-title">💪 Сильные стороны</div><div class="space-y-2">${topCategories.map(([group, stats]) => `<div class="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800"><div class="flex items-center justify-between mb-1"><span class="text-sm font-semibold text-emerald-900 dark:text-emerald-200">${catLabels[group]}</span><span class="text-xs font-bold text-emerald-700 dark:text-emerald-300">${stats.percent}%</span></div><div class="stat-bar"><div class="stat-bar-fill bg-emerald-500" style="width: ${stats.percent}%"></div></div><div class="text-xs text-emerald-700 dark:text-emerald-300 mt-1">${stats.done} из ${stats.total}</div></div>`).join('')}</div></div>` : ''}
+${weakCategories.length > 0 ? `<div class="modal-section"><div class="modal-section-title">🎯 Точки роста</div><div class="space-y-2">${weakCategories.map(([group, stats]) => `<div class="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800"><div class="flex items-center justify-between mb-1"><span class="text-sm font-semibold text-amber-900 dark:text-amber-200">${catLabels[group]}</span><span class="text-xs font-bold text-amber-700 dark:text-amber-300">${stats.percent}%</span></div><div class="stat-bar"><div class="stat-bar-fill bg-amber-500" style="width: ${stats.percent}%"></div></div><div class="text-xs text-amber-700 dark:text-amber-300 mt-1">${stats.done} из ${stats.total}</div></div>`).join('')}</div></div>` : ''}
+<div class="modal-section">
+<div class="modal-section-title">Карта позиций</div>
+<div class="position-grid" id="heatmapGrid">
+${keyPositions.map(pos => {
+const status = progress[pos.id];
+const heat = status === 'done' ? 4 : status === 'in_progress' ? 2 : 0;
+const node = bjjNodesData.find(n => n.id === pos.id);
+const isSelected = selectedHeatmapPosition === pos.id;
+return `<div class="position-cell heat-${heat} ${isSelected ? 'ring-2 ring-blue-500 ring-offset-2 dark:ring-offset-slate-800' : ''}" onclick="selectHeatmapPosition(${pos.id})"><div class="text-lg">${groupIcons[node?.group] || '🥋'}</div><div>${pos.label}</div></div>`;
+}).join('')}
+</div>
+</div>
+<div class="modal-section">
+<div class="modal-section-title">💡 Рекомендации</div>
+<div class="space-y-2">
+${recommendations.map(rec => `<div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800 flex gap-3"><div class="text-2xl flex-shrink-0">${rec.icon}</div><div class="text-sm text-blue-900 dark:text-blue-200">${rec.text}</div></div>`).join('')}
+</div>
+</div>
+</div>
+`;
 };
 
 // === DECISION TREE ===
@@ -1944,6 +1948,21 @@ window.renderDecisionModal = () => {
   `;
 };
 
+window.selectHeatmapPosition = (posId) => {
+selectedHeatmapPosition = posId;
+// Обновляем визуальное выделение
+document.querySelectorAll('#heatmapGrid .position-cell').forEach((cell, idx) => {
+const keyPositions = [1, 14, 16, 17, 3, 5, 10, 11, 21];
+if (keyPositions[idx] === posId) {
+cell.classList.add('ring-2', 'ring-blue-500', 'ring-offset-2', 'dark:ring-offset-slate-800');
+} else {
+cell.classList.remove('ring-2', 'ring-blue-500', 'ring-offset-2', 'dark:ring-offset-slate-800');
+}
+});
+// Фокусируемся на узле в графе
+focusNode(posId);
+triggerHaptic('light');
+};
 window.showDecisionOptions = (positionId) => {
   const optionsDiv = document.getElementById('decisionOptions');
   const position = bjjNodesData.find(n => n.id === positionId);
@@ -1993,6 +2012,7 @@ const scenarios = [
   { id: 'turtle_attack', title: 'Атака черепахи', icon: '', description: 'Начните из позиции сверху в черепахе. Цель: взять спину или сабмишен.', startPositions: [19], goalPositions: [17], duration: 120 }
 ];
 
+let selectedHeatmapPosition = null;
 let activeScenario = null, scenarioTimer = null, scenarioTimeLeft = 0;
 
 window.renderScenarioModal = () => {
