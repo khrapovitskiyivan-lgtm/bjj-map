@@ -280,21 +280,9 @@ body.dark .bottom-sheet-handle {
 body.dark .bottom-sheet-handle:hover {
   background: rgba(148, 163, 184, 0.6);
 }
-  /* Плавное появление контента внутри sheet */
-.bottom-sheet.active .bottom-sheet-content {
-  animation: fadeSlideUp 0.4s ease-out 0.1s both;
-}
-
-@keyframes fadeSlideUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+.bottom-sheet.active { transform: translateY(0); }
+.bottom-sheet-handle { width: 40px; height: 4px; background: #cbd5e0; border-radius: 2px; margin: 12px auto; cursor: grab; }
+body.dark .bottom-sheet-handle { background: #475569; }
 .bottom-sheet-content { padding: 0 20px 20px; }
 body.dark header { background: #1e293b; border-color: #334155; }
 body.dark .bg-white { background: #1e293b; }
