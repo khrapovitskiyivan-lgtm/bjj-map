@@ -16,7 +16,11 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 /* === РАЗМЫТИЕ ФОНА ПРИ ТАЙМЕРЕ === */
-.app-blurred {
+body.app-blurred header,
+body.app-blurred main,
+body.app-blurred .fab-container,
+body.app-blurred .bottom-sheet,
+body.app-blurred .bottom-sheet-overlay {
 filter: blur(8px) brightness(0.7);
 pointer-events: none;
 transition: filter 0.3s ease;
@@ -615,7 +619,7 @@ body.dark .icon-btn:hover { background: #475569; }
 <div class="modal-overlay style-modal" id="styleModal">
   <div class="modal-container">
     <div class="modal-handle"></div>
-    <div class="modal-header"><h2>🎯 Стиль и уровень</h2><button class="modal-close" onclick="toggleModal('styleModal')">×</button></div>
+    <div class="modal-header"><h2> Стиль и уровень</h2><button class="modal-close" onclick="toggleModal('styleModal')">×</button></div>
     <div class="modal-body" id="styleContent"></div>
   </div>
 </div>
