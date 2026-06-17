@@ -15,7 +15,7 @@
 <script src="https://telegram.org/js/telegram-web-app.js" onerror="console.log('Telegram Web App недоступен')"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-  /* === РАЗМЫТИЕ ФОНА ПРИ ТАЙМЕРЕ === */
+/* === РАЗМЫТИЕ ФОНА ПРИ ТАЙМЕРЕ === */
 .app-blurred {
 filter: blur(8px) brightness(0.7);
 pointer-events: none;
@@ -1823,7 +1823,7 @@ document.body.classList.add('app-blurred');
 
 const overlay = document.createElement('div');
 overlay.id = 'workoutTimerOverlay';
-overlay.className = 'fixed inset-0 bg-black/80 backdrop-blur-sm z-[2000] flex items-center justify-center';
+overlay.className = 'fixed inset-0 bg-black/80 z-[2000] flex items-center justify-center';
 overlay.innerHTML = `<div class="text-center"><div class="scenario-timer" id="workoutTimerDisplay">${formatTime(workoutTimeLeft)}</div><button onclick="stopWorkoutTimer()" class="btn-secondary mt-4">Остановить</button></div>`;
 document.body.appendChild(overlay);
 workoutTimer = setInterval(() => {
@@ -2014,7 +2014,7 @@ window.startScenario = (scenarioId) => {
   if (!scenario) return;
   activeScenario = scenario;
   scenarioTimeLeft = scenario.duration;
-document.body.classList.add('app-blurred');
+  document.body.classList.add('app-blurred');
   toggleModal('scenarioModal');
   const overlay = document.createElement('div');
   overlay.id = 'scenarioOverlay';
@@ -2049,6 +2049,8 @@ window.focusScenarioPosition = () => {
 };
 
 window.stopScenario = () => {
+  // 🔵 ДОБАВЬТЕ ЭТУ СТРОКУ — убираем размытие
+document.body.classList.remove('app-blurred');
   if (scenarioTimer) { clearInterval(scenarioTimer); scenarioTimer = null; }
   const overlay = document.getElementById('scenarioOverlay');
   if (overlay) overlay.remove();
