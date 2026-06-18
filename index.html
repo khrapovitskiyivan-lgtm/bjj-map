@@ -1921,56 +1921,56 @@ document.addEventListener('keydown', (e) => {
 let giFilterState = 'gi', currentCategoryFilter = null, currentRule = 'none';
 
 function renderSettingsModal() {
-  const content = document.getElementById('settingsContent');
-  content.innerHTML = `
-    <div class="space-y-5">
-      <div class="modal-section">
-        <div class="modal-section-title"> Тема оформления</div>
-        <button onclick="toggleDarkMode()" class="w-full p-3 bg-slate-100 dark:bg-slate-700 rounded-xl font-medium flex items-center justify-between">
-          <span>Тёмная тема</span>
-          <div class="w-12 h-6 rounded-full p-1 transition ${document.body.classList.contains('dark') ? 'bg-blue-500' : 'bg-slate-300'}">
-            <div class="w-4 h-4 rounded-full bg-white transition ${document.body.classList.contains('dark') ? 'translate-x-6' : ''}"></div>
-          </div>
-        </button>
-      </div>
-      <div class="modal-section">
-        <div class="modal-section-title"> Формат</div>
-        <div class="flex gap-2">
-          <button onclick="toggleGiFilter()" class="flex-1 py-3 rounded-xl bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-sm font-medium ${giFilterState === 'gi' ? 'bg-blue-500 text-white border-blue-500' : ''}">🥋 Gi</button>
-          <button onclick="toggleNogiFilter()" class="flex-1 py-3 rounded-xl bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-sm font-medium ${giFilterState === 'nogi' ? 'bg-blue-500 text-white border-blue-500' : ''}">🩳 No-Gi</button>
-        </div>
-      </div>
-      <div class="modal-section">
-        <div class="modal-section-title"> Правила</div>
-        <div class="flex gap-2 flex-wrap">
-          <button class="filter-chip ${currentRule === 'none' ? 'active' : ''}" onclick="setRule('none')">Без ограничений</button>
-          <button class="filter-chip ${currentRule === 'ibjjf_gi' ? 'active' : ''}" onclick="setRule('ibjjf_gi')">IBJJF Gi</button>
-          <button class="filter-chip ${currentRule === 'ibjjf_nogi' ? 'active' : ''}" onclick="setRule('ibjjf_nogi')">IBJJF No-Gi</button>
-          <button class="filter-chip ${currentRule === 'adcc' ? 'active' : ''}" onclick="setRule('adcc')">ADCC</button>
-        </div>
-      </div>
-      <div class="modal-section">
-        <div class="modal-section-title"> Категории</div>
-        <div class="flex gap-2 flex-wrap">
-          <button class="filter-chip ${currentCategoryFilter === null ? 'active' : ''}" onclick="setCategoryFilter(null)">Все</button>
-          <button class="filter-chip ${currentCategoryFilter === 'position' ? 'active' : ''}" onclick="setCategoryFilter('position')"> Позиции</button>
-          <button class="filter-chip ${currentCategoryFilter === 'submission' ? 'active' : ''}" onclick="setCategoryFilter('submission')"> Сабмишены</button>
-          <button class="filter-chip ${currentCategoryFilter === 'sweep' ? 'active' : ''}" onclick="setCategoryFilter('sweep')"> Свипы</button>
-          <button class="filter-chip ${currentCategoryFilter === 'guard_pass' ? 'active' : ''}" onclick="setCategoryFilter('guard_pass')"> Проходы</button>
-          <button class="filter-chip ${currentCategoryFilter === 'takedown' ? 'active' : ''}" onclick="setCategoryFilter('takedown')"> Тейкдауны</button>
-          <button class="filter-chip ${currentCategoryFilter === 'escape' ? 'active' : ''}" onclick="setCategoryFilter('escape')"> Защиты</button>
-          <button class="filter-chip ${currentCategoryFilter === 'transition' ? 'active' : ''}" onclick="setCategoryFilter('transition')"> Переходы</button>
-        </div>
-      </div>
-      <div class="modal-section">
-        <div class="modal-section-title"> Стиль и уровень</div>
-        <button onclick="toggleModal('settingsModal'); setTimeout(() => toggleModal('styleModal'), 200)" class="w-full p-3 bg-blue-500 text-white rounded-xl font-medium flex items-center justify-center gap-2">
-          <span>Настроить профиль</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-        </button>
-      </div>
-    </div>
-  `;
+const content = document.getElementById('settingsContent');
+const isDark = document.body.classList.contains('dark');
+content.innerHTML = `
+<div class="space-y-5">
+<div class="modal-section">
+<div class="modal-section-title"> Тема оформления</div>
+<button onclick="toggleDarkMode()" class="w-full p-3 rounded-xl font-medium flex items-center justify-between transition" style="background:var(--bg-tertiary);color:var(--text-primary);border:1px solid var(--border-light)">
+<span>Тёмная тема</span>
+<div class="w-12 h-6 rounded-full p-1 transition" style="background:${isDark ? 'var(--text-primary)' : 'var(--border-medium)'}">
+<div class="w-4 h-4 rounded-full transition" style="background:${isDark ? 'var(--bg-secondary)' : 'white'};transform:translateX(${isDark ? '24px' : '0'})"></div>
+</div>
+</button>
+</div>
+<div class="modal-section">
+<div class="modal-section-title"> Формат</div>
+<div class="flex gap-2">
+<button onclick="toggleGiFilter()" class="flex-1 py-3 rounded-xl text-sm font-medium transition" style="background:${giFilterState === 'gi' ? 'var(--text-primary)' : 'var(--bg-tertiary)'};color:${giFilterState === 'gi' ? 'var(--bg-secondary)' : 'var(--text-primary)'};border:1px solid ${giFilterState === 'gi' ? 'var(--text-primary)' : 'var(--border-light)'}">🥋 Gi</button>
+<button onclick="toggleNogiFilter()" class="flex-1 py-3 rounded-xl text-sm font-medium transition" style="background:${giFilterState === 'nogi' ? 'var(--text-primary)' : 'var(--bg-tertiary)'};color:${giFilterState === 'nogi' ? 'var(--bg-secondary)' : 'var(--text-primary)'};border:1px solid ${giFilterState === 'nogi' ? 'var(--text-primary)' : 'var(--border-light)'}">🩳 No-Gi</button>
+</div>
+</div>
+<div class="modal-section">
+<div class="modal-section-title"> Правила</div>
+<div class="flex gap-2 flex-wrap">
+<button class="filter-chip ${currentRule === 'none' ? 'active' : ''}" onclick="setRule('none')">Без ограничений</button>
+<button class="filter-chip ${currentRule === 'ibjjf_gi' ? 'active' : ''}" onclick="setRule('ibjjf_gi')">IBJJF Gi</button>
+<button class="filter-chip ${currentRule === 'ibjjf_nogi' ? 'active' : ''}" onclick="setRule('ibjjf_nogi')">IBJJF No-Gi</button>
+<button class="filter-chip ${currentRule === 'adcc' ? 'active' : ''}" onclick="setRule('adcc')">ADCC</button>
+</div>
+</div>
+<div class="modal-section">
+<div class="modal-section-title"> Категории</div>
+<div class="flex gap-2 flex-wrap">
+<button class="filter-chip ${currentCategoryFilter === null ? 'active' : ''}" onclick="setCategoryFilter(null)">Все</button>
+<button class="filter-chip ${currentCategoryFilter === 'position' ? 'active' : ''}" onclick="setCategoryFilter('position')"> Позиции</button>
+<button class="filter-chip ${currentCategoryFilter === 'submission' ? 'active' : ''}" onclick="setCategoryFilter('submission')"> Сабмишены</button>
+<button class="filter-chip ${currentCategoryFilter === 'sweep' ? 'active' : ''}" onclick="setCategoryFilter('sweep')"> Свипы</button>
+<button class="filter-chip ${currentCategoryFilter === 'guard_pass' ? 'active' : ''}" onclick="setCategoryFilter('guard_pass')"> Проходы</button>
+<button class="filter-chip ${currentCategoryFilter === 'takedown' ? 'active' : ''}" onclick="setCategoryFilter('takedown')"> Тейкдауны</button>
+<button class="filter-chip ${currentCategoryFilter === 'escape' ? 'active' : ''}" onclick="setCategoryFilter('escape')"> Защиты</button>
+<button class="filter-chip ${currentCategoryFilter === 'transition' ? 'active' : ''}" onclick="setCategoryFilter('transition')"> Переходы</button>
+</div>
+</div>
+<div class="modal-section">
+<div class="modal-section-title"> Стиль и уровень</div>
+<button onclick="toggleModal('settingsModal'); setTimeout(() => toggleModal('styleModal'), 200)" class="w-full p-3 rounded-xl font-medium flex items-center justify-center gap-2 transition" style="background:var(--bg-tertiary);color:var(--text-primary);border:1px solid var(--border-light)">
+<span>Настроить профиль</span>
+<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+</button>
+</div>
+`;
 }
 
 window.toggleGiFilter = () => { giFilterState = 'gi'; applyAllFilters(); renderSettingsModal(); triggerHaptic('light'); };
