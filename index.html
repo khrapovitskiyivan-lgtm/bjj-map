@@ -1100,13 +1100,19 @@ transition: filter 0.3s ease;
 
 <script>
 // === TELEGRAM + SUPABASE ===
+// === TELEGRAM + SUPABASE ===
 if (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp) {
-  try { window.Telegram.WebApp.ready(); window.Telegram.WebApp.expand(); } catch (e) {}
+try { 
+window.Telegram.WebApp.ready(); 
+window.Telegram.WebApp.expand();
+// Запрос полноэкранного режима
+if (window.Telegram.WebApp.requestFullscreen) {
+window.Telegram.WebApp.requestFullscreen();
 }
-const triggerHaptic = (type = 'light') => {
-  if (typeof window.Telegram !== 'undefined' && window.Telegram?.WebApp?.HapticFeedback) window.Telegram.WebApp.HapticFeedback.impactOccurred(type);
-  else if (navigator.vibrate) navigator.vibrate(type === 'light' ? 10 : 30);
-};
+// Устанавливаем цвет темы
+document.documentElement.style.setProperty('--tg-theme-bg-color', window.Telegram.WebApp.backgroundColor || '#fafafa');
+} catch (e) { console.log('Telegram WebApp error:', e); }
+}
 
 function showToast(message, duration = 2500) {
   const toast = document.getElementById('toast');
