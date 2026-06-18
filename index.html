@@ -470,7 +470,7 @@ border-color: var(--border-medium);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.25s ease;
-  z-index: 998;
+  z-index: 1050;
 }
 .bottom-sheet-overlay.active { opacity: 1; pointer-events: auto; }
 .bottom-sheet {
@@ -484,7 +484,7 @@ border-color: var(--border-medium);
   box-shadow: var(--shadow-lg);
   transform: translateY(100%);
   transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
-  z-index: 999;
+  z-index: 1051;
   max-height: 90vh;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -1897,13 +1897,23 @@ selectedHeatmapPosition = null; // Сбрасываем выделение пр�
 };
 
 document.querySelectorAll('.modal-overlay').forEach(overlay => {
-  overlay.addEventListener('click', function(e) {
-    if (e.target === this) {
-      this.classList.remove('active');
-      const modalId = this.id;
-      if (modalState[modalId] !== undefined) modalState[modalId] = false;
-    }
-  });
+overlay.addEventListener('click', function(e) {
+if (e.target === this) {
+// 🔵 Если открыта карточка техники - сначала закрываем её
+const bottomSheet = document.getElementById('bottomSheet');
+const bottomSheetOverlay = document.getElementById('bottomSheetOverlay');
+if (bottomSheet.classList.contains('active')) {
+bottomSheet.classList.remove('active');
+bottomSheetOverlay.classList.remove('active');
+bottomSheet.style.transform = '';
+return; // Не закрываем модалку в этот клик
+}
+// 🔵 Если карточка техники уже закрыта - закрываем модалку
+this.classList.remove('active');
+const modalId = this.id;
+if (modalState[modalId] !== undefined) modalState[modalId] = false;
+}
+});
 });
 
 document.addEventListener('keydown', (e) => {
