@@ -2232,11 +2232,36 @@ const keyPositions = [
 { id: 10, label: 'X-Guard' }, { id: 11, label: '50/50' }, { id: 21, label: 'Standing' }
 ];
 const recommendations = [];
-if (categoryStats.submission && categoryStats.submission.percent < 30) recommendations.push({ icon: '🔒', text: 'Изучите базовые сабмишены: Armbar (30), Triangle (31), Kimura (32)' });
-if (categoryStats.sweep && categoryStats.sweep.percent < 30) recommendations.push({ icon: '🔄', text: 'Освойте свипы из закрытого гарда: Scissors (70), Flower (71)' });
-if (categoryStats.guard_pass && categoryStats.guard_pass.percent < 30) recommendations.push({ icon: '🚪', text: 'Изучите базовые проходы: Knee Slice (90), Toreando (93)' });
-if (categoryStats.escape && categoryStats.escape.percent < 50) recommendations.push({ icon: '🛡️', text: 'Укрепите защиты: Upa (131), Elbow Escape (132), Shrimp (133)' });
-if (recommendations.length === 0) recommendations.push({ icon: '✨', text: 'Отличная работа! Продолжайте изучать новые техники.' });
+const userBelt = styleProfile.belt || 'white';
+
+if (userBelt === 'white') {
+if (categoryStats.escape && categoryStats.escape.percent < 50) recommendations.push({ icon: '🛡️', text: 'Белый пояс: укрепите защиты — Upa (131), Elbow Escape (132), Shrimp (133), Back Defense (134)' });
+if (categoryStats.guard_pass && categoryStats.guard_pass.percent < 30) recommendations.push({ icon: '🚪', text: 'Белый пояс: изучите базовые проходы — Knee Slice (90), Toreando (93), Stack (99)' });
+if (categoryStats.position && categoryStats.position.percent < 40) recommendations.push({ icon: '📍', text: 'Белый пояс: освойте базовые позиции — Side Control (14), Mount (16), Back Control (17)' });
+if (categoryStats.takedown && categoryStats.takedown.percent < 20) recommendations.push({ icon: '🤼', text: 'Белый пояс: изучите базовые тейкдауны — Double Leg (150), Single Leg (151)' });
+} else if (userBelt === 'blue') {
+if (categoryStats.submission && categoryStats.submission.percent < 30) recommendations.push({ icon: '🔒', text: 'Синий пояс: изучите базовые сабмишены — Armbar (30), Triangle (31), Kimura (32), RNC (42)' });
+if (categoryStats.sweep && categoryStats.sweep.percent < 30) recommendations.push({ icon: '🔄', text: 'Синий пояс: освойте свипы — Butterfly (73), Tripod (76), Spider Scissors (75)' });
+if (categoryStats.guard_pass && categoryStats.guard_pass.percent < 40) recommendations.push({ icon: '🚪', text: 'Синий пояс: продвинутые проходы — Leg Drag (94), Long Step (95)' });
+if (categoryStats.escape && categoryStats.escape.percent < 60) recommendations.push({ icon: '🛡️', text: 'Синий пояс: защиты от сабмишенов — Armbar Escape (136), Triangle Defense (135)' });
+} else if (userBelt === 'purple') {
+if (categoryStats.submission && categoryStats.submission.percent < 40) recommendations.push({ icon: '🔒', text: 'Фиолетовый пояс: D\'Arce (57), Anaconda (58), Bow & Arrow (55), Leg Locks' });
+if (categoryStats.sweep && categoryStats.sweep.percent < 40) recommendations.push({ icon: '🔄', text: 'Фиолетовый пояс: Berimbolo (320), X-Guard Sweep (74), Deep Half (80)' });
+if (categoryStats.transition && categoryStats.transition.percent < 30) recommendations.push({ icon: '➡️', text: 'Фиолетовый пояс: цепочки атак — Triangle to Armbar (351), Armbar to Omoplata (352)' });
+if (categoryStats.position && categoryStats.position.percent < 50) recommendations.push({ icon: '📍', text: 'Фиолетовый пояс: продвинутые позиции — X-Guard (10), 50/50 (11), Single Leg X (300)' });
+} else if (userBelt === 'brown' || userBelt === 'black') {
+if (categoryStats.submission && categoryStats.submission.percent < 50) recommendations.push({ icon: '🔒', text: 'Коричневый/Чёрный пояс: Heel Hook (52), Twister (359), Cattle Mutilation (360)' });
+if (categoryStats.position && categoryStats.position.percent < 60) recommendations.push({ icon: '📍', text: 'Коричневый/Чёрный пояс: Worm Guard (302), Rubber Guard (380), Lasso (364)' });
+if (categoryStats.guard_pass && categoryStats.guard_pass.percent < 50) recommendations.push({ icon: '🚪', text: 'Коричневый/Чёрный пояс: Saddle Pass (328), Honeyhole (334), Bulldog (330)' });
+if (categoryStats.escape && categoryStats.escape.percent < 70) recommendations.push({ icon: '🛡️', text: 'Коричневый/Чёрный пояс: Heel Hook Escape (137), Matrix Escape (447)' });
+}
+
+if (recommendations.length === 0) {
+if (userBelt === 'white') recommendations.push({ icon: '✨', text: 'Отличная база! Продолжайте изучать фундаментальные техники.' });
+else if (userBelt === 'blue') recommendations.push({ icon: '✨', text: 'Отличный прогресс! Развивайте свой A-Game.' });
+else if (userBelt === 'purple') recommendations.push({ icon: '✨', text: 'Вы на пути к мастерству! Работайте над цепочками.' });
+else recommendations.push({ icon: '✨', text: 'Мастерский уровень! Продолжайте оттачивать детали.' });
+}
 content.innerHTML = `
 <div class="space-y-5">
 <div class="p-4 bg-gradient-to-br from-pink-50 to-purple-50 dark:from-pink-900/20 dark:to-purple-900/20 rounded-xl border border-pink-200 dark:border-pink-800">
