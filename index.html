@@ -2457,12 +2457,24 @@ window.startScenario = (scenarioId) => {
 };
 
 window.focusScenarioPosition = () => {
-  if (!activeScenario || activeScenario.startPositions.length === 0) return;
-  const firstPosId = activeScenario.startPositions[0];
-  const overlay = document.getElementById('scenarioOverlay');
-  if (overlay) overlay.style.display = 'none';
-  focusNode(firstPosId);
-  setTimeout(() => { if (overlay) overlay.style.display = 'flex'; }, 1000);
+if (!activeScenario || activeScenario.startPositions.length === 0) return;
+const firstPosId = activeScenario.startPositions[0];
+
+// 🔵 Убираем размытие фона, чтобы граф был виден
+document.body.classList.remove('app-blurred');
+
+// Скрываем overlay полностью
+const overlay = document.getElementById('scenarioOverlay');
+if (overlay) overlay.style.display = 'none';
+
+// Фокусируемся на узле
+focusNode(firstPosId);
+
+// 🔵 Через 4 секунды возвращаем размытие и показываем overlay
+setTimeout(() => {
+document.body.classList.add('app-blurred');
+if (overlay) overlay.style.display = 'flex';
+}, 4000);
 };
 
 window.stopScenario = () => {
