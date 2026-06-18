@@ -394,24 +394,22 @@ color: #f5f5f5;
 }
 
 /* === FAB BUTTONS === */
-/* === НИЖНЯЯ НАВИГАЦИОННАЯ ПАНЕЛЬ (BOTTOM NAV) === */
 /* === НИЖНЯЯ НАВИГАЦИОННАЯ ПАНЕЛЬ === */
 .bottom-nav-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 65px;
-  padding-bottom: calc(12px + env(safe-area-inset-bottom)); /* Поднята выше */
-  background: var(--bg-secondary);
-  border-top: 1px solid var(--bg-hover);
-  display: flex;
-  justify-content: space-around;
-  align-items: flex-start; /* Выравнивание по верху */
-  padding-top: 8px;
-  z-index: 1000;
-  box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
-  backdrop-filter: blur(10px);
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 68px;
+    padding-bottom: env(safe-area-inset-bottom); /* Учитываем safe area */
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border-light);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 1000;
+    box-shadow: 0 -2px 12px rgba(0,0,0,0.08);
+    backdrop-filter: blur(10px);
 }
 
 .nav-btn {
@@ -446,38 +444,50 @@ color: #f5f5f5;
     letter-spacing: 0.3px;
 }
 
-/* === КНОПКА ЦЕНТРИРОВАНИЯ (ПЕРЕНЕСЕНА) === */
-/* Кнопка центрирования - перемещена в правый нижний угол */
+/* === КНОПКА ЦЕНТРИРОВАНИЯ === */
 .fit-graph-fixed {
-  position: fixed;
-  bottom: 85px; /* Над нижней панелью */
-  right: 16px;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-light);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--accent);
-  z-index: 999;
-  cursor: pointer;
-  transition: all 0.2s ease;
+    position: fixed;
+    bottom: calc(75px + env(safe-area-inset-bottom)); /* Над нижним меню */
+    right: 16px;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: none;
+    box-shadow: 0 4px 16px rgba(59, 130, 246, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    z-index: 999;
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 
 .fit-graph-fixed:active {
-  transform: scale(0.92);
-  background: var(--accent);
-  color: white;
+    transform: scale(0.92);
+    background: var(--accent-hover);
+}
+
+.fit-graph-fixed svg {
+    width: 26px;
+    height: 26px;
 }
 
 /* === ОТСТУП ДЛЯ ОСНОВНОГО КОНТЕНТА === */
 /* Чтобы граф не перекрывался нижней панелью */
 body {
-  padding-bottom: calc(77px + env(safe-area-inset-bottom)); /* Увеличен отступ */
-  padding-top: env(safe-area-inset-top);
+    padding-bottom: calc(68px + env(safe-area-inset-bottom));
+}
+  @media (max-height: 700px) {
+    .bottom-nav-bar {
+        height: 64px;
+    }
+    .fit-graph-fixed {
+        bottom: calc(72px + env(safe-area-inset-bottom));
+        width: 48px;
+        height: 48px;
+    }
 }
 /* Скрываем старый fab-container, если он остался в DOM */
 .fab-container {
@@ -1009,6 +1019,94 @@ transition: filter 0.3s ease;
   .fab-btn { width: 44px; height: 44px; }
 .legend-container { bottom: 10px; left: 10px; font-size: 7px; padding: 6px 8px; max-width: 120px; }
 }
+  /* === СКРЫВАЕМ ЗАГОЛОВОК В ПРИЛОЖЕНИИ (переносим в Telegram) === */
+header h1 {
+    display: none !important;
+}
+
+/* === КНОПКА ЦЕНТРИРОВАНИЯ (FAB) === */
+.fit-graph-fixed {
+    position: fixed;
+    bottom: calc(72px + env(safe-area-inset-bottom));
+    right: 16px;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: none;
+    box-shadow: 0 4px 16px rgba(59, 130, 246, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    z-index: 999;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.fit-graph-fixed:active {
+    transform: scale(0.92);
+    background: var(--accent-hover);
+}
+.fit-graph-fixed svg {
+    width: 26px;
+    height: 26px;
+}
+
+/* === НИЖНЯЯ НАВИГАЦИОННАЯ ПАНЕЛЬ === */
+.bottom-nav-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 68px;
+    padding-bottom: env(safe-area-inset-bottom);
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border-light);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 1000;
+    box-shadow: 0 -2px 12px rgba(0,0,0,0.08);
+    backdrop-filter: blur(10px);
+}
+.nav-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: var(--text-tertiary, #94a3b8);
+    font-size: 10px;
+    font-weight: 600;
+    gap: 4px;
+    padding: 8px 12px;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+.nav-btn:active {
+    color: #3b82f6;
+    background: rgba(59, 130, 246, 0.1);
+    transform: scale(0.95);
+}
+.nav-btn.agame {
+    color: #f59e0b;
+}
+.nav-label {
+    letter-spacing: 0.3px;
+}
+
+/* Отступ для контента, чтобы не перекрывался панелью */
+body {
+    padding-bottom: calc(68px + env(safe-area-inset-bottom)) !important;
+}
+
+/* Скрываем старый fab-container */
+.fab-container {
+    display: none !important;
+}
 </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -1065,10 +1163,15 @@ transition: filter 0.3s ease;
     <div class="legend-item"><div class="legend-line setup"></div><span>Сетап / Контратака</span></div>
   </div>
   
-  <!-- FAB КНОПКИ -->
-<!-- Кнопка центрирования (перенесена наверх/вбок) -->
-<button onclick="fitGraph()" class="fab-btn primary fit-graph-fixed" title="Центрировать граф">
-    <!-- SVG иконка центрирования -->
+<!-- Кнопка центрирования - вынесена из fab-container -->
+<button onclick="fitGraph()" class="fit-graph-fixed" title="Центрировать граф">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 3 21 3 21 9"></polyline>
+        <polyline points="9 21 3 21 3 15"></polyline>
+        <line x1="21" y1="3" x2="14" y2="10"></line>
+        <line x1="3" y1="21" x2="10" y2="14"></line>
+        <circle cx="12" cy="12" r="3"></circle>
+    </svg>
 </button>
 
 <!-- Нижняя панель с 4 кнопками -->
@@ -1194,18 +1297,22 @@ transition: filter 0.3s ease;
 
 <script>
 // === TELEGRAM + SUPABASE ===
-// === TELEGRAM + SUPABASE ===
 if (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp) {
-try { 
-window.Telegram.WebApp.ready(); 
-window.Telegram.WebApp.expand();
-// Запрос полноэкранного режима
-if (window.Telegram.WebApp.requestFullscreen) {
-window.Telegram.WebApp.requestFullscreen();
-}
-// Устанавливаем цвет темы
-document.documentElement.style.setProperty('--tg-theme-bg-color', window.Telegram.WebApp.backgroundColor || '#fafafa');
-} catch (e) { console.log('Telegram WebApp error:', e); }
+    try { 
+        window.Telegram.WebApp.ready(); 
+        window.Telegram.WebApp.expand();
+        
+        // Устанавливаем заголовок в нативной панели Telegram
+        window.Telegram.WebApp.setHeaderColor('#3b82f6'); // Синий цвет шапки
+        window.Telegram.WebApp.setTitle('🥋 BJJ Map'); // Заголовок приложения
+        
+        // Скрываем кнопку MainButton если есть
+        if (window.Telegram.WebApp.MainButton) {
+            window.Telegram.WebApp.MainButton.hide();
+        }
+    } catch (e) {
+        console.log('Telegram header setup error:', e);
+    }
 }
 
 function showToast(message, duration = 2500) {
