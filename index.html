@@ -270,7 +270,76 @@ header h1 .text-blue-500 {
   touch-action: pan-y;
   color: var(--text-primary);
 }
-
+/* === ЕДИНЫЙ СТИЛЬ ЗАГОЛОВКОВ МОДАЛОК === */
+.settings-modal .modal-header,
+.progress-modal .modal-header,
+.style-modal .modal-header,
+.info-modal .modal-header,
+.workout-modal .modal-header,
+.agame-modal .modal-header,
+.decision-modal .modal-header,
+.scenario-modal .modal-header {
+background: white;
+color: #1a1a1a;
+border: none;
+border-bottom: 1px solid #e5e7eb;
+}
+body.dark .settings-modal .modal-header,
+body.dark .progress-modal .modal-header,
+body.dark .style-modal .modal-header,
+body.dark .info-modal .modal-header,
+body.dark .workout-modal .modal-header,
+body.dark .agame-modal .modal-header,
+body.dark .decision-modal .modal-header,
+body.dark .scenario-modal .modal-header {
+background: #141414;
+color: #f5f5f5;
+border-bottom-color: #27272a;
+}
+.settings-modal .modal-header h2,
+.progress-modal .modal-header h2,
+.style-modal .modal-header h2,
+.info-modal .modal-header h2,
+.workout-modal .modal-header h2,
+.agame-modal .modal-header h2,
+.decision-modal .modal-header h2,
+.scenario-modal .modal-header h2 {
+font-size: 17px;
+font-weight: 600;
+letter-spacing: -0.2px;
+}
+.settings-modal .modal-close,
+.progress-modal .modal-close,
+.style-modal .modal-close,
+.info-modal .modal-close,
+.workout-modal .modal-close,
+.agame-modal .modal-close,
+.decision-modal .modal-close,
+.scenario-modal .modal-close {
+color: #9ca3af;
+}
+.settings-modal .modal-close:hover,
+.progress-modal .modal-close:hover,
+.style-modal .modal-close:hover,
+.info-modal .modal-close:hover,
+.workout-modal .modal-close:hover,
+.agame-modal .modal-close:hover,
+.decision-modal .modal-close:hover,
+.scenario-modal .modal-close:hover {
+background: #f0f0f2;
+color: #1a1a1a;
+}
+body.dark .settings-modal .modal-close:hover,
+body.dark .progress-modal .modal-close:hover,
+body.dark .style-modal .modal-close:hover,
+body.dark .info-modal .modal-close:hover,
+body.dark .workout-modal .modal-close:hover,
+body.dark .agame-modal .modal-close:hover,
+body.dark .decision-modal .modal-close:hover,
+body.dark .scenario-modal .modal-close:hover {
+background: #222222;
+color: #f5f5f5;
+}
 /* === MODAL TABS === */
 .modal-tabs {
   display: flex;
@@ -948,7 +1017,7 @@ transition: filter 0.3s ease;
 <div class="modal-overlay settings-modal" id="settingsModal">
   <div class="modal-container">
     <div class="modal-handle"></div>
-    <div class="modal-header"><h2>⚙️ Настройки</h2><button class="modal-close" onclick="toggleModal('settingsModal')">×</button></div>
+    <div class="modal-header"><h2> НАСТРОЙКИ</h2><button class="modal-close" onclick="toggleModal('settingsModal')">×</button></div>
     <div class="modal-body" id="settingsContent"></div>
   </div>
 </div>
