@@ -2146,6 +2146,7 @@ let workoutTimer = null, workoutTimeLeft = 0;
 window.startWorkoutTimer = (minutes) => {
 workoutTimeLeft = minutes * 60;
 toggleModal('workoutModal');
+document.body.classList.add('app-blurred');
 
 // 🔵 ДОБАВЬТЕ ЭТУ СТРОКУ — размываем фон
 document.body.classList.add('app-blurred');
@@ -2166,8 +2167,6 @@ window.stopWorkoutTimer = () => {
 if (workoutTimer) { clearInterval(workoutTimer); workoutTimer = null; }
 const overlay = document.getElementById('workoutTimerOverlay');
 if (overlay) overlay.remove();
-
-// 🔵 ДОБАВЬТЕ ЭТУ СТРОКУ — убираем размытие
 document.body.classList.remove('app-blurred');
 };
 function formatTime(seconds) {
@@ -2398,12 +2397,12 @@ window.renderScenarioModal = () => {
 };
 
 window.startScenario = (scenarioId) => {
-  const scenario = scenarios.find(s => s.id === scenarioId);
-  if (!scenario) return;
-  activeScenario = scenario;
-  scenarioTimeLeft = scenario.duration;
-  document.body.classList.add('app-blurred');
-  toggleModal('scenarioModal');
+const scenario = scenarios.find(s => s.id === scenarioId);
+if (!scenario) return;
+activeScenario = scenario;
+scenarioTimeLeft = scenario.duration;
+document.body.classList.add('app-blurred');
+toggleModal('scenarioModal');
   const overlay = document.createElement('div');
   overlay.id = 'scenarioOverlay';
   overlay.className = 'fixed inset-0 bg-black/90 backdrop-blur-sm z-[2000] flex flex-col items-center justify-center p-4';
@@ -2437,13 +2436,11 @@ window.focusScenarioPosition = () => {
 };
 
 window.stopScenario = () => {
-  // 🔵 ДОБАВЬТЕ ЭТУ СТРОКУ — убираем размытие
 document.body.classList.remove('app-blurred');
-  if (scenarioTimer) { clearInterval(scenarioTimer); scenarioTimer = null; }
-  const overlay = document.getElementById('scenarioOverlay');
-  if (overlay) overlay.remove();
-  activeScenario = null;
-  document.body.classList.remove('app-blurred');
+if (scenarioTimer) { clearInterval(scenarioTimer); scenarioTimer = null; }
+const overlay = document.getElementById('scenarioOverlay');
+if (overlay) overlay.remove();
+activeScenario = null;
 };
 
 // === BOTTOM SHEET ===
