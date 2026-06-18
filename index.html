@@ -378,28 +378,92 @@ color: #f5f5f5;
 }
 
 /* === FAB BUTTONS === */
-.fab-container {
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  z-index: 10;
+/* === НИЖНЯЯ НАВИГАЦИОННАЯ ПАНЕЛЬ (BOTTOM NAV) === */
+.bottom-nav-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 65px;
+    /* Учитываем safe-area для iPhone с "челкой" снизу */
+    padding-bottom: env(safe-area-inset-bottom); 
+    background: var(--bg-secondary, #ffffff);
+    border-top: 1px solid var(--bg-hover, #f0f0f2);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 1000;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+    backdrop-filter: blur(10px);
 }
-.fab-btn {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-light);
-  box-shadow: var(--shadow-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  color: var(--text-secondary);
+
+.nav-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: var(--text-tertiary, #94a3b8);
+    font-size: 10px;
+    font-weight: 600;
+    gap: 4px;
+    padding: 8px 12px;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.nav-btn.active, .nav-btn:active {
+    color: #3b82f6; /* Telegram Blue */
+    background: rgba(59, 130, 246, 0.1);
+    transform: scale(0.95);
+}
+
+.nav-btn.agame {
+    color: #f59e0b; /* Золотой для "Моя Игра" */
+}
+
+.nav-label {
+    letter-spacing: 0.3px;
+}
+
+/* === КНОПКА ЦЕНТРИРОВАНИЯ (ПЕРЕНЕСЕНА) === */
+.fit-graph-fixed {
+    position: fixed;
+    top: 75px; /* Размещаем ниже хедера */
+    right: 15px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--bg-secondary);
+    border: 1px solid var(--bg-hover);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #3b82f6;
+    z-index: 999;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.fit-graph-fixed:active {
+    transform: scale(0.9);
+    background: #3b82f6;
+    color: white;
+}
+
+/* === ОТСТУП ДЛЯ ОСНОВНОГО КОНТЕНТА === */
+/* Чтобы граф не перекрывался нижней панелью */
+body {
+    padding-bottom: calc(65px + env(safe-area-inset-bottom));
+}
+
+/* Скрываем старый fab-container, если он остался в DOM */
+.fab-container {
+    display: none !important;
 }
 .fab-btn:hover {
   transform: translateY(-2px);
@@ -979,23 +1043,30 @@ transition: filter 0.3s ease;
   </div>
   
   <!-- FAB КНОПКИ -->
-  <div class="fab-container">
-    <button onclick="toggleModal('scenarioModal')" class="fab-btn" title="Спарринг-сценарии">
-      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+<!-- Кнопка центрирования (перенесена наверх/вбок) -->
+<button onclick="fitGraph()" class="fab-btn primary fit-graph-fixed" title="Центрировать граф">
+    <!-- SVG иконка центрирования -->
+</button>
+
+<!-- Нижняя панель с 4 кнопками -->
+<div class="bottom-nav-bar">
+    <button onclick="toggleModal('scenarioModal')" class="nav-btn" title="Спарринг-сценарии">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <span class="nav-label">Сценарии</span>
     </button>
-    <button onclick="toggleModal('decisionModal')" class="fab-btn" title="Что делать, если...">
-      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    <button onclick="toggleModal('decisionModal')" class="nav-btn" title="Что делать, если...">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span class="nav-label">Решения</span>
     </button>
-    <button onclick="toggleModal('workoutModal')" class="fab-btn workout" title="Генератор тренировки">
-      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.5 6.5l11 11M6.5 17.5l11-11M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>
+    <button onclick="toggleModal('workoutModal')" class="nav-btn" title="Генератор тренировки">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        <span class="nav-label">Тренировка</span>
     </button>
-    <button onclick="toggleModal('agameModal')" class="fab-btn agame" title="МОЯ ИГРА">
-      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+    <button onclick="toggleModal('agameModal')" class="nav-btn agame" title="МОЯ ИГРА">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <span class="nav-label">Моя Игра</span>
     </button>
-    <button onclick="fitGraph()" class="fab-btn primary" title="Центрировать граф">
-      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
-    </button>
-  </div>
+</div>
 </main>
 
 <!-- BOTTOM SHEET -->
