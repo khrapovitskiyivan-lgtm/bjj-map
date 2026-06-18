@@ -958,7 +958,7 @@ transition: filter 0.3s ease;
 <div class="modal-overlay progress-modal" id="progressModal">
   <div class="modal-container">
     <div class="modal-handle"></div>
-    <div class="modal-header"><h2>📊 Мой прогресс</h2><button class="modal-close" onclick="toggleModal('progressModal')">×</button></div>
+    <div class="modal-header"><h2>МОЙ ПРОГРЕСС</h2><button class="modal-close" onclick="toggleModal('progressModal')">×</button></div>
     <div class="modal-tabs">
       <div class="modal-tab active" data-tab="progress" onclick="switchProgressTab('progress')">Прогресс</div>
       <div class="modal-tab" data-tab="belts" onclick="switchProgressTab('belts')">Пояса</div>
@@ -979,7 +979,7 @@ transition: filter 0.3s ease;
 <div class="modal-overlay info-modal" id="infoModal">
   <div class="modal-container">
     <div class="modal-handle"></div>
-    <div class="modal-header"><h2>ℹ️ Информация</h2><button class="modal-close" onclick="toggleModal('infoModal')">×</button></div>
+    <div class="modal-header"><h2>ИНФОРМАЦИЯ</h2><button class="modal-close" onclick="toggleModal('infoModal')">×</button></div>
     <div class="modal-tabs">
       <div class="modal-tab active" data-tab="about" onclick="switchInfoTab('about')">О карте</div>
       <div class="modal-tab" data-tab="howto" onclick="switchInfoTab('howto')">Как пользоваться</div>
@@ -992,7 +992,7 @@ transition: filter 0.3s ease;
 <div class="modal-overlay workout-modal" id="workoutModal">
   <div class="modal-container">
     <div class="modal-handle"></div>
-    <div class="modal-header"><h2>🏋️ Генератор тренировки</h2><button class="modal-close" onclick="toggleModal('workoutModal')">×</button></div>
+    <div class="modal-header"><h2>ГЕНЕРАТОР ТРЕНИРОВКИ</h2><button class="modal-close" onclick="toggleModal('workoutModal')">×</button></div>
     <div class="modal-body" id="workoutContent"></div>
   </div>
 </div>
@@ -1000,7 +1000,7 @@ transition: filter 0.3s ease;
 <div class="modal-overlay agame-modal" id="agameModal">
   <div class="modal-container">
     <div class="modal-handle"></div>
-    <div class="modal-header"><h2>⭐ МОЯ ИГРА</h2><button class="modal-close" onclick="toggleModal('agameModal')">×</button></div>
+    <div class="modal-header"><h2>МОЯ ИГРА</h2><button class="modal-close" onclick="toggleModal('agameModal')">×</button></div>
     <div class="modal-body" id="agameContent"></div>
   </div>
 </div>
@@ -1008,7 +1008,7 @@ transition: filter 0.3s ease;
 <div class="modal-overlay decision-modal" id="decisionModal">
   <div class="modal-container">
     <div class="modal-handle"></div>
-    <div class="modal-header"><h2>🤔 Что делать, если...</h2><button class="modal-close" onclick="toggleModal('decisionModal')">×</button></div>
+    <div class="modal-header"><h2>ЧТО ДЕЛАТЬ, ЕСЛИ...</h2><button class="modal-close" onclick="toggleModal('decisionModal')">×</button></div>
     <div class="modal-body" id="decisionContent"></div>
   </div>
 </div>
@@ -1016,7 +1016,7 @@ transition: filter 0.3s ease;
 <div class="modal-overlay scenario-modal" id="scenarioModal">
   <div class="modal-container">
     <div class="modal-handle"></div>
-    <div class="modal-header"><h2>⏱️ Спарринг-сценарии</h2><button class="modal-close" onclick="toggleModal('scenarioModal')">×</button></div>
+    <div class="modal-header"><h2>СПАРРИНГ-СЦЕНАРИИ</h2><button class="modal-close" onclick="toggleModal('scenarioModal')">×</button></div>
     <div class="modal-body" id="scenarioContent"></div>
   </div>
 </div>
@@ -2125,7 +2125,7 @@ window.renderWorkoutModal = () => {
           <button class="filter-chip ${workoutConfig.intensity === 'hard' ? 'active' : ''}" onclick="setWorkoutIntensity('hard')">Тяжёлая</button>
         </div>
       </div>
-      <button onclick="generateWorkout()" class="btn-primary flex items-center justify-center gap-2"><span>🎲</span><span>Сгенерировать тренировку</span></button>
+      <button onclick="generateWorkout()" class="btn-primary flex items-center justify-center gap-2"><span></span><span>Сгенерировать тренировку</span></button>
       <div id="workoutResult"></div>
     </div>
   `;
@@ -2781,7 +2781,7 @@ const onboardingSteps = [
   { icon: "⚙️", title: "Настройка", text: "Нажмите на шестерёнку ⚙️, чтобы выбрать свой пояс и стиль. Карта скроет сложные техники и подстроится под вас." },
   { icon: "📍", title: "Навигация", text: "Нажимайте на узлы графа, чтобы открыть карточки с описаниями, механикой и видео." },
   { icon: "✅", title: "Прогресс", text: "В карточке техники отмечайте статус: 'Не начал', 'В процессе', 'Изучено'. Доступные техники подсвечиваются." },
-  { icon: "🚀", title: "Готово!", text: "Удачи на татами! Используйте новые функции: 🏋️ тренировки, ⭐ A-Game, 🤔 что делать если..., ⏱️ сценарии." }
+  { icon: "🚀", title: "Готово!", text: "Удачи на татами! Используйте новые функции: ТРЕНИРОВКИ, МОЯ ИГРА, ЧТО ДЕЛАТЬ ЕСЛИ..., СЦЕНАРИИ." }
 ];
 let currentStep = 0;
 function showOnboarding() {
