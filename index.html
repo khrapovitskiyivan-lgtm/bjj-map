@@ -83,18 +83,34 @@ header {
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border-light);
   z-index: 50;
+  padding-top: calc(env(safe-area-inset-top) + 10px); /* Добавлено для Telegram */
 }
+
+header .header-title-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
 header h1 {
-  font-size: 18px;
-  font-weight: 600;
-  letter-spacing: -0.3px;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
   color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
-header h1 .text-blue-500 {
-  color: var(--text-tertiary);
-  font-weight: 500;
+
+header h1 .pro-badge {
   font-size: 11px;
-  margin-left: 4px;
+  font-weight: 600;
+  color: var(--accent);
+  background: rgba(59, 130, 246, 0.1);
+  padding: 2px 8px;
+  border-radius: 12px;
+  margin-left: 2px;
 }
 
 /* === ICON BUTTONS === */
@@ -379,22 +395,23 @@ color: #f5f5f5;
 
 /* === FAB BUTTONS === */
 /* === НИЖНЯЯ НАВИГАЦИОННАЯ ПАНЕЛЬ (BOTTOM NAV) === */
+/* === НИЖНЯЯ НАВИГАЦИОННАЯ ПАНЕЛЬ === */
 .bottom-nav-bar {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 65px;
-    /* Учитываем safe-area для iPhone с "челкой" снизу */
-    padding-bottom: env(safe-area-inset-bottom); 
-    background: var(--bg-secondary, #ffffff);
-    border-top: 1px solid var(--bg-hover, #f0f0f2);
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    z-index: 1000;
-    box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
-    backdrop-filter: blur(10px);
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 65px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom)); /* Поднята выше */
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--bg-hover);
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-start; /* Выравнивание по верху */
+  padding-top: 8px;
+  z-index: 1000;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+  backdrop-filter: blur(10px);
 }
 
 .nav-btn {
@@ -430,37 +447,38 @@ color: #f5f5f5;
 }
 
 /* === КНОПКА ЦЕНТРИРОВАНИЯ (ПЕРЕНЕСЕНА) === */
+/* Кнопка центрирования - перемещена в правый нижний угол */
 .fit-graph-fixed {
-    position: fixed;
-    top: 75px; /* Размещаем ниже хедера */
-    right: 15px;
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: var(--bg-secondary);
-    border: 1px solid var(--bg-hover);
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #3b82f6;
-    z-index: 999;
-    cursor: pointer;
-    transition: all 0.2s ease;
+  position: fixed;
+  bottom: 85px; /* Над нижней панелью */
+  right: 16px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  z-index: 999;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .fit-graph-fixed:active {
-    transform: scale(0.9);
-    background: #3b82f6;
-    color: white;
+  transform: scale(0.92);
+  background: var(--accent);
+  color: white;
 }
 
 /* === ОТСТУП ДЛЯ ОСНОВНОГО КОНТЕНТА === */
 /* Чтобы граф не перекрывался нижней панелью */
 body {
-    padding-bottom: calc(65px + env(safe-area-inset-bottom));
+  padding-bottom: calc(77px + env(safe-area-inset-bottom)); /* Увеличен отступ */
+  padding-top: env(safe-area-inset-top);
 }
-
 /* Скрываем старый fab-container, если он остался в DOM */
 .fab-container {
     display: none !important;
@@ -1015,6 +1033,11 @@ transition: filter 0.3s ease;
         </svg>
       </button>
     </div>
+  </div>
+   <div class="header-title-container">
+    <h1>
+      <span>🥋</span> BJJ Map <span class="pro-badge">Pro</span>
+    </h1>
   </div>
   <div class="search-container">
     <div class="search-input-wrapper">
