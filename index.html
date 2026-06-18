@@ -2472,14 +2472,14 @@ window.showDecisionOptions = (positionId) => {
 
 // === SCENARIOS ===
 const scenarios = [
-  { id: 'guard_pass', title: 'Проходы гарда', icon: '', description: 'Начните из закрытого гарда сверху. Цель: пройти гард за 3 минуты.', startPositions: [2], goalPositions: [14, 16], duration: 180 },
-  { id: 'back_control', title: 'Взятие спины', icon: '', description: 'Начните из сайд-контроля. Цель: взять спину за 2 минуты.', startPositions: [14], goalPositions: [17], duration: 120 },
-  { id: 'submission_hunt', title: 'Охота за сабмишеном', icon: '', description: 'Начните из маунта. Цель: завершить сабмишен за 2 минуты.', startPositions: [16], goalPositions: [], duration: 120 },
-  { id: 'escape_mount', title: 'Выход из маунта', icon: '', description: 'Начните из маунта снизу. Цель: восстановить гард или взять спину.', startPositions: [15], goalPositions: [1, 17], duration: 120 },
-  { id: 'sweep_from_guard', title: 'Свипы из гарда', icon: '', description: 'Начните из закрытого гарда снизу. Цель: сделать свип за 3 минуты.', startPositions: [1], goalPositions: [14, 16], duration: 180 },
-  { id: 'takedown', title: 'Тейкдауны', icon: '', description: 'Начните из стойки. Цель: сделать тейкдаун за 2 минуты.', startPositions: [21], goalPositions: [14, 16, 17], duration: 120 },
-  { id: 'leg_locks', title: 'Болевые на ноги', icon: '', description: 'Начните из Single Leg X. Цель: атаковать ногу за 2 минуты.', startPositions: [300], goalPositions: [], duration: 120 },
-  { id: 'turtle_attack', title: 'Атака черепахи', icon: '', description: 'Начните из позиции сверху в черепахе. Цель: взять спину или сабмишен.', startPositions: [19], goalPositions: [17], duration: 120 }
+  { id: 'guard_pass', title: 'Проходы гарда', icon: '', description: 'Начните из закрытого гарда сверху. Цель: пройти гард.', startPositions: [2], goalPositions: [14, 16], duration: 180 },
+  { id: 'back_control', title: 'Взятие спины', icon: '', description: 'Начните из сайд-контроля. Цель: взять спину.', startPositions: [14], goalPositions: [17], duration: 180 },
+  { id: 'submission_hunt', title: 'Охота за сабмишеном', icon: '', description: 'Начните из маунта. Цель: завершить сабмишен.', startPositions: [16], goalPositions: [], duration: 180 },
+  { id: 'escape_mount', title: 'Выход из маунта', icon: '', description: 'Начните из маунта снизу. Цель: восстановить гард или взять спину.', startPositions: [15], goalPositions: [1, 17], duration: 180 },
+  { id: 'sweep_from_guard', title: 'Свипы из гарда', icon: '', description: 'Начните из закрытого гарда снизу. Цель: сделать свип.', startPositions: [1], goalPositions: [14, 16], duration: 180 },
+  { id: 'takedown', title: 'Тейкдауны', icon: '', description: 'Начните из стойки. Цель: сделать тейкдаун.', startPositions: [21], goalPositions: [14, 16, 17], duration: 180 },
+  { id: 'leg_locks', title: 'Болевые на ноги', icon: '', description: 'Начните из Single Leg X. Цель: атаковать ногу.', startPositions: [300], goalPositions: [], duration: 180 },
+  { id: 'turtle_attack', title: 'Атака черепахи', icon: '', description: 'Начните из позиции сверху в черепахе. Цель: взять спину или сабмишен.', startPositions: [19], goalPositions: [17], duration: 180 }
 ];
 
 let selectedHeatmapPosition = null;
