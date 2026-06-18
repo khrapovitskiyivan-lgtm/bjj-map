@@ -830,7 +830,16 @@ header h1 .text-blue-500 {
   align-items: center;
   gap: 6px;
 }
-
+/* === РАЗМЫТИЕ ФОНА ПРИ ТАЙМЕРЕ === */
+body.app-blurred header,
+body.app-blurred main,
+body.app-blurred .fab-container,
+body.app-blurred .bottom-sheet,
+body.app-blurred .bottom-sheet-overlay {
+filter: blur(8px) brightness(0.7);
+pointer-events: none;
+transition: filter 0.3s ease;
+}
 /* === ANIMATIONS === */
 .fade-in { animation: fadeIn 0.25s ease-out; }
 @keyframes fadeIn {
