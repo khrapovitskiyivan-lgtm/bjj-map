@@ -2241,42 +2241,234 @@ window.setWorkoutDuration = (d) => { workoutConfig.duration = d; renderWorkoutMo
 window.setWorkoutFocus = (f) => { workoutConfig.focus = f; renderWorkoutModal(); triggerHaptic('light'); };
 window.setWorkoutIntensity = (i) => { workoutConfig.intensity = i; renderWorkoutModal(); triggerHaptic('light'); };
 
+// === РАЗМИНКА И ЗАМИНКА ПО УРОВНЯМ ===
+const warmupByBelt = {
+white: [
+{ name: 'Суставная гимнастика', desc: 'Вращения шеи, плеч, локтей, кистей, таза, коленей, голеностопов', duration: 3 },
+{ name: 'Креветка (Shrimp)', desc: '20 повторений в каждую сторону — базовое движение для восстановления гарда', duration: 2 },
+{ name: 'Мост (Upa/Bridge)', desc: '20 повторений с захватом пальцев рук и стоп соперника (можно воображаемого)', duration: 2 },
+{ name: 'Технический подъём', desc: '10 повторений в каждую сторону — безопасный подъём с ковра', duration: 2 }
+],
+blue: [
+{ name: 'Суставная гимнастика', desc: 'Вращения всех суставов + растяжка шеи и плеч', duration: 3 },
+{ name: 'Креветка + вставка колена', desc: '20 повторений с последующим закрытием гарда', duration: 2 },
+{ name: 'Мост с переворотом', desc: '15 повторений — мост → переворот на колено → восстановление гарда', duration: 2 },
+{ name: 'Технический подъём + спрул', desc: '10 технических подъёмов + 5 спрулов в каждую сторону', duration: 2 },
+{ name: 'Проходы гарда стоя', desc: 'Тореадор + knee slice — 5 повторений каждого', duration: 2 }
+],
+purple: [
+{ name: 'Суставная гимнастика + mobility', desc: 'Вращения + работа с резинкой/партнёром для плеч и бёдер', duration: 3 },
+{ name: 'Креветка + инверсия', desc: '15 креветок + 5 инверсий (переворот на плечо)', duration: 2 },
+{ name: 'Granby Roll', desc: '10 перекатов в каждую сторону — защита и переход', duration: 2 },
+{ name: 'Berimbolo drill (без партнёра)', desc: '10 повторений движения ногами на ковре', duration: 2 },
+{ name: 'Технический подъём + спрул + stance', desc: 'Комплекс: подъём → спрул → принятие стойки', duration: 2 }
+],
+brown: [
+{ name: 'Динамическая разминка', desc: 'Суставы + mobility + работа с партнёром в стойке', duration: 3 },
+{ name: 'Креветка + инверсия + Granby', desc: 'Комплекс: 10 креветок → 5 инверсий → 5 гранби', duration: 3 },
+{ name: 'Berimbolo + rolling back take', desc: '10 повторений каждого движения', duration: 2 },
+{ name: 'Тейкдауны drill', desc: 'Армдраг → взятие спины, snap down → guillotine — 5 повторов', duration: 2 },
+{ name: 'Стойка + movement', desc: 'Перемещения в стойке, спрулы, уровни', duration: 2 }
+],
+black: [
+{ name: 'Профессиональная разминка', desc: 'Суставы + mobility + shadow grappling 2 мин', duration: 3 },
+{ name: 'Комплекс креветка + инверсия + granby + berimbolo', desc: 'Поток движений без остановки — 3 минуты', duration: 3 },
+{ name: 'Тейкдауны + passing flow', desc: 'Армдраг → back take → pass flow — 5 повторов', duration: 2 },
+{ name: 'Leg entanglement entries', desc: 'Входы в 50/50, saddle, outside/inside heel — 10 повторов', duration: 2 },
+{ name: 'Стойка + wrestling movement', desc: 'Уровни, спрулы, penetration steps — 2 минуты', duration: 2 }
+]
+};
+
+const cooldownByBelt = {
+white: [
+{ name: 'Растяжка шеи и плеч', desc: 'Медленные наклоны головы, растяжка трапеции — 30 сек на сторону', duration: 2 },
+{ name: 'Растяжка бёдер и паха', desc: 'Бабочка, голубь — удержание 30 сек на сторону', duration: 2 },
+{ name: 'Растяжка спины', desc: 'Child pose, cat-cow — 1 минута', duration: 1 },
+{ name: 'Дыхательные упражнения', desc: 'Глубокое дыхание 4-7-8: вдох 4 сек, задержка 7, выдох 8 — 5 циклов', duration: 2 }
+],
+blue: [
+{ name: 'Растяжка шеи, плеч, спины', desc: 'Комплекс статической растяжки верхней части тела', duration: 2 },
+{ name: 'Растяжка бёдер (hip flexors)', desc: 'Выпад, голубь, бабочка — критично для гарда', duration: 3 },
+{ name: 'Растяжка подколенных сухожилий', desc: 'Наклоны к ногам, stretching hamstrings', duration: 2 },
+{ name: 'Растяжка голеностопов', desc: 'Вращения, растяжка ахилла — профилактика травм', duration: 1 },
+{ name: 'Дыхание и восстановление', desc: 'Дыхание 4-7-8, расслабление — 2 минуты', duration: 2 }
+],
+purple: [
+{ name: 'Глубокая растяжка плечевого пояса', desc: ' Sleeper stretch, cross-body, doorway — 3 мин', duration: 3 },
+{ name: 'Растяжка бёдер и паха (deep)', desc: 'Frog stretch, pigeon, butterfly — 3 мин', duration: 3 },
+{ name: 'Растяжка спины и позвоночника', desc: 'Cat-cow, child pose, spinal twists — 2 мин', duration: 2 },
+{ name: 'Растяжка голеностопов и стоп', desc: 'Профилактика травм для guard players — 2 мин', duration: 2 },
+{ name: 'Медитация / визуализация', desc: 'Закрыть глаза, представить свои лучшие техники — 2 мин', duration: 2 }
+],
+brown: [
+{ name: 'Глубокая растяжка всего тела', desc: 'Комплекс для всех суставов — 5 мин', duration: 5 },
+{ name: 'PNF-растяжка бёдер', desc: 'С партнёром или резинкой — contract-relax method', duration: 3 },
+{ name: 'Работа с foam roller', desc: 'Прокатка спины, бёдер, ягодиц — 3 мин', duration: 3 },
+{ name: 'Восстановление дыхания', desc: 'Box breathing 4-4-4-4 — 3 мин', duration: 3 }
+],
+black: [
+{ name: 'Профессиональное восстановление', desc: 'Полный комплекс растяжки всех рабочих зон — 5 мин', duration: 5 },
+{ name: 'PNF + partner stretching', desc: 'Контракт-релакс с партнёром — 4 мин', duration: 4 },
+{ name: 'Foam rolling + mobility', desc: 'Глубокая проработка fascia — 3 мин', duration: 3 },
+{ name: 'Ментальное восстановление', desc: 'Анализ тренировки, визуализация, дыхание — 3 мин', duration: 3 }
+]
+};
+
+// === АДАПТАЦИЯ СЛОЖНОСТИ ПОД ПОЯС ===
+const maxDifficultyByBelt = {
+white: 2,   // Только базовые техники
+blue: 3,    // Базовые + начинающие продвинутые
+purple: 4,  // Продвинутые
+brown: 5,   // Все техники
+black: 5    // Все техники
+};
+
 window.generateWorkout = () => {
-  const resultDiv = document.getElementById('workoutResult');
-  const userBelt = styleProfile.belt || 'white';
-  const maxBeltIndex = beltOrder.indexOf(userBelt);
-  let available = bjjNodesData.filter(n => {
-    if (beltOrder.indexOf(n.belt) > maxBeltIndex) return false;
-    if (workoutConfig.focus !== 'all' && n.group !== workoutConfig.focus) return false;
-    if ((giFilterState === 'gi' && !n.gi) || (giFilterState === 'nogi' && !n.noGi)) return false;
-    return true;
-  });
-  const preferredTags = [];
-  if (styleProfile.flexibility) preferredTags.push('flexibility');
-  if (styleProfile.pressure) preferredTags.push('pressure');
-  if (styleProfile.long_limbs) preferredTags.push('long_limbs');
-  if (styleProfile.speed) preferredTags.push('speed');
-  available.sort((a, b) => {
-    const aMatch = a.tags.some(t => preferredTags.includes(t)) ? 1 : 0;
-    const bMatch = b.tags.some(t => preferredTags.includes(t)) ? 1 : 0;
-    return bMatch - aMatch;
-  });
-  const multiplier = workoutConfig.intensity === 'light' ? 0.5 : workoutConfig.intensity === 'hard' ? 1.5 : 1;
-  const techniqueCount = Math.round((workoutConfig.duration / 10) * multiplier);
-  const selected = available.slice(0, Math.min(techniqueCount, available.length));
-  if (selected.length === 0) {
-    resultDiv.innerHTML = `<div class="text-center py-6"><div class="text-4xl mb-2">🤷</div><p class="text-sm text-slate-500">Нет доступных техник</p></div>`;
-    return;
-  }
-  const timePerDrill = Math.round(workoutConfig.duration / selected.length);
-  let html = `<div class="workout-result"><div class="flex items-center gap-2 mb-3"><span class="text-2xl">🏋️</span><div><div class="text-sm font-bold text-amber-900 dark:text-amber-200">Ваша тренировка</div><div class="text-xs text-amber-800 dark:text-amber-300">${workoutConfig.duration} мин · ${selected.length} упражнений</div></div></div><div class="space-y-2">`;
-  selected.forEach((tech, idx) => {
-    const chainTo = bjjNodesData.find(n => n.id === tech.chain_to?.[0]);
-    html += `<div class="workout-drill"><div class="flex items-start gap-3"><div class="flex-shrink-0 w-8 h-8 rounded-full bg-amber-500 text-white flex items-center justify-center font-bold text-sm">${idx + 1}</div><div class="flex-1 min-w-0"><div class="font-semibold text-sm text-slate-800 dark:text-slate-100 mb-1">${tech.label}</div><div class="text-xs text-slate-600 dark:text-slate-300 mb-2">${catLabels[tech.group]} · ${timePerDrill} мин</div>${chainTo ? `<div class="text-xs text-blue-600 dark:text-blue-300">→ ${chainTo.label}</div>` : ''}</div></div></div>`;
-  });
-  html += `</div><button onclick="startWorkoutTimer(${workoutConfig.duration})" class="btn-primary mt-4 flex items-center justify-center gap-2"><span>⏱️</span><span>Запустить таймер</span></button></div>`;
-  resultDiv.innerHTML = html;
-  triggerHaptic('medium');
+const resultDiv = document.getElementById('workoutResult');
+const userBelt = styleProfile.belt || 'white';
+const maxBeltIndex = beltOrder.indexOf(userBelt);
+const maxDifficulty = maxDifficultyByBelt[userBelt] || 2;
+
+// 🔵 ФИЛЬТРАЦИЯ С УЧЁТОМ СЛОЖНОСТИ ПОД ПОЯС
+let available = bjjNodesData.filter(n => {
+if (beltOrder.indexOf(n.belt) > maxBeltIndex) return false;
+if ((n.difficulty || 1) > maxDifficulty) return false; // 🔵 КЛЮЧЕВОЕ: ограничение по сложности
+if (workoutConfig.focus !== 'all' && n.group !== workoutConfig.focus) return false;
+if ((giFilterState === 'gi' && !n.gi) || (giFilterState === 'nogi' && !n.noGi)) return false;
+return true;
+});
+
+const preferredTags = [];
+if (styleProfile.flexibility) preferredTags.push('flexibility');
+if (styleProfile.pressure) preferredTags.push('pressure');
+if (styleProfile.long_limbs) preferredTags.push('long_limbs');
+if (styleProfile.speed) preferredTags.push('speed');
+
+available.sort((a, b) => {
+const aMatch = a.tags.some(t => preferredTags.includes(t)) ? 1 : 0;
+const bMatch = b.tags.some(t => preferredTags.includes(t)) ? 1 : 0;
+return bMatch - aMatch;
+});
+
+// 🔵 РАСПРЕДЕЛЕНИЕ ВРЕМЕНИ: разминка 20%, основная часть 65%, заминка 15%
+const warmupDuration = Math.max(5, Math.round(workoutConfig.duration * 0.2));
+const cooldownDuration = Math.max(5, Math.round(workoutConfig.duration * 0.15));
+const mainDuration = workoutConfig.duration - warmupDuration - cooldownDuration;
+
+const multiplier = workoutConfig.intensity === 'light' ? 0.5 : workoutConfig.intensity === 'hard' ? 1.5 : 1;
+const techniqueCount = Math.max(2, Math.round((mainDuration / 8) * multiplier));
+const selected = available.slice(0, Math.min(techniqueCount, available.length));
+
+if (selected.length === 0) {
+resultDiv.innerHTML = `<div class="text-center py-6"><div class="text-4xl mb-2">🤷</div><p class="text-sm text-slate-500">Нет доступных техник для вашего уровня</p></div>`;
+return;
+}
+
+const timePerDrill = Math.max(2, Math.round(mainDuration / selected.length));
+
+// 🔵 ПОЛУЧАЕМ РАЗМИНКУ И ЗАМИНКУ ПОД ПОЯС
+const warmup = warmupByBelt[userBelt] || warmupByBelt.white;
+const cooldown = cooldownByBelt[userBelt] || cooldownByBelt.white;
+
+// 🔵 ИНФОРМАЦИЯ ОБ УРОВНЕ
+const beltInfo = {
+white: { name: 'Белый пояс', color: 'slate', icon: '⚪', desc: 'Базовые техники и фундаментальные движения' },
+blue: { name: 'Синий пояс', color: 'blue', icon: '🔵', desc: 'Базовые + начинающие продвинутые техники' },
+purple: { name: 'Фиолетовый пояс', color: 'purple', icon: '🟣', desc: 'Продвинутые техники и цепочки атак' },
+brown: { name: 'Коричневый пояс', color: 'amber', icon: '🟤', desc: 'Сложные техники и мастерские детали' },
+black: { name: 'Чёрный пояс', color: 'slate', icon: '⚫', desc: 'Полный арсенал техник БЖЖ' }
+};
+const beltData = beltInfo[userBelt];
+
+// 🔵 СБОРКА HTML
+let html = `<div class="workout-result">`;
+
+// Заголовок с информацией о поясе
+html += `<div class="flex items-center gap-3 mb-4 p-3 bg-${beltData.color}-50 dark:bg-${beltData.color}-900/20 rounded-lg border border-${beltData.color}-200 dark:border-${beltData.color}-800">
+<div class="text-3xl">${beltData.icon}</div>
+<div class="flex-1">
+<div class="text-sm font-bold text-${beltData.color}-900 dark:text-${beltData.color}-200">Тренировка: ${beltData.name}</div>
+<div class="text-xs text-${beltData.color}-700 dark:text-${beltData.color}-300">${beltData.desc}</div>
+</div>
+<div class="text-right">
+<div class="text-xs text-slate-500">Всего</div>
+<div class="text-sm font-bold text-slate-800 dark:text-slate-200">${workoutConfig.duration} мин</div>
+</div>
+</div>`;
+
+// === БЛОК РАЗМИНКИ ===
+html += `<div class="mb-4">
+<div class="flex items-center gap-2 mb-2">
+<span class="text-xl">🔥</span>
+<h3 class="text-sm font-bold text-orange-700 dark:text-orange-300 uppercase tracking-wider">Разминка · ${warmupDuration} мин</h3>
+</div>
+<div class="p-3 bg-orange-50 dark:bg-orange-900/10 rounded-lg border border-orange-200 dark:border-orange-800/50">
+<div class="text-xs text-orange-700 dark:text-orange-300 mb-2">Подготовьте тело к нагрузке, разогрейте суставы</div>
+<div class="space-y-2">`;
+warmup.forEach((ex, idx) => {
+html += `<div class="flex items-start gap-2 p-2 bg-white dark:bg-slate-800 rounded border border-orange-100 dark:border-orange-900/30">
+<div class="flex-shrink-0 w-6 h-6 rounded-full bg-orange-500 text-white flex items-center justify-center text-xs font-bold">${idx + 1}</div>
+<div class="flex-1 min-w-0">
+<div class="font-semibold text-xs text-slate-800 dark:text-slate-100">${ex.name}</div>
+<div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">${ex.desc}</div>
+</div>
+<div class="text-xs text-orange-600 dark:text-orange-400 font-semibold flex-shrink-0">${ex.duration} мин</div>
+</div>`;
+});
+html += `</div></div></div>`;
+
+// === ОСНОВНАЯ ЧАСТЬ ===
+html += `<div class="mb-4">
+<div class="flex items-center gap-2 mb-2">
+<span class="text-xl">🏋️</span>
+<h3 class="text-sm font-bold text-amber-700 dark:text-amber-300 uppercase tracking-wider">Основная часть · ${mainDuration} мин</h3>
+</div>
+<div class="space-y-2">`;
+selected.forEach((tech, idx) => {
+const chainTo = bjjNodesData.find(n => n.id === tech.chain_to?.[0]);
+html += `<div class="workout-drill"><div class="flex items-start gap-3">
+<div class="flex-shrink-0 w-8 h-8 rounded-full bg-amber-500 text-white flex items-center justify-center font-bold text-sm">${idx + 1}</div>
+<div class="flex-1 min-w-0">
+<div class="font-semibold text-sm text-slate-800 dark:text-slate-100 mb-1">${tech.label}</div>
+<div class="text-xs text-slate-600 dark:text-slate-300 mb-1">${catLabels[tech.group]} · ${beltIcons[tech.belt]} ${beltNames[tech.belt]}</div>
+<div class="flex items-center gap-2 text-xs">
+<span class="text-amber-700 dark:text-amber-300 font-semibold">⏱ ${timePerDrill} мин</span>
+${tech.difficulty ? `<span class="text-slate-500">· ${'⭐'.repeat(tech.difficulty)}</span>` : ''}
+</div>
+${chainTo ? `<div class="text-xs text-blue-600 dark:text-blue-300 mt-1">→ ${chainTo.label}</div>` : ''}
+</div></div></div>`;
+});
+html += `</div></div>`;
+
+// === БЛОК ЗАМИНКИ / РАСТЯЖКИ ===
+html += `<div class="mb-4">
+<div class="flex items-center gap-2 mb-2">
+<span class="text-xl">🧘</span>
+<h3 class="text-sm font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider">Заминка и растяжка · ${cooldownDuration} мин</h3>
+</div>
+<div class="p-3 bg-emerald-50 dark:bg-emerald-900/10 rounded-lg border border-emerald-200 dark:border-emerald-800/50">
+<div class="text-xs text-emerald-700 dark:text-emerald-300 mb-2">Восстановление, растяжка рабочих зон, дыхание</div>
+<div class="space-y-2">`;
+cooldown.forEach((ex, idx) => {
+html += `<div class="flex items-start gap-2 p-2 bg-white dark:bg-slate-800 rounded border border-emerald-100 dark:border-emerald-900/30">
+<div class="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold">${idx + 1}</div>
+<div class="flex-1 min-w-0">
+<div class="font-semibold text-xs text-slate-800 dark:text-slate-100">${ex.name}</div>
+<div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">${ex.desc}</div>
+</div>
+<div class="text-xs text-emerald-600 dark:text-emerald-400 font-semibold flex-shrink-0">${ex.duration} мин</div>
+</div>`;
+});
+html += `</div></div></div>`;
+
+// Кнопка запуска таймера
+html += `<button onclick="startWorkoutTimer(${workoutDuration = warmupDuration + mainDuration + cooldownDuration})" class="btn-primary mt-2 flex items-center justify-center gap-2">
+<span>⏱️</span><span>Запустить таймер (${warmupDuration + mainDuration + cooldownDuration} мин)</span>
+</button>`;
+
+html += `</div>`;
+resultDiv.innerHTML = html;
+triggerHaptic('medium');
 };
 
 let workoutTimer = null, workoutTimeLeft = 0;
