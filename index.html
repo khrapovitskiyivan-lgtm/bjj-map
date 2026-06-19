@@ -106,6 +106,14 @@ color: var(--text-secondary);
 border: none;
 cursor: pointer;
 }
+.icon-btn.info-btn {
+width: 44px !important;
+height: 44px !important;
+}
+.icon-btn.info-btn svg {
+width: 24px !important;
+height: 24px !important;
+}
 .icon-btn:hover {
 background: var(--bg-hover);
 color: var(--text-primary);
@@ -954,9 +962,10 @@ border-radius: 3px;
 </div>
 <!-- Строка 2: Кнопки + Поиск -->
 <div class="flex items-center gap-2">
-<button onclick="toggleModal('infoModal')" class="icon-btn flex-shrink-0 bg-slate-100 hover:bg-slate-200 text-slate-600" title="Информация" style="width:40px;height:40px;">
-<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+<button onclick="toggleModal('settingsModal')" class="icon-btn flex-shrink-0" title="Настройки" style="width:40px;height:40px;">
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+<circle cx="12" cy="12" r="3"/>
+<path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
 </svg>
 </button>
 <div class="search-container flex-1 relative" style="margin-top:0;">
@@ -969,10 +978,8 @@ border-radius: 3px;
 <div id="searchHistory" class="hidden absolute top-full left-0 right-0 mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg z-50"></div>
 <div id="searchResults" class="hidden absolute top-full left-0 right-0 mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg max-h-80 overflow-y-auto z-50"></div>
 </div>
-<button onclick="toggleModal('infoModal')" class="icon-btn info-btn flex-shrink-0 bg-slate-100 hover:bg-slate-200 text-slate-600" title="Информация">
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
-</svg>
+<button onclick="toggleModal('infoModal')" class="icon-btn flex-shrink-0 bg-slate-100 hover:bg-slate-200 text-slate-600" title="Информация" style="width:40px;height:40px;font-size:20px;">
+ℹ️
 </button>
 </button>
 </div>
