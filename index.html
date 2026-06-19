@@ -2201,42 +2201,44 @@ function renderProgressModal() {
 let workoutConfig = { duration: 30, focus: 'all', intensity: 'medium' };
 
 window.renderWorkoutModal = () => {
-  const content = document.getElementById('workoutContent');
-  content.innerHTML = `
-    <div class="space-y-5">
-      <div class="modal-section">
-        <div class="modal-section-title">⏱️ Длительность тренировки</div>
-        <div class="filter-chips">
-          <button class="filter-chip ${workoutConfig.duration === 15 ? 'active' : ''}" onclick="setWorkoutDuration(15)">15 мин</button>
-          <button class="filter-chip ${workoutConfig.duration === 30 ? 'active' : ''}" onclick="setWorkoutDuration(30)">30 мин</button>
-          <button class="filter-chip ${workoutConfig.duration === 45 ? 'active' : ''}" onclick="setWorkoutDuration(45)">45 мин</button>
-          <button class="filter-chip ${workoutConfig.duration === 60 ? 'active' : ''}" onclick="setWorkoutDuration(60)">60 мин</button>
-        </div>
-      </div>
-      <div class="modal-section">
-        <div class="modal-section-title">🎯 Фокус тренировки</div>
-        <div class="filter-chips">
-          <button class="filter-chip ${workoutConfig.focus === 'all' ? 'active' : ''}" onclick="setWorkoutFocus('all')">Всё</button>
-          <button class="filter-chip ${workoutConfig.focus === 'guard_pass' ? 'active' : ''}" onclick="setWorkoutFocus('guard_pass')"> Проходы</button>
-          <button class="filter-chip ${workoutConfig.focus === 'submission' ? 'active' : ''}" onclick="setWorkoutFocus('submission')"> Сабмишены</button>
-          <button class="filter-chip ${workoutConfig.focus === 'sweep' ? 'active' : ''}" onclick="setWorkoutFocus('sweep')"> Свипы</button>
-          <button class="filter-chip ${workoutConfig.focus === 'takedown' ? 'active' : ''}" onclick="setWorkoutFocus('takedown')"> Тейкдауны</button>
-          <button class="filter-chip ${workoutConfig.focus === 'escape' ? 'active' : ''}" onclick="setWorkoutFocus('escape')"> Защиты</button>
-        </div>
-      </div>
-      <div class="modal-section">
-        <div class="modal-section-title">💪 Интенсивность</div>
-        <div class="filter-chips">
-          <button class="filter-chip ${workoutConfig.intensity === 'light' ? 'active' : ''}" onclick="setWorkoutIntensity('light')">Лёгкая</button>
-          <button class="filter-chip ${workoutConfig.intensity === 'medium' ? 'active' : ''}" onclick="setWorkoutIntensity('medium')">Средняя</button>
-          <button class="filter-chip ${workoutConfig.intensity === 'hard' ? 'active' : ''}" onclick="setWorkoutIntensity('hard')">Тяжёлая</button>
-        </div>
-      </div>
-      <button onclick="generateWorkout()" class="btn-primary flex items-center justify-center gap-2"><span></span><span>Сгенерировать тренировку</span></button>
-      <div id="workoutResult"></div>
-    </div>
-  `;
-};
+const content = document.getElementById('workoutContent');
+content.innerHTML = `
+<div class="space-y-5">
+<div class="modal-section">
+<div class="modal-section-title">⏱️ Длительность тренировки</div>
+<div class="filter-chips">
+<button class="filter-chip ${workoutConfig.duration === 15 ? 'active' : ''}" onclick="setWorkoutDuration(15)">15 мин</button>
+<button class="filter-chip ${workoutConfig.duration === 30 ? 'active' : ''}" onclick="setWorkoutDuration(30)">30 мин</button>
+<button class="filter-chip ${workoutConfig.duration === 45 ? 'active' : ''}" onclick="setWorkoutDuration(45)">45 мин</button>
+<button class="filter-chip ${workoutConfig.duration === 60 ? 'active' : ''}" onclick="setWorkoutDuration(60)">60 мин</button>
+</div>
+</div>
+<div class="modal-section">
+<div class="modal-section-title">🎯 Фокус тренировки</div>
+<div class="filter-chips">
+<button class="filter-chip ${workoutConfig.focus === 'all' ? 'active' : ''}" onclick="setWorkoutFocus('all')">Всё</button>
+<button class="filter-chip ${workoutConfig.focus === 'guard_pass' ? 'active' : ''}" onclick="setWorkoutFocus('guard_pass')"> Проходы</button>
+<button class="filter-chip ${workoutConfig.focus === 'submission' ? 'active' : ''}" onclick="setWorkoutFocus('submission')"> Сабмишены</button>
+<button class="filter-chip ${workoutConfig.focus === 'sweep' ? 'active' : ''}" onclick="setWorkoutFocus('sweep')"> Свипы</button>
+<button class="filter-chip ${workoutConfig.focus === 'takedown' ? 'active' : ''}" onclick="setWorkoutFocus('takedown')"> Тейкдауны</button>
+<button class="filter-chip ${workoutConfig.focus === 'escape' ? 'active' : ''}" onclick="setWorkoutFocus('escape')"> Защиты</button>
+</div>
+</div>
+<div class="modal-section">
+<div class="modal-section-title">💪 Интенсивность</div>
+<div class="filter-chips">
+<button class="filter-chip ${workoutConfig.intensity === 'light' ? 'active' : ''}" onclick="setWorkoutIntensity('light')">Лёгкая</button>
+<button class="filter-chip ${workoutConfig.intensity === 'medium' ? 'active' : ''}" onclick="setWorkoutIntensity('medium')">Средняя</button>
+<button class="filter-chip ${workoutConfig.intensity === 'hard' ? 'active' : ''}" onclick="setWorkoutIntensity('hard')">Тяжёлая</button>
+</div>
+</div>
+<button onclick="generateWorkout()" class="btn-secondary flex items-center justify-center gap-2"><span>🔄</span><span>Обновить тренировку</span></button>
+<div id="workoutResult"></div>
+</div>
+`;
+// 🔵 Автоматическая генерация тренировки при открытии модалки
+setTimeout(() => generateWorkout(), 100);
+};;
 window.setWorkoutDuration = (d) => { workoutConfig.duration = d; renderWorkoutModal(); triggerHaptic('light'); };
 window.setWorkoutFocus = (f) => { workoutConfig.focus = f; renderWorkoutModal(); triggerHaptic('light'); };
 window.setWorkoutIntensity = (i) => { workoutConfig.intensity = i; renderWorkoutModal(); triggerHaptic('light'); };
