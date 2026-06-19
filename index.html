@@ -413,10 +413,7 @@ border-color: var(--text-primary);
 }
 /* === BOTTOM NAVIGATION === */
 .bottom-nav {
-position: fixed;
-bottom: 0;
-left: 0;
-right: 0;
+position: relative;
 background: var(--bg-secondary);
 border-top: 1px solid var(--border-light);
 display: flex;
@@ -428,6 +425,7 @@ z-index: 100;
 box-shadow: 0 -2px 12px rgba(0,0,0,0.06);
 backdrop-filter: blur(20px);
 -webkit-backdrop-filter: blur(20px);
+flex-shrink: 0;
 }
 .bottom-nav-item {
 display: flex;
