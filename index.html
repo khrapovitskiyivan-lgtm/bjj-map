@@ -2239,9 +2239,30 @@ content.innerHTML = `
 // 🔵 Автоматическая генерация тренировки при открытии модалки
 setTimeout(() => generateWorkout(), 100);
 };;
-window.setWorkoutDuration = (d) => { workoutConfig.duration = d; renderWorkoutModal(); triggerHaptic('light'); };
-window.setWorkoutFocus = (f) => { workoutConfig.focus = f; renderWorkoutModal(); triggerHaptic('light'); };
-window.setWorkoutIntensity = (i) => { workoutConfig.intensity = i; renderWorkoutModal(); triggerHaptic('light'); };
+window.setWorkoutDuration = (d) => { 
+    workoutConfig.duration = d; 
+    // Обновляем только активные классы у кнопок, не перерисовываем всё
+    document.querySelectorAll('.modal-section:first-child .filter-chip').forEach(chip => {
+        chip.classList.toggle('active', chip.textContent.includes(d + ' мин'));
+    });
+    triggerHaptic('light'); 
+};
+window.setWorkoutFocus = (f) => { 
+    workoutConfig.focus = f; 
+    const focusLabels = { 'all': 'Всё', 'guard_pass': 'Проходы', 'submission': 'Сабмишены', 'sweep': 'Свипы', 'takedown': 'Тейкдауны', 'escape': 'Защиты' };
+    document.querySelectorAll('.modal-section:nth-child(2) .filter-chip').forEach(chip => {
+        chip.classList.toggle('active', chip.textContent.trim() === focusLabels[f]);
+    });
+    triggerHaptic('light'); 
+};
+window.setWorkoutIntensity = (i) => { 
+    workoutConfig.intensity = i; 
+    const intensityLabels = { 'light': 'Лёгкая', 'medium': 'Средняя', 'hard': 'Тяжёлая' };
+    document.querySelectorAll('.modal-section:nth-child(3) .filter-chip').forEach(chip => {
+        chip.classList.toggle('active', chip.textContent.trim() === intensityLabels[i]);
+    });
+    triggerHaptic('light'); 
+};
 
 // === РАЗМИНКА И ЗАМИНКА ПО УРОВНЯМ ===
 const warmupByBelt = {
@@ -2473,32 +2494,52 @@ resultDiv.innerHTML = html;
 triggerHaptic('medium');
 };
 
-let workoutTimer = null, workoutTimeLeft = 0;
+let workoutTimer = null, workoutTimeLeft = 0, workoutPaused = false;
 window.startWorkoutTimer = (minutes) => {
 workoutTimeLeft = minutes * 60;
+workoutPaused = false;
 toggleModal('workoutModal');
-
-// 🔵 ДОБАВЬТЕ ЭТУ СТРОКУ — размываем фон
 document.body.classList.add('app-blurred');
-
 const overlay = document.createElement('div');
 overlay.id = 'workoutTimerOverlay';
 overlay.className = 'fixed inset-0 bg-black/80 z-[2000] flex items-center justify-center';
-overlay.innerHTML = `<div class="text-center"><div class="scenario-timer" id="workoutTimerDisplay">${formatTime(workoutTimeLeft)}</div><button onclick="stopWorkoutTimer()" class="btn-secondary mt-4">Остановить</button></div>`;
+overlay.innerHTML = `<div class="text-center">
+<div class="scenario-timer" id="workoutTimerDisplay">${formatTime(workoutTimeLeft)}</div>
+<div class="flex gap-3 justify-center mt-6">
+<button onclick="pauseWorkoutTimer()" id="workoutPauseBtn" class="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium text-sm transition">⏸️ Пауза</button>
+<button onclick="stopWorkoutTimer()" class="px-6 py-3 bg-slate-500 hover:bg-slate-600 text-white rounded-lg font-medium text-sm transition">⏹️ Стоп</button>
+</div>
+</div>`;
 document.body.appendChild(overlay);
 workoutTimer = setInterval(() => {
+if (workoutPaused) return;
 workoutTimeLeft--;
 const display = document.getElementById('workoutTimerDisplay');
 if (display) display.textContent = formatTime(workoutTimeLeft);
 if (workoutTimeLeft <= 0) { stopWorkoutTimer(); showToast('🎉 Тренировка завершена!'); triggerHaptic('heavy'); playBeepSound(880, 300, 3); }
 }, 1000);
 };
+window.pauseWorkoutTimer = () => {
+workoutPaused = !workoutPaused;
+const btn = document.getElementById('workoutPauseBtn');
+if (btn) {
+if (workoutPaused) {
+btn.textContent = '▶️ Продолжить';
+btn.classList.remove('bg-blue-500', 'hover:bg-blue-600');
+btn.classList.add('bg-emerald-500', 'hover:bg-emerald-600');
+} else {
+btn.textContent = '⏸️ Пауза';
+btn.classList.remove('bg-emerald-500', 'hover:bg-emerald-600');
+btn.classList.add('bg-blue-500', 'hover:bg-blue-600');
+}
+}
+triggerHaptic('light');
+};
 window.stopWorkoutTimer = () => {
 if (workoutTimer) { clearInterval(workoutTimer); workoutTimer = null; }
+workoutPaused = false;
 const overlay = document.getElementById('workoutTimerOverlay');
 if (overlay) overlay.remove();
-
-// 🔵 ДОБАВЬТЕ ЭТУ СТРОКУ — убираем размытие
 document.body.classList.remove('app-blurred');
 };
 function formatTime(seconds) {
