@@ -2232,19 +2232,17 @@ content.innerHTML = `
 <button class="filter-chip ${workoutConfig.intensity === 'hard' ? 'active' : ''}" onclick="setWorkoutIntensity('hard')">Тяжёлая</button>
 </div>
 </div>
-<button onclick="generateWorkout()" class="btn-secondary flex items-center justify-center gap-2"><span>🔄</span><span>Обновить тренировку</span></button>
+<button onclick="generateWorkout()" class="btn-primary flex items-center justify-center gap-2"><span></span><span>Сгенерировать тренировку</span></button>
 <div id="workoutResult"></div>
 </div>
 `;
-// 🔵 Автоматическая генерация тренировки при открытии модалки
-setTimeout(() => generateWorkout(), 100);
-};;
+};
 window.setWorkoutDuration = (d) => { 
     workoutConfig.duration = d; 
-    // Обновляем только активные классы у кнопок, не перерисовываем всё
     document.querySelectorAll('.modal-section:first-child .filter-chip').forEach(chip => {
         chip.classList.toggle('active', chip.textContent.includes(d + ' мин'));
     });
+    generateWorkout();
     triggerHaptic('light'); 
 };
 window.setWorkoutFocus = (f) => { 
@@ -2253,6 +2251,7 @@ window.setWorkoutFocus = (f) => {
     document.querySelectorAll('.modal-section:nth-child(2) .filter-chip').forEach(chip => {
         chip.classList.toggle('active', chip.textContent.trim() === focusLabels[f]);
     });
+    generateWorkout();
     triggerHaptic('light'); 
 };
 window.setWorkoutIntensity = (i) => { 
@@ -2261,6 +2260,7 @@ window.setWorkoutIntensity = (i) => {
     document.querySelectorAll('.modal-section:nth-child(3) .filter-chip').forEach(chip => {
         chip.classList.toggle('active', chip.textContent.trim() === intensityLabels[i]);
     });
+    generateWorkout();
     triggerHaptic('light'); 
 };
 
