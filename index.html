@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content, height=device-height">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
 <title>BJJ Map Pro</title>
 <meta name="theme-color" content="#3b82f6">
 <meta name="mobile-web-app-capable" content="yes">
@@ -37,10 +37,9 @@
 --radius-sm: 8px;
 --radius-md: 12px;
 --radius-lg: 16px;
---nav-height: 68px;
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-html, body { height: 100dvh; margin: 0; padding: 0; overflow: hidden; }
+html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; }
 body {
 font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
 background: var(--bg-primary);
@@ -50,6 +49,7 @@ overscroll-behavior: none;
 display: flex;
 flex-direction: column;
 padding-top: env(safe-area-inset-top);
+padding-bottom: env(safe-area-inset-bottom);
 -webkit-font-smoothing: antialiased;
 }
 /* === DARK THEME === */
@@ -75,7 +75,7 @@ touch-action: none;
 /* === HEADER === */
 header {
 flex-shrink: 0;
-padding: 12px 16px;
+padding: 10px 12px;
 background: var(--bg-secondary);
 border-bottom: 1px solid var(--border-light);
 z-index: 50;
@@ -127,7 +127,7 @@ background: var(--bg-hover) !important;
 border-color: var(--border-medium) !important;
 }
 /* === SEARCH === */
-.search-container { position: relative; width: 100%; margin-top: 12px; }
+.search-container { position: relative; width: 100%; }
 .search-input-wrapper { position: relative; flex: 1; }
 .search-input {
 width: 100%;
@@ -403,60 +403,6 @@ background: var(--text-primary);
 color: var(--bg-secondary);
 border-color: var(--text-primary);
 }
-/* === BOTTOM NAVIGATION === */
-.bottom-nav {
-position: fixed;
-bottom: 0;
-left: 0;
-right: 0;
-background: var(--bg-secondary);
-border-top: 1px solid var(--border-light);
-display: flex;
-justify-content: space-around;
-align-items: center;
-padding: 6px 4px;
-padding-bottom: calc(6px + env(safe-area-inset-bottom));
-z-index: 100;
-box-shadow: 0 -2px 12px rgba(0,0,0,0.06);
-backdrop-filter: blur(20px);
--webkit-backdrop-filter: blur(20px);
-}
-.bottom-nav-item {
-display: flex;
-flex-direction: column;
-align-items: center;
-gap: 3px;
-padding: 6px 8px;
-border-radius: 12px;
-cursor: pointer;
-transition: all 0.15s;
-color: var(--text-secondary);
-background: transparent;
-border: none;
-font-size: 10px;
-font-weight: 500;
-min-width: 0;
-flex: 1;
--webkit-tap-highlight-color: transparent;
-}
-.bottom-nav-item:active {
-background: var(--bg-hover);
-color: var(--text-primary);
-transform: scale(0.94);
-}
-.bottom-nav-item svg {
-width: 22px;
-height: 22px;
-flex-shrink: 0;
-}
-.bottom-nav-item span {
-font-size: 10px;
-line-height: 1;
-white-space: nowrap;
-overflow: hidden;
-text-overflow: ellipsis;
-max-width: 100%;
-}
 /* === LEGEND === */
 .legend-container {
 position: absolute; bottom: 90px; left: 12px;
@@ -512,7 +458,7 @@ max-height: 90vh;
 overflow-y: auto;
 -webkit-overflow-scrolling: touch;
 overscroll-behavior-y: contain;
-padding-bottom: calc(80px + env(safe-area-inset-bottom));
+padding-bottom: 80px;
 }
 .bottom-sheet.active { transform: translateY(0); }
 .bottom-sheet-handle {
@@ -910,7 +856,6 @@ gap: 6px;
 body.app-blurred header,
 body.app-blurred main,
 body.app-blurred .fab-container,
-body.app-blurred .bottom-nav,
 body.app-blurred .bottom-sheet,
 body.app-blurred .bottom-sheet-overlay {
 filter: blur(8px) brightness(0.7);
@@ -936,35 +881,23 @@ border-radius: 3px;
 /* === RESPONSIVE === */
 @media (max-width: 640px) {
 .modal-container { max-height: 92vh; }
-.fab-container { bottom: 80px; right: 16px; gap: 8px; }
+.fab-container { bottom: 85px; right: 16px; gap: 8px; }
 .fab-btn { width: 44px; height: 44px; }
-.legend-container { bottom: 80px; left: 10px; font-size: 7px; padding: 6px 8px; max-width: 120px; }
+.legend-container { bottom: 85px; left: 10px; font-size: 7px; padding: 6px 8px; max-width: 120px; }
 }
 </style>
 </head>
 <body class="min-h-screen flex flex-col">
 <!-- HEADER -->
 <header>
-<div class="flex items-center justify-between gap-2">
-<button onclick="toggleModal('settingsModal')" class="fab-btn settings" style="width: 40px; height: 40px;" title="Настройки">
+<div class="flex items-center gap-2">
+<button onclick="toggleModal('settingsModal')" class="icon-btn flex-shrink-0" title="Настройки" style="width:40px;height:40px;">
 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 <circle cx="12" cy="12" r="3"/>
 <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
 </svg>
 </button>
-<h1 class="text-lg font-bold flex items-center gap-1 flex-shrink-0">
-<span>🥋</span> BJJ Map <span class="text-xs text-blue-500 font-semibold">Pro</span>
-</h1>
-<div class="flex items-center gap-1.5">
-<button id="globalProgressBtn" onclick="toggleModal('progressModal')" class="text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 px-2.5 py-1.5 rounded-full transition border border-blue-200 flex-shrink-0" title="Мой прогресс">0%</button>
-<button onclick="toggleModal('infoModal')" class="icon-btn bg-slate-100 hover:bg-slate-200 text-slate-600" title="Информация">
-<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
-</svg>
-</button>
-</div>
-</div>
-<div class="search-container">
+<div class="search-container flex-1 relative">
 <div class="search-input-wrapper">
 <input type="text" id="searchInput" class="search-input" placeholder="Поиск техники..." autocomplete="off">
 <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -973,6 +906,13 @@ border-radius: 3px;
 </div>
 <div id="searchHistory" class="hidden absolute top-full left-0 right-0 mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg z-50"></div>
 <div id="searchResults" class="hidden absolute top-full left-0 right-0 mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg max-h-80 overflow-y-auto z-50"></div>
+</div>
+<button id="globalProgressBtn" onclick="toggleModal('progressModal')" class="text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 px-2.5 py-1.5 rounded-full transition border border-blue-200 flex-shrink-0" title="Мой прогресс">0%</button>
+<button onclick="toggleModal('infoModal')" class="icon-btn flex-shrink-0 bg-slate-100 hover:bg-slate-200 text-slate-600" title="Информация" style="width:42px;height:42px;">
+<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+</svg>
+</button>
 </div>
 </header>
 <!-- MAIN -->
@@ -1091,7 +1031,7 @@ border-radius: 3px;
         <span>Сценарии</span>
     </button>
     <button class="bottom-nav-item" onclick="toggleModal('decisionModal')" title="Что делать, если...">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
         <span>Решения</span>
     </button>
     <button class="bottom-nav-item" onclick="toggleModal('workoutModal')" title="Генератор тренировки">
@@ -1107,22 +1047,7 @@ border-radius: 3px;
 <script>
 // === TELEGRAM + SUPABASE ===
 if (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp) {
-    try { 
-        window.Telegram.WebApp.ready(); 
-        window.Telegram.WebApp.expand();
-        // 🔵 ПОЛНОЭКРАННЫЙ РЕЖИМ
-        if (window.Telegram.WebApp.requestFullscreen) {
-            window.Telegram.WebApp.requestFullscreen().catch(() => {});
-        }
-        // Устанавливаем цвет шапки
-        if (window.Telegram.WebApp.setHeaderColor) {
-            try { window.Telegram.WebApp.setHeaderColor('#3b82f6'); } catch(e) {}
-        }
-        // Отключаем вертикальный свайп для закрытия
-        if (window.Telegram.WebApp.disableVerticalSwipes) {
-            try { window.Telegram.WebApp.disableVerticalSwipes(); } catch(e) {}
-        }
-    } catch (e) { console.log('Telegram init error:', e); }
+try { window.Telegram.WebApp.ready(); window.Telegram.WebApp.expand(); } catch (e) {}
 }
 const triggerHaptic = (type = 'light') => {
 if (typeof window.Telegram !== 'undefined' && window.Telegram?.WebApp?.HapticFeedback) window.Telegram.WebApp.HapticFeedback.impactOccurred(type);
