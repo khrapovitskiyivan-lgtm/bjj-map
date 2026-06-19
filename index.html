@@ -2823,24 +2823,34 @@ triggerHaptic('light');
 
 // === DECISION TREE ===
 window.renderDecisionModal = () => {
-  const content = document.getElementById('decisionContent');
-  const positions = [
-    { id: 1, label: 'Я в закрытом гарде снизу', icon: '' },
-    { id: 2, label: 'Я в закрытом гарде сверху', icon: '' },
-    { id: 3, label: 'Я в халф-гарде снизу', icon: '' },
-    { id: 4, label: 'Я в халф-гарде сверху', icon: '' },
-    { id: 5, label: 'Я в баттерфляе снизу', icon: '' },
-    { id: 13, label: 'Я в сайд-контроле снизу', icon: '' },
-    { id: 14, label: 'Я в сайд-контроле сверху', icon: '' },
-    { id: 15, label: 'Я в маунте снизу', icon: '' },
-    { id: 16, label: 'Я в маунте сверху', icon: '' },
-    { id: 17, label: 'Я контролирую спину', icon: '' },
-    { id: 18, label: 'Соперник взял мою спину', icon: '' },
-    { id: 19, label: 'Соперник в черепахе', icon: '' },
-    { id: 21, label: 'Мы в стойке', icon: '' },
-    { id: 11, label: 'Я в 50/50 гарде', icon: '' },
-    { id: 300, label: 'Я в Single Leg X', icon: '' }
-  ];
+const content = document.getElementById('decisionContent');
+const positions = [
+{ id: 1, label: 'Я в закрытом гарде снизу', icon: '' },
+{ id: 2, label: 'Я в закрытом гарде сверху', icon: '' },
+{ id: 3, label: 'Я в халф-гарде снизу', icon: '' },
+{ id: 4, label: 'Я в халф-гарде сверху', icon: '' },
+{ id: 5, label: 'Я в баттерфляе снизу', icon: '' },
+{ id: 6, label: 'Я в баттерфляе сверху', icon: '' },
+{ id: 7, label: 'Я в паук-гарде снизу', icon: '' },
+{ id: 8, label: 'Я в де-ла-Рива снизу', icon: '' },
+{ id: 10, label: 'Я в X-гарде снизу', icon: '' },
+{ id: 11, label: 'Я в 50/50 гарде', icon: '' },
+{ id: 13, label: 'Я в сайд-контроле снизу', icon: '' },
+{ id: 14, label: 'Я в сайд-контроле сверху', icon: '' },
+{ id: 15, label: 'Я в маунте снизу', icon: '' },
+{ id: 16, label: 'Я в маунте сверху', icon: '' },
+{ id: 17, label: 'Я контролирую спину', icon: '' },
+{ id: 18, label: 'Соперник взял мою спину', icon: '' },
+{ id: 19, label: 'Соперник в черепахе', icon: '' },
+{ id: 20, label: 'Я в черепахе снизу', icon: '' },
+{ id: 21, label: 'Мы в стойке', icon: '' },
+{ id: 22, label: 'Я в север-юг сверху', icon: '' },
+{ id: 23, label: 'Я в север-юг снизу', icon: '' },
+{ id: 24, label: 'Я в колено на животе сверху', icon: '' },
+{ id: 25, label: 'Я в колено на животе снизу', icon: '' },
+{ id: 300, label: 'Я в Single Leg X', icon: '' },
+{ id: 301, label: 'Я в воротник-рукав гарде', icon: '' }
+];
   content.innerHTML = `
     <div class="space-y-4">
       <div class="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
