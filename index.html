@@ -3308,11 +3308,12 @@ window.importProgress = (input) => {
 
 // === ONBOARDING ===
 const onboardingSteps = [
-  { icon: "🥋", title: "Добро пожаловать!", text: "Это интерактивная карта техник БЖЖ. Изучайте последовательности и развивайтесь вместе с нами." },
-  { icon: "⚙️", title: "Настройка", text: "Нажмите на шестерёнку ⚙️, чтобы выбрать свой пояс и стиль. Карта скроет сложные техники и подстроится под вас." },
-  { icon: "📍", title: "Навигация", text: "Нажимайте на узлы графа, чтобы открыть карточки с описаниями, механикой и видео." },
-  { icon: "✅", title: "Прогресс", text: "В карточке техники отмечайте статус: 'Не начал', 'В процессе', 'Изучено'. Доступные техники подсвечиваются." },
-  { icon: "🚀", title: "Готово!", text: "Удачи на татами! Используйте новые функции: ТРЕНИРОВКИ, МОЯ ИГРА, ЧТО ДЕЛАТЬ ЕСЛИ..., СЦЕНАРИИ." }
+{ type: 'welcome', icon: "🥋", title: "Добро пожаловать в BJJ Map Pro!", text: "Интерактивная карта техник бразильского джиу-джитсу. Более 250 техник, связанных в единую систему атак, защит и переходов." },
+{ type: 'belt', icon: "", title: "Какой у вас пояс?", text: "Карта автоматически подстроится под ваш уровень — покажет только доступные техники и даст правильные рекомендации." },
+{ type: 'info', icon: "", title: "Как пользоваться", text: "Нажимайте на узлы графа, чтобы открыть карточку техники с механикой, ключевыми деталями и типичными ошибками." },
+{ type: 'info', icon: "", title: "Отмечайте прогресс", text: "В карточке техники выберите статус: «Не начал», «В процессе» или «Изучено». Освоенные техники подсвечиваются зелёным." },
+{ type: 'info', icon: "", title: "Развивайте свою игру", text: "Используйте разделы: СЦЕНАРИИ, РЕШЕНИЯ, ТРЕНИРОВКА и МОЯ ИГРА." },
+{ type: 'info', icon: "🚀", title: "Удачи на татами!", text: "Нажмите «Начать», чтобы открыть карту. Настройки всегда можно изменить через ⚙️ в шапке." }
 ];
 let currentStep = 0;
 function showOnboarding() {
@@ -3322,23 +3323,86 @@ function showOnboarding() {
   renderOnboardingStep();
 }
 function renderOnboardingStep() {
-  const step = onboardingSteps[currentStep];
-  document.getElementById('onboarding-content').innerHTML = `<div class="text-4xl mb-3">${step.icon}</div><h3 class="text-lg font-bold text-slate-800 dark:text-white mb-2">${step.title}</h3><p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">${step.text}</p>`;
-  const dotsContainer = document.getElementById('onboarding-dots');
-  dotsContainer.innerHTML = onboardingSteps.map((_, i) => `<div id="onboarding-dot-${i}" style="width:${i===currentStep?16:6}px;height:6px;border-radius:${i===currentStep?4:50}%;background:${i===currentStep?'#3b82f6':'#cbd5e1'};transition:all 0.3s;"></div>`).join('');
-  const btn = document.getElementById('btn-next-onboarding');
-  btn.textContent = currentStep === onboardingSteps.length - 1 ? 'Начать' : 'Далее';
+const step = onboardingSteps[currentStep];
+const contentEl = document.getElementById('onboarding-content');
+
+if (step.type === 'belt') {
+    // 🔵 Специальный шаг с выбором пояса
+    const currentBelt = styleProfile.belt || 'white';
+    const belts = [
+        { id: 'white', icon: '⚪', name: 'Белый', desc: 'Фундамент и база' },
+        { id: 'blue', icon: '🔵', name: 'Синий', desc: 'Базовые техники' },
+        { id: 'purple', icon: '🟣', name: 'Фиолетовый', desc: 'Продвинутый уровень' },
+        { id: 'brown', icon: '🟤', name: 'Коричневый', desc: 'Мастерские детали' },
+        { id: 'black', icon: '⚫', name: 'Чёрный', desc: 'Полный арсенал' }
+    ];
+    contentEl.innerHTML = `
+        <div class="text-4xl mb-3">${step.icon}</div>
+        <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-2">${step.title}</h3>
+        <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4">${step.text}</p>
+        <div class="space-y-2">
+            ${belts.map(b => `
+                <button onclick="selectOnboardingBelt('${b.id}')" class="w-full p-3 rounded-xl border transition text-left flex items-center gap-3 ${currentBelt === b.id ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-500 ring-2 ring-blue-500/20' : 'bg-slate-50 dark:bg-slate-700 border-slate-200 dark:border-slate-600 hover:border-blue-300'}">
+                    <div class="text-2xl flex-shrink-0">${b.icon}</div>
+                    <div class="flex-1 min-w-0">
+                        <div class="text-sm font-semibold text-slate-800 dark:text-white">${b.name} пояс</div>
+                        <div class="text-xs text-slate-500 dark:text-slate-400">${b.desc}</div>
+                    </div>
+                    ${currentBelt === b.id ? '<div class="text-blue-500 text-lg">✓</div>' : ''}
+                </button>
+            `).join('')}
+        </div>
+    `;
+} else {
+    contentEl.innerHTML = `<div class="text-4xl mb-3">${step.icon}</div><h3 class="text-lg font-bold text-slate-800 dark:text-white mb-2">${step.title}</h3><p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">${step.text}</p>`;
+}
+
+const dotsContainer = document.getElementById('onboarding-dots');
+dotsContainer.innerHTML = onboardingSteps.map((_, i) => `<div id="onboarding-dot-${i}" style="width:${i===currentStep?16:6}px;height:6px;border-radius:${i===currentStep?4:50}%;background:${i===currentStep?'#3b82f6':'#cbd5e1'};transition:all 0.3s;"></div>`).join('');
+
+const btn = document.getElementById('btn-next-onboarding');
+if (step.type === 'belt') {
+    btn.textContent = 'Далее';
+    btn.style.display = 'inline-block';
+} else {
+    btn.textContent = currentStep === onboardingSteps.length - 1 ? 'Начать' : 'Далее';
+    btn.style.display = 'inline-block';
+}
 }
 function nextOnboardingStep() {
-  triggerHaptic('light');
-  if (currentStep < onboardingSteps.length - 1) { currentStep++; renderOnboardingStep(); }
-  else closeOnboarding();
+triggerHaptic('light');
+if (currentStep < onboardingSteps.length - 1) { 
+    currentStep++; 
+    renderOnboardingStep(); 
+} else {
+    closeOnboarding();
 }
+}
+
+window.selectOnboardingBelt = (belt) => {
+    styleProfile.belt = belt;
+    localStorage.setItem('bjj_style_profile', JSON.stringify(styleProfile));
+    triggerHaptic('medium');
+    renderOnboardingStep();
+    // Автоматически переходим к следующему шагу через 400мс
+    setTimeout(() => {
+        nextOnboardingStep();
+    }, 400);
+};
 function closeOnboarding(skip = false) {
-  const modal = document.getElementById('onboarding-modal');
-  modal.classList.remove('active');
-  setTimeout(() => modal.classList.add('hidden'), 300);
-  localStorage.setItem('bjj_onboarding_seen', 'true');
+const modal = document.getElementById('onboarding-modal');
+modal.classList.remove('active');
+setTimeout(() => modal.classList.add('hidden'), 300);
+localStorage.setItem('bjj_onboarding_seen', 'true');
+// 🔵 Применяем фильтры после выбора пояса
+applyAllFilters();
+updateNodeColors();
+// Центрируем граф после применения фильтров
+setTimeout(() => {
+    if (network) {
+        network.fit({ animation: { duration: 500, easingFunction: 'easeInOutQuad' } });
+    }
+}, 400);
 }
 
 // === ЗАПУСК ===
