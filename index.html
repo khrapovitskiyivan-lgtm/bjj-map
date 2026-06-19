@@ -2596,65 +2596,193 @@ oscillator.stop(audioCtx.currentTime + i * 0.4 + duration / 1000);
 } catch (e) { console.log('Audio not supported'); }
 }
 // === A-GAME ANALYZER ===
+// === ГЛОБАЛЬНАЯ ПЕРЕМЕННАЯ ДЛЯ РАСКРЫТИЯ ПРОГРЕССА ===
+let agameProgressExpanded = false;
+
 window.renderAGameModal = () => {
 const content = document.getElementById('agameContent');
 const done = bjjNodesData.filter(n => progress[n.id] === 'done');
 const inProgress = bjjNodesData.filter(n => progress[n.id] === 'in_progress');
+const total = bjjNodesData.length;
+const percent = Math.round((done.length / total) * 100);
+
 const categoryStats = {};
 Object.keys(catLabels).forEach(group => {
 const total = bjjNodesData.filter(n => n.group === group).length;
 const doneCount = done.filter(n => n.group === group).length;
 categoryStats[group] = { total, done: doneCount, percent: total > 0 ? Math.round((doneCount / total) * 100) : 0 };
 });
+
 const topCategories = Object.entries(categoryStats).filter(([_, s]) => s.done > 0).sort((a, b) => b[1].percent - a[1].percent).slice(0, 3);
 const weakCategories = Object.entries(categoryStats).filter(([_, s]) => s.total > 0).sort((a, b) => a[1].percent - b[1].percent).slice(0, 3);
-const keyPositions = [
-{ id: 1, label: 'Closed Guard' }, { id: 14, label: 'Side Control' }, { id: 16, label: 'Mount' },
-{ id: 17, label: 'Back Control' }, { id: 3, label: 'Half Guard' }, { id: 5, label: 'Butterfly' },
-{ id: 10, label: 'X-Guard' }, { id: 11, label: '50/50' }, { id: 21, label: 'Standing' }
-];
-const recommendations = [];
-const userBelt = styleProfile.belt || 'white';
 
-if (userBelt === 'white') {
-if (categoryStats.escape && categoryStats.escape.percent < 50) recommendations.push({ icon: '🛡️', text: 'Белый пояс: укрепите защиты — Upa (131), Elbow Escape (132), Shrimp (133), Back Defense (134)' });
-if (categoryStats.guard_pass && categoryStats.guard_pass.percent < 30) recommendations.push({ icon: '🚪', text: 'Белый пояс: изучите базовые проходы — Knee Slice (90), Toreando (93), Stack (99)' });
-if (categoryStats.position && categoryStats.position.percent < 40) recommendations.push({ icon: '📍', text: 'Белый пояс: освойте базовые позиции — Side Control (14), Mount (16), Back Control (17)' });
-if (categoryStats.takedown && categoryStats.takedown.percent < 20) recommendations.push({ icon: '🤼', text: 'Белый пояс: изучите базовые тейкдауны — Double Leg (150), Single Leg (151)' });
-} else if (userBelt === 'blue') {
-if (categoryStats.submission && categoryStats.submission.percent < 30) recommendations.push({ icon: '🔒', text: 'Синий пояс: изучите базовые сабмишены — Armbar (30), Triangle (31), Kimura (32), RNC (42)' });
-if (categoryStats.sweep && categoryStats.sweep.percent < 30) recommendations.push({ icon: '🔄', text: 'Синий пояс: освойте свипы — Butterfly (73), Tripod (76), Spider Scissors (75)' });
-if (categoryStats.guard_pass && categoryStats.guard_pass.percent < 40) recommendations.push({ icon: '🚪', text: 'Синий пояс: продвинутые проходы — Leg Drag (94), Long Step (95)' });
-if (categoryStats.escape && categoryStats.escape.percent < 60) recommendations.push({ icon: '🛡️', text: 'Синий пояс: защиты от сабмишенов — Armbar Escape (136), Triangle Defense (135)' });
-} else if (userBelt === 'purple') {
-if (categoryStats.submission && categoryStats.submission.percent < 40) recommendations.push({ icon: '🔒', text: 'Фиолетовый пояс: D\'Arce (57), Anaconda (58), Bow & Arrow (55), Leg Locks' });
-if (categoryStats.sweep && categoryStats.sweep.percent < 40) recommendations.push({ icon: '🔄', text: 'Фиолетовый пояс: Berimbolo (320), X-Guard Sweep (74), Deep Half (80)' });
-if (categoryStats.transition && categoryStats.transition.percent < 30) recommendations.push({ icon: '➡️', text: 'Фиолетовый пояс: цепочки атак — Triangle to Armbar (351), Armbar to Omoplata (352)' });
-if (categoryStats.position && categoryStats.position.percent < 50) recommendations.push({ icon: '📍', text: 'Фиолетовый пояс: продвинутые позиции — X-Guard (10), 50/50 (11), Single Leg X (300)' });
-} else if (userBelt === 'brown' || userBelt === 'black') {
-if (categoryStats.submission && categoryStats.submission.percent < 50) recommendations.push({ icon: '🔒', text: 'Коричневый/Чёрный пояс: Heel Hook (52), Twister (359), Cattle Mutilation (360)' });
-if (categoryStats.position && categoryStats.position.percent < 60) recommendations.push({ icon: '📍', text: 'Коричневый/Чёрный пояс: Worm Guard (302), Rubber Guard (380), Lasso (364)' });
-if (categoryStats.guard_pass && categoryStats.guard_pass.percent < 50) recommendations.push({ icon: '🚪', text: 'Коричневый/Чёрный пояс: Saddle Pass (328), Honeyhole (334), Bulldog (330)' });
-if (categoryStats.escape && categoryStats.escape.percent < 70) recommendations.push({ icon: '🛡️', text: 'Коричневый/Чёрный пояс: Heel Hook Escape (137), Matrix Escape (447)' });
+const keyPositions = [
+{ id: 1, label: 'Закрытый гард' }, { id: 14, label: 'Сайд-контроль' }, { id: 16, label: 'Маунт' },
+{ id: 17, label: 'Контроль спины' }, { id: 3, label: 'Халф-гард' }, { id: 5, label: 'Баттерфляй' },
+{ id: 10, label: 'X-гард' }, { id: 11, label: '50/50' }, { id: 21, label: 'Стойка' }
+];
+
+// 🔵 АВТОМАТИЧЕСКИЕ РЕКОМЕНДАЦИИ БЕЗ УКАЗАНИЯ ПОЯСА, НА РУССКОМ
+const recommendations = [];
+
+// Защита
+if (categoryStats.escape && categoryStats.escape.percent < 50) {
+const escapeNodes = bjjNodesData.filter(n => n.group === 'escape' && progress[n.id] !== 'done').slice(0, 4);
+if (escapeNodes.length > 0) {
+const techList = escapeNodes.map(n => n.label).join(', ');
+recommendations.push({ icon: '🛡️', text: `Укрепите защиты: ${techList}` });
+}
+}
+
+// Проходы гарда
+if (categoryStats.guard_pass && categoryStats.guard_pass.percent < 40) {
+const passNodes = bjjNodesData.filter(n => n.group === 'guard_pass' && progress[n.id] !== 'done').slice(0, 4);
+if (passNodes.length > 0) {
+const techList = passNodes.map(n => n.label).join(', ');
+recommendations.push({ icon: '🚪', text: `Изучите проходы гарда: ${techList}` });
+}
+}
+
+// Позиции
+if (categoryStats.position && categoryStats.position.percent < 50) {
+const posNodes = bjjNodesData.filter(n => n.group === 'position' && progress[n.id] !== 'done').slice(0, 4);
+if (posNodes.length > 0) {
+const techList = posNodes.map(n => n.label).join(', ');
+recommendations.push({ icon: '📍', text: `Освойте базовые позиции: ${techList}` });
+}
+}
+
+// Тейкдауны
+if (categoryStats.takedown && categoryStats.takedown.percent < 30) {
+const tdNodes = bjjNodesData.filter(n => n.group === 'takedown' && progress[n.id] !== 'done').slice(0, 4);
+if (tdNodes.length > 0) {
+const techList = tdNodes.map(n => n.label).join(', ');
+recommendations.push({ icon: '🤼', text: `Изучите тейкдауны: ${techList}` });
+}
+}
+
+// Сабмишены
+if (categoryStats.submission && categoryStats.submission.percent < 40) {
+const subNodes = bjjNodesData.filter(n => n.group === 'submission' && progress[n.id] !== 'done').slice(0, 4);
+if (subNodes.length > 0) {
+const techList = subNodes.map(n => n.label).join(', ');
+recommendations.push({ icon: '🔒', text: `Изучите сабмишены: ${techList}` });
+}
+}
+
+// Свипы
+if (categoryStats.sweep && categoryStats.sweep.percent < 40) {
+const sweepNodes = bjjNodesData.filter(n => n.group === 'sweep' && progress[n.id] !== 'done').slice(0, 4);
+if (sweepNodes.length > 0) {
+const techList = sweepNodes.map(n => n.label).join(', ');
+recommendations.push({ icon: '🔄', text: `Освойте свипы: ${techList}` });
+}
+}
+
+// Переходы
+if (categoryStats.transition && categoryStats.transition.percent < 30) {
+const transNodes = bjjNodesData.filter(n => n.group === 'transition' && progress[n.id] !== 'done').slice(0, 4);
+if (transNodes.length > 0) {
+const techList = transNodes.map(n => n.label).join(', ');
+recommendations.push({ icon: '➡️', text: `Изучите цепочки переходов: ${techList}` });
+}
 }
 
 if (recommendations.length === 0) {
-if (userBelt === 'white') recommendations.push({ icon: '✨', text: 'Отличная база! Продолжайте изучать фундаментальные техники.' });
-else if (userBelt === 'blue') recommendations.push({ icon: '✨', text: 'Отличный прогресс! Развивайте свой A-Game.' });
-else if (userBelt === 'purple') recommendations.push({ icon: '✨', text: 'Вы на пути к мастерству! Работайте над цепочками.' });
-else recommendations.push({ icon: '✨', text: 'Мастерский уровень! Продолжайте оттачивать детали.' });
+recommendations.push({ icon: '✨', text: 'Отличный прогресс! Продолжайте развивать свой A-Game.' });
 }
+
+// 🔵 СОДЕРЖИМОЕ РАСКРЫВАЮЩЕГОСЯ БЛОКА ПРОГРЕССА
+let progressExpandedContent = '';
+if (agameProgressExpanded) {
+// Вкладка "Прогресс" - список техник
+let progressListHtml = '';
+if (inProgress.length === 0 && done.length === 0) {
+progressListHtml = `<div class="text-center py-4"><div class="text-3xl mb-2">🎯</div><p class="text-xs text-slate-500">Вы пока не отметили ни одной техники</p></div>`;
+} else {
+if (inProgress.length > 0) {
+progressListHtml += `<div class="mb-3"><div class="text-xs font-bold text-amber-700 dark:text-amber-300 uppercase tracking-wider mb-2">📚 В процессе (${inProgress.length})</div>`;
+inProgress.slice(0, 5).forEach(n => {
+progressListHtml += `<div class="technique-card in-progress mb-1" onclick="focusNode(${n.id}); toggleModal('agameModal')"><span class="technique-icon">${groupIcons[n.group] || '🥋'}</span><div class="flex-1 min-w-0"><div class="technique-label truncate text-xs">${n.label}</div><div class="text-xs text-amber-700 dark:text-amber-300">${catLabels[n.group]} · ${beltIcons[n.belt]} ${beltNames[n.belt]}</div></div></div>`;
+});
+progressListHtml += `</div>`;
+}
+if (done.length > 0) {
+progressListHtml += `<div><div class="text-xs font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider mb-2">✅ Изучено (${done.length})</div>`;
+done.slice(0, 10).forEach(n => {
+progressListHtml += `<div class="technique-card done mb-1" onclick="focusNode(${n.id}); toggleModal('agameModal')"><span class="technique-icon">${groupIcons[n.group] || '🥋'}</span><div class="flex-1 min-w-0"><div class="technique-label truncate text-xs">${n.label}</div><div class="text-xs text-emerald-700 dark:text-emerald-300">${catLabels[n.group]} · ${beltIcons[n.belt]} ${beltNames[n.belt]}</div></div></div>`;
+});
+progressListHtml += `</div>`;
+}
+}
+
+// Вкладка "Пояса"
+let beltsHtml = '<div class="space-y-2">';
+beltOrder.forEach(belt => {
+const beltTotal = bjjNodesData.filter(n => n.belt === belt).length;
+const beltDone = done.filter(n => n.belt === belt).length;
+const beltPercent = beltTotal > 0 ? Math.round((beltDone / beltTotal) * 100) : 0;
+beltsHtml += `<div class="progress-bar-container"><div class="progress-bar-header"><span class="progress-bar-label text-xs">${beltIcons[belt]} ${beltNames[belt]} пояс</span><span class="progress-bar-value text-xs">${beltDone}/${beltTotal} (${beltPercent}%)</span></div><div class="progress-bar"><div class="progress-bar-fill" style="width: ${beltPercent}%"></div></div></div>`;
+});
+beltsHtml += '</div>';
+
+// Вкладка "Статистика"
+const byGroup = {};
+Object.keys(catLabels).forEach(g => {
+const total = bjjNodesData.filter(n => n.group === g).length;
+const doneCount = done.filter(n => n.group === g).length;
+byGroup[g] = { total, done: doneCount, percent: total > 0 ? Math.round((doneCount / total) * 100) : 0 };
+});
+let statsHtml = '<div class="space-y-2">';
+Object.entries(byGroup).forEach(([group, stats]) => {
+statsHtml += `<div class="progress-bar-container"><div class="progress-bar-header"><span class="progress-bar-label text-xs">${groupIcons[group] || '🥋'} ${catLabels[group]}</span><span class="progress-bar-value text-xs">${stats.done}/${stats.total} (${stats.percent}%)</span></div><div class="progress-bar"><div class="progress-bar-fill" style="width: ${stats.percent}%"></div></div></div>`;
+});
+statsHtml += '</div>';
+
+progressExpandedContent = `
+<div class="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700">
+<div class="flex gap-1 mb-3">
+<button onclick="switchAGameProgressTab('progress')" class="flex-1 py-1.5 text-xs font-medium rounded-lg transition ${agameProgressTab === 'progress' ? 'bg-blue-500 text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300'}">Прогресс</button>
+<button onclick="switchAGameProgressTab('belts')" class="flex-1 py-1.5 text-xs font-medium rounded-lg transition ${agameProgressTab === 'belts' ? 'bg-blue-500 text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300'}">Пояса</button>
+<button onclick="switchAGameProgressTab('stats')" class="flex-1 py-1.5 text-xs font-medium rounded-lg transition ${agameProgressTab === 'stats' ? 'bg-blue-500 text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300'}">Статистика</button>
+</div>
+<div id="agameProgressTabContent">
+${agameProgressTab === 'progress' ? progressListHtml : ''}
+${agameProgressTab === 'belts' ? beltsHtml : ''}
+${agameProgressTab === 'stats' ? statsHtml : ''}
+</div>
+</div>
+`;
+}
+
 content.innerHTML = `
 <div class="space-y-5">
-<div class="p-4 bg-gradient-to-br from-pink-50 to-purple-50 dark:from-pink-900/20 dark:to-purple-900/20 rounded-xl border border-pink-200 dark:border-pink-800">
-<div class="mb-3"><div class="text-sm text-pink-700 dark:text-pink-300">Изучено ${done.length} из ${bjjNodesData.length} техник</div></div>
+<!-- 🔵 НЕЙТРАЛЬНЫЙ БЛОК С ПРОЦЕНТОМ И РАСКРЫТИЕМ -->
+<div class="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+<div class="flex items-center justify-between mb-3 cursor-pointer" onclick="toggleAGameProgress()">
+<div class="flex-1">
+<div class="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">Общий прогресс</div>
+<div class="flex items-center gap-2">
+<div class="text-2xl font-bold text-blue-600 dark:text-blue-400">${percent}%</div>
+<div class="text-xs text-slate-500">Изучено ${done.length} из ${total} техник</div>
+</div>
+</div>
+<div class="text-slate-400 transition-transform ${agameProgressExpanded ? 'rotate-180' : ''}">
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+</div>
+</div>
+<div class="progress-bar mb-3"><div class="progress-bar-fill" style="width: ${percent}%"></div></div>
 <div class="grid grid-cols-2 gap-2 text-xs">
-<div class="p-2 bg-white dark:bg-slate-800 rounded-lg"><div class="text-pink-600 dark:text-pink-400 font-bold">${done.length}</div><div class="text-slate-500">Изучено</div></div>
-<div class="p-2 bg-white dark:bg-slate-800 rounded-lg"><div class="text-amber-600 dark:text-amber-400 font-bold">${inProgress.length}</div><div class="text-slate-500">В процессе</div></div>
+<div class="p-2 bg-white dark:bg-slate-700 rounded-lg"><div class="text-blue-600 dark:text-blue-400 font-bold">${done.length}</div><div class="text-slate-500">Изучено</div></div>
+<div class="p-2 bg-white dark:bg-slate-700 rounded-lg"><div class="text-amber-600 dark:text-amber-400 font-bold">${inProgress.length}</div><div class="text-slate-500">В процессе</div></div>
 </div>
+${progressExpandedContent}
 </div>
+
 ${topCategories.length > 0 ? `<div class="modal-section"><div class="modal-section-title">💪 Сильные стороны</div><div class="space-y-2">${topCategories.map(([group, stats]) => `<div class="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800"><div class="flex items-center justify-between mb-1"><span class="text-sm font-semibold text-emerald-900 dark:text-emerald-200">${catLabels[group]}</span><span class="text-xs font-bold text-emerald-700 dark:text-emerald-300">${stats.percent}%</span></div><div class="stat-bar"><div class="stat-bar-fill bg-emerald-500" style="width: ${stats.percent}%"></div></div><div class="text-xs text-emerald-700 dark:text-emerald-300 mt-1">${stats.done} из ${stats.total}</div></div>`).join('')}</div></div>` : ''}
+
 ${weakCategories.length > 0 ? `<div class="modal-section"><div class="modal-section-title">🎯 Точки роста</div><div class="space-y-2">${weakCategories.map(([group, stats]) => `<div class="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800"><div class="flex items-center justify-between mb-1"><span class="text-sm font-semibold text-amber-900 dark:text-amber-200">${catLabels[group]}</span><span class="text-xs font-bold text-amber-700 dark:text-amber-300">${stats.percent}%</span></div><div class="stat-bar"><div class="stat-bar-fill bg-amber-500" style="width: ${stats.percent}%"></div></div><div class="text-xs text-amber-700 dark:text-amber-300 mt-1">${stats.done} из ${stats.total}</div></div>`).join('')}</div></div>` : ''}
+
 <div class="modal-section">
 <div class="modal-section-title">Карта позиций</div>
 <div class="position-grid" id="heatmapGrid">
@@ -2667,6 +2795,7 @@ return `<div class="position-cell heat-${heat} ${isSelected ? 'ring-2 ring-blue-
 }).join('')}
 </div>
 </div>
+
 <div class="modal-section">
 <div class="modal-section-title">💡 Рекомендации</div>
 <div class="space-y-2">
@@ -2675,6 +2804,21 @@ ${recommendations.map(rec => `<div class="p-3 bg-blue-50 dark:bg-blue-900/20 rou
 </div>
 </div>
 `;
+};
+
+// 🔵 ФУНКЦИИ ДЛЯ РАСКРЫТИЯ ПРОГРЕССА
+let agameProgressTab = 'progress';
+
+window.toggleAGameProgress = () => {
+agameProgressExpanded = !agameProgressExpanded;
+renderAGameModal();
+triggerHaptic('light');
+};
+
+window.switchAGameProgressTab = (tab) => {
+agameProgressTab = tab;
+renderAGameModal();
+triggerHaptic('light');
 };
 
 // === DECISION TREE ===
