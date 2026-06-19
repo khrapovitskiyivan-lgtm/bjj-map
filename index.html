@@ -75,7 +75,7 @@ touch-action: none;
 /* === HEADER === */
 header {
 flex-shrink: 0;
-padding: 10px 12px;
+padding: 12px 16px;
 background: var(--bg-secondary);
 border-bottom: 1px solid var(--border-light);
 z-index: 50;
@@ -127,7 +127,7 @@ background: var(--bg-hover) !important;
 border-color: var(--border-medium) !important;
 }
 /* === SEARCH === */
-.search-container { position: relative; width: 100%; }
+.search-container { position: relative; width: 100%; margin-top: 12px; }
 .search-input-wrapper { position: relative; flex: 1; }
 .search-input {
 width: 100%;
@@ -370,7 +370,7 @@ margin-bottom: 12px;
 /* === FAB BUTTONS === */
 .fab-container {
 position: absolute;
-bottom: 90px;
+bottom: 91px;
 right: 20px;
 display: flex;
 flex-direction: column;
@@ -459,7 +459,7 @@ max-width: 100%;
 }
 /* === LEGEND === */
 .legend-container {
-position: absolute; bottom: 90px; left: 12px;
+position: absolute; bottom: 91px; left: 12px;
 background: rgba(255,255,255,0.9); backdrop-filter: blur(10px);
 border-radius: 10px; padding: 7px 10px;
 box-shadow: 0 2px 8px rgba(0,0,0,0.08); font-size: 8px;
@@ -512,7 +512,7 @@ max-height: 90vh;
 overflow-y: auto;
 -webkit-overflow-scrolling: touch;
 overscroll-behavior-y: contain;
-padding-bottom: 80px;
+padding-bottom: calc(80px + env(safe-area-inset-bottom));
 }
 .bottom-sheet.active { transform: translateY(0); }
 .bottom-sheet-handle {
@@ -2669,11 +2669,14 @@ function renderNodeDetails(nodeId) {
   const diffInfo = difficultyLabels[difficulty] || difficultyLabels[1];
   detailsHtml = `<div class="mb-3 p-3 bg-${diffInfo.color}-50 dark:bg-${diffInfo.color}-900/20 rounded-lg border border-${diffInfo.color}-200 dark:border-${diffInfo.color}-800"><div class="flex items-center gap-2 mb-1"><span class="text-lg">${diffInfo.icon}</span><h3 class="text-xs font-bold text-${diffInfo.color}-900 dark:text-${diffInfo.color}-200 uppercase tracking-wider">Сложность</h3></div><div class="flex items-center gap-2"><span class="text-sm font-semibold text-${diffInfo.color}-900 dark:text-${diffInfo.color}-200">${diffInfo.label}</span><div class="flex gap-0.5">${[1,2,3,4,5].map(i => `<span class="text-xs">${i <= difficulty ? '⭐' : '☆'}</span>`).join('')}</div></div></div>` + detailsHtml;
   
-  document.getElementById('nodeDetails').innerHTML = `
-    <div class="fade-in">
-      <div class="flex justify-between items-start mb-3">
-        <div class="flex-1">
-          <h2 class="text-lg font-bold text-slate-800 mb-1">${n.title}</h2>
+document.getElementById('nodeDetails').innerHTML = `
+<div class="fade-in">
+<div class="flex justify-end mb-2">
+<button onclick="document.getElementById('bottomSheet').classList.remove('active'); document.getElementById('bottomSheetOverlay').classList.remove('active');" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 flex items-center justify-center text-slate-500 hover:text-slate-800 dark:text-slate-300 dark:hover:text-white transition" title="Закрыть" style="font-size:18px;line-height:1;">×</button>
+</div>
+<div class="flex justify-between items-start mb-3">
+<div class="flex-1">
+<h2 class="text-lg font-bold text-slate-800 mb-1">${n.title}</h2>
           <div class="flex gap-2 flex-wrap">
             <span class="px-2 py-0.5 bg-slate-100 rounded text-xs text-slate-600 border border-slate-200">${catLabels[n.group]}</span>
             <span class="px-2 py-0.5 bg-slate-100 rounded text-xs text-slate-600 border border-slate-200">${beltIcons[n.belt]} ${beltNames[n.belt]}</span>
