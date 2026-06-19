@@ -2453,7 +2453,7 @@ html += `<div class="flex items-center gap-3 mb-4 p-3 bg-${beltData.color}-50 da
 // === БЛОК РАЗМИНКИ ===
 html += `<div class="mb-4">
 <div class="flex items-center gap-2 mb-2">
-<span class="text-xl">🔥</span>
+<span class="text-xl"></span>
 <h3 class="text-sm font-bold text-orange-700 dark:text-orange-300 uppercase tracking-wider">Разминка · ${warmupDuration} мин</h3>
 </div>
 <div class="p-3 bg-orange-50 dark:bg-orange-900/10 rounded-lg border border-orange-200 dark:border-orange-800/50">
@@ -2474,7 +2474,7 @@ html += `</div></div></div>`;
 // === ОСНОВНАЯ ЧАСТЬ ===
 html += `<div class="mb-4">
 <div class="flex items-center gap-2 mb-2">
-<span class="text-xl">🏋️</span>
+<span class="text-xl"></span>
 <h3 class="text-sm font-bold text-amber-700 dark:text-amber-300 uppercase tracking-wider">Основная часть · ${mainDuration} мин</h3>
 </div>
 <div class="space-y-2">`;
@@ -2497,7 +2497,7 @@ html += `</div></div>`;
 // === БЛОК ЗАМИНКИ / РАСТЯЖКИ ===
 html += `<div class="mb-4">
 <div class="flex items-center gap-2 mb-2">
-<span class="text-xl">🧘</span>
+<span class="text-xl"></span>
 <h3 class="text-sm font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider">Заминка и растяжка · ${cooldownDuration} мин</h3>
 </div>
 <div class="p-3 bg-emerald-50 dark:bg-emerald-900/10 rounded-lg border border-emerald-200 dark:border-emerald-800/50">
@@ -2630,7 +2630,7 @@ if (categoryStats.escape && categoryStats.escape.percent < 50) {
 const escapeNodes = bjjNodesData.filter(n => n.group === 'escape' && progress[n.id] !== 'done').slice(0, 4);
 if (escapeNodes.length > 0) {
 const techList = escapeNodes.map(n => n.label).join(', ');
-recommendations.push({ icon: '🛡️', text: `Укрепите защиты: ${techList}` });
+recommendations.push({ icon: '', text: `Укрепите защиты: ${techList}` });
 }
 }
 
@@ -2639,7 +2639,7 @@ if (categoryStats.guard_pass && categoryStats.guard_pass.percent < 40) {
 const passNodes = bjjNodesData.filter(n => n.group === 'guard_pass' && progress[n.id] !== 'done').slice(0, 4);
 if (passNodes.length > 0) {
 const techList = passNodes.map(n => n.label).join(', ');
-recommendations.push({ icon: '🚪', text: `Изучите проходы гарда: ${techList}` });
+recommendations.push({ icon: '', text: `Изучите проходы гарда: ${techList}` });
 }
 }
 
@@ -2648,7 +2648,7 @@ if (categoryStats.position && categoryStats.position.percent < 50) {
 const posNodes = bjjNodesData.filter(n => n.group === 'position' && progress[n.id] !== 'done').slice(0, 4);
 if (posNodes.length > 0) {
 const techList = posNodes.map(n => n.label).join(', ');
-recommendations.push({ icon: '📍', text: `Освойте базовые позиции: ${techList}` });
+recommendations.push({ icon: '', text: `Освойте базовые позиции: ${techList}` });
 }
 }
 
@@ -2657,7 +2657,7 @@ if (categoryStats.takedown && categoryStats.takedown.percent < 30) {
 const tdNodes = bjjNodesData.filter(n => n.group === 'takedown' && progress[n.id] !== 'done').slice(0, 4);
 if (tdNodes.length > 0) {
 const techList = tdNodes.map(n => n.label).join(', ');
-recommendations.push({ icon: '🤼', text: `Изучите тейкдауны: ${techList}` });
+recommendations.push({ icon: '', text: `Изучите тейкдауны: ${techList}` });
 }
 }
 
@@ -2666,7 +2666,7 @@ if (categoryStats.submission && categoryStats.submission.percent < 40) {
 const subNodes = bjjNodesData.filter(n => n.group === 'submission' && progress[n.id] !== 'done').slice(0, 4);
 if (subNodes.length > 0) {
 const techList = subNodes.map(n => n.label).join(', ');
-recommendations.push({ icon: '🔒', text: `Изучите сабмишены: ${techList}` });
+recommendations.push({ icon: '', text: `Изучите сабмишены: ${techList}` });
 }
 }
 
@@ -2675,7 +2675,7 @@ if (categoryStats.sweep && categoryStats.sweep.percent < 40) {
 const sweepNodes = bjjNodesData.filter(n => n.group === 'sweep' && progress[n.id] !== 'done').slice(0, 4);
 if (sweepNodes.length > 0) {
 const techList = sweepNodes.map(n => n.label).join(', ');
-recommendations.push({ icon: '🔄', text: `Освойте свипы: ${techList}` });
+recommendations.push({ icon: '', text: `Освойте свипы: ${techList}` });
 }
 }
 
@@ -2684,12 +2684,12 @@ if (categoryStats.transition && categoryStats.transition.percent < 30) {
 const transNodes = bjjNodesData.filter(n => n.group === 'transition' && progress[n.id] !== 'done').slice(0, 4);
 if (transNodes.length > 0) {
 const techList = transNodes.map(n => n.label).join(', ');
-recommendations.push({ icon: '➡️', text: `Изучите цепочки переходов: ${techList}` });
+recommendations.push({ icon: '', text: `Изучите цепочки переходов: ${techList}` });
 }
 }
 
 if (recommendations.length === 0) {
-recommendations.push({ icon: '✨', text: 'Отличный прогресс! Продолжайте развивать свой A-Game.' });
+recommendations.push({ icon: '', text: 'Отличный прогресс! Продолжайте развивать свой A-Game.' });
 }
 
 // 🔵 СОДЕРЖИМОЕ РАСКРЫВАЮЩЕГОСЯ БЛОКА ПРОГРЕССА
