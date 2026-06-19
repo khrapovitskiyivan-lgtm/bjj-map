@@ -2239,28 +2239,25 @@ content.innerHTML = `
 };
 window.setWorkoutDuration = (d) => { 
     workoutConfig.duration = d; 
-    document.querySelectorAll('.modal-section:first-child .filter-chip').forEach(chip => {
-        chip.classList.toggle('active', chip.textContent.includes(d + ' мин'));
+    document.querySelectorAll('#workoutContent .modal-section:nth-child(1) .filter-chip').forEach(chip => {
+        chip.classList.toggle('active', chip.textContent.trim() === d + ' мин');
     });
-    generateWorkout();
     triggerHaptic('light'); 
 };
 window.setWorkoutFocus = (f) => { 
     workoutConfig.focus = f; 
     const focusLabels = { 'all': 'Всё', 'guard_pass': 'Проходы', 'submission': 'Сабмишены', 'sweep': 'Свипы', 'takedown': 'Тейкдауны', 'escape': 'Защиты' };
-    document.querySelectorAll('.modal-section:nth-child(2) .filter-chip').forEach(chip => {
+    document.querySelectorAll('#workoutContent .modal-section:nth-child(2) .filter-chip').forEach(chip => {
         chip.classList.toggle('active', chip.textContent.trim() === focusLabels[f]);
     });
-    generateWorkout();
     triggerHaptic('light'); 
 };
 window.setWorkoutIntensity = (i) => { 
     workoutConfig.intensity = i; 
     const intensityLabels = { 'light': 'Лёгкая', 'medium': 'Средняя', 'hard': 'Тяжёлая' };
-    document.querySelectorAll('.modal-section:nth-child(3) .filter-chip').forEach(chip => {
+    document.querySelectorAll('#workoutContent .modal-section:nth-child(3) .filter-chip').forEach(chip => {
         chip.classList.toggle('active', chip.textContent.trim() === intensityLabels[i]);
     });
-    generateWorkout();
     triggerHaptic('light'); 
 };
 
@@ -2352,12 +2349,24 @@ const userBelt = styleProfile.belt || 'white';
 const maxBeltIndex = beltOrder.indexOf(userBelt);
 const maxDifficulty = maxDifficultyByBelt[userBelt] || 2;
 
-// 🔵 ФИЛЬТРАЦИЯ С УЧЁТОМ СЛОЖНОСТИ ПОД ПОЯС
+// 🔵 ФИЛЬТРАЦИЯ С УЧЁТОМ ИНТЕНСИВНОСТИ
 let available = bjjNodesData.filter(n => {
 if (beltOrder.indexOf(n.belt) > maxBeltIndex) return false;
-if ((n.difficulty || 1) > maxDifficulty) return false; // 🔵 КЛЮЧЕВОЕ: ограничение по сложности
 if (workoutConfig.focus !== 'all' && n.group !== workoutConfig.focus) return false;
 if ((giFilterState === 'gi' && !n.gi) || (giFilterState === 'nogi' && !n.noGi)) return false;
+
+// 🔥 ИНТЕНСИВНОСТЬ ВЛИЯЕТ НА СЛОЖНОСТЬ
+const difficulty = n.difficulty || 1;
+if (workoutConfig.intensity === 'light') {
+    // Лёгкая: только базовые техники (сложность 1-2)
+    if (difficulty > 2) return false;
+} else if (workoutConfig.intensity === 'hard') {
+    // Тяжёлая: все техники включая сложные (до maxDifficulty)
+    if (difficulty > maxDifficulty) return false;
+} else {
+    // Средняя: до сложности 3 или maxDifficulty (что меньше)
+    if (difficulty > Math.min(3, maxDifficulty)) return false;
+}
 return true;
 });
 
@@ -2370,16 +2379,38 @@ if (styleProfile.speed) preferredTags.push('speed');
 available.sort((a, b) => {
 const aMatch = a.tags.some(t => preferredTags.includes(t)) ? 1 : 0;
 const bMatch = b.tags.some(t => preferredTags.includes(t)) ? 1 : 0;
+// 🔥 При тяжёлой интенсивности приоритет сложным техникам
+if (workoutConfig.intensity === 'hard') {
+    return (b.difficulty || 1) - (a.difficulty || 1) || bMatch - aMatch;
+}
 return bMatch - aMatch;
 });
 
-// 🔵 РАСПРЕДЕЛЕНИЕ ВРЕМЕНИ: разминка 20%, основная часть 65%, заминка 15%
-const warmupDuration = Math.max(5, Math.round(workoutConfig.duration * 0.2));
-const cooldownDuration = Math.max(5, Math.round(workoutConfig.duration * 0.15));
+// 🔵 РАСПРЕДЕЛЕНИЕ ВРЕМЕНИ зависит от интенсивности
+let warmupRatio, mainRatio, cooldownRatio, timePerDrillBase;
+if (workoutConfig.intensity === 'light') {
+    warmupRatio = 0.30;      // Больше разминки
+    mainRatio = 0.50;
+    cooldownRatio = 0.20;    // Больше заминки
+    timePerDrillBase = 10;   // Больше времени на технику
+} else if (workoutConfig.intensity === 'hard') {
+    warmupRatio = 0.15;      // Меньше разминки
+    mainRatio = 0.70;        // Больше основной работы
+    cooldownRatio = 0.15;
+    timePerDrillBase = 5;    // Меньше времени на технику
+} else {
+    warmupRatio = 0.20;
+    mainRatio = 0.65;
+    cooldownRatio = 0.15;
+    timePerDrillBase = 8;
+}
+
+const warmupDuration = Math.max(3, Math.round(workoutConfig.duration * warmupRatio));
+const cooldownDuration = Math.max(3, Math.round(workoutConfig.duration * cooldownRatio));
 const mainDuration = workoutConfig.duration - warmupDuration - cooldownDuration;
 
-const multiplier = workoutConfig.intensity === 'light' ? 0.5 : workoutConfig.intensity === 'hard' ? 1.5 : 1;
-const techniqueCount = Math.max(2, Math.round((mainDuration / 8) * multiplier));
+// 🔥 Количество техник зависит от интенсивности
+const techniqueCount = Math.max(2, Math.round(mainDuration / timePerDrillBase));
 const selected = available.slice(0, Math.min(techniqueCount, available.length));
 
 if (selected.length === 0) {
