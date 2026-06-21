@@ -1179,30 +1179,31 @@ async function saveSetting(key, value) {
 
 // Универсальная функция загрузки
 async function loadSetting(key, defaultValue = null) {
-    // 1. Сначала пробуем Telegram Cloud Storage
-    if (cloudStorageEnabled) {
-        try {
-            const value = await new Promise((resolve, reject) => {
-                cloudStorage.getItem(key, (success, value, error) => {
-                    if (success && value) resolve(value);
-                    else resolve(null);
-                });
-            });
-            if (value) {
-                // Синхронизируем с localStorage
-                try { localStorage.setItem(key, value); } catch(e) {}
-                return JSON.parse(value);
-            }
-        } catch(e) { console.log('Cloud load error:', e); }
-    }
-    
-    // 2. Fallback на localStorage
-    try {
-        const localValue = localStorage.getItem(key);
-        if (localValue) return JSON.parse(localValue);
-    } catch(e) {}
-    
-    return defaultValue;
+// 1. Сначала пробуем Telegram Cloud Storage
+if (cloudStorageEnabled) {
+try {
+const value = await Promise.race([
+new Promise((resolve, reject) => {
+cloudStorage.getItem(key, (success, value, error) => {
+if (success && value) resolve(value);
+else resolve(null);
+});
+}),
+new Promise(resolve => setTimeout(() => resolve(null), 2000))
+]);
+if (value) {
+// Синхронизируем с localStorage
+try { localStorage.setItem(key, value); } catch(e) {}
+return JSON.parse(value);
+}
+} catch(e) { console.log('Cloud load error:', e); }
+}
+// 2. Fallback на localStorage
+try {
+const localValue = localStorage.getItem(key);
+if (localValue) return JSON.parse(localValue);
+} catch(e) {}
+return defaultValue;
 }
 
 // Массовое сохранение нескольких ключей
@@ -1237,7 +1238,10 @@ async function loadProgressFromServer() {
 if (!supabaseEnabled) return null;
 try {
 const telegramId = (window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 'anonymous').toString();
-const { data } = await supabaseClient.from('bjj_progress').select('progress').eq('telegram_id', telegramId).single();
+const { data } = await Promise.race([
+supabaseClient.from('bjj_progress').select('progress').eq('telegram_id', telegramId).single(),
+new Promise(resolve => setTimeout(() => resolve({ data: null }), 3000))
+]);
 return data ? data.progress : null;
 } catch (err) { return null; }
 }
@@ -3533,7 +3537,14 @@ setTimeout(() => {
 }
 
 // === ЗАПУСК ===
+// === ЗАПУСК ===
 initApp();
+// 🔵 Гарантированный вызов applyAllFilters через 2 секунды (fallback)
+setTimeout(() => {
+applyAllFilters();
+updateNodeColors();
+updateGlobalProgress();
+}, 2000);
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('service-worker.js').catch(console.error);
 window.addEventListener('DOMContentLoaded', async () => {
 const onboardingSeen = await loadSetting('bjj_onboarding_seen', false);
