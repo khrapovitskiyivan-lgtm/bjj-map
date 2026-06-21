@@ -1159,50 +1159,95 @@ const cloudStorageEnabled = !!cloudStorage;
 
 // Универсальная функция сохранения (Cloud + localStorage + Supabase)
 async function saveSetting(key, value) {
-    const stringValue = JSON.stringify(value);
-    
-    // 1. Всегда сохраняем в localStorage (быстрый доступ)
-    try { localStorage.setItem(key, stringValue); } catch(e) {}
-    
-    // 2. Сохраняем в Telegram Cloud Storage (облако)
-    if (cloudStorageEnabled) {
-        try {
-            await new Promise((resolve, reject) => {
-                cloudStorage.setItem(key, stringValue, (success, error) => {
-                    if (success) resolve();
-                    else reject(error);
-                });
-            });
-        } catch(e) { console.log('Cloud save error:', e); }
-    }
+const stringValue = JSON.stringify(value);
+// 1. localStorage (мгновенно)
+try { localStorage.setItem(key, stringValue); } catch(e) {}
+// 2. Telegram Cloud Storage
+if (cloudStorageEnabled) {
+try {
+await new Promise((resolve, reject) => {
+cloudStorage.setItem(key, stringValue, (success) => {
+if (success) resolve();
+else resolve(); // не блокируем при ошибке
+});
+});
+} catch(e) { console.log('Cloud save error:', e); }
+}
+// 3. Сохраняем ВСЕ настройки в Supabase одним объектом
+await saveAllSettingsToServer();
+}
+
+// 🔵 Сохраняем все настройки в Supabase одним запросом
+async function saveAllSettingsToServer() {
+if (!supabaseEnabled) return;
+try {
+const settingsObj = {
+styleProfile: styleProfile,
+giFilterState: giFilterState,
+currentRule: currentRule,
+currentCategoryFilter: currentCategoryFilter,
+darkMode: document.body.classList.contains('dark'),
+onboardingSeen: localStorage.getItem('bjj_onboarding_seen') === 'true'
+};
+await syncSettingsToServer(settingsObj);
+} catch(e) { console.log('Settings batch save error:', e); }
 }
 
 // Универсальная функция загрузки
 async function loadSetting(key, defaultValue = null) {
-    // 1. Сначала пробуем Telegram Cloud Storage
-    if (cloudStorageEnabled) {
-        try {
-            const value = await new Promise((resolve, reject) => {
-                cloudStorage.getItem(key, (success, value, error) => {
-                    if (success && value) resolve(value);
-                    else resolve(null);
-                });
-            });
-            if (value) {
-                // Синхронизируем с localStorage
-                try { localStorage.setItem(key, value); } catch(e) {}
-                return JSON.parse(value);
-            }
-        } catch(e) { console.log('Cloud load error:', e); }
-    }
-    
-    // 2. Fallback на localStorage
-    try {
-        const localValue = localStorage.getItem(key);
-        if (localValue) return JSON.parse(localValue);
-    } catch(e) {}
-    
-    return defaultValue;
+// 1. Сначала пробуем Telegram Cloud Storage
+if (cloudStorageEnabled) {
+try {
+const value = await new Promise((resolve) => {
+cloudStorage.getItem(key, (success, value) => {
+if (success && value) resolve(value);
+else resolve(null);
+});
+});
+if (value) {
+try { localStorage.setItem(key, value); } catch(e) {}
+try { return JSON.parse(value); } catch(e) { return value; }
+}
+} catch(e) { console.log('Cloud load error:', e); }
+}
+// 2. Fallback на localStorage
+try {
+const localValue = localStorage.getItem(key);
+if (localValue) return JSON.parse(localValue);
+} catch(e) {}
+return defaultValue;
+}
+
+// 🔵 Загрузка ВСЕХ настроек из Supabase (если Cloud Storage пуст)
+async function loadAllSettingsFromServer() {
+const serverSettings = await loadSettingsFromServer();
+if (!serverSettings) return;
+
+console.log('📥 Загружены настройки из Supabase:', serverSettings);
+
+if (serverSettings.styleProfile) {
+styleProfile = { ...styleProfile, ...serverSettings.styleProfile };
+try { localStorage.setItem('bjj_style_profile', JSON.stringify(styleProfile)); } catch(e) {}
+}
+if (serverSettings.giFilterState !== undefined) {
+giFilterState = serverSettings.giFilterState;
+try { localStorage.setItem('bjj_gi_filter', JSON.stringify(giFilterState)); } catch(e) {}
+}
+if (serverSettings.currentRule !== undefined) {
+currentRule = serverSettings.currentRule;
+try { localStorage.setItem('bjj_rule', JSON.stringify(currentRule)); } catch(e) {}
+}
+if (serverSettings.currentCategoryFilter !== undefined) {
+currentCategoryFilter = serverSettings.currentCategoryFilter;
+try { localStorage.setItem('bjj_category_filter', JSON.stringify(currentCategoryFilter)); } catch(e) {}
+}
+if (serverSettings.darkMode) {
+document.body.classList.add('dark');
+try { localStorage.setItem('bjj_dark_mode', 'true'); } catch(e) {}
+}
+if (serverSettings.onboardingSeen) {
+try { localStorage.setItem('bjj_onboarding_seen', 'true'); } catch(e) {}
+}
 }
 
 // Массовое сохранение нескольких ключей
@@ -1239,6 +1284,29 @@ try {
 const telegramId = (window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 'anonymous').toString();
 const { data } = await supabaseClient.from('bjj_progress').select('progress').eq('telegram_id', telegramId).single();
 return data ? data.progress : null;
+} catch (err) { return null; }
+}
+
+// 🔵 Сохранение настроек в Supabase
+async function syncSettingsToServer(settingsObj) {
+if (!supabaseEnabled) return;
+try {
+const telegramId = (window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 'anonymous').toString();
+await supabaseClient.from('bjj_settings').upsert({ 
+    telegram_id: telegramId, 
+    settings: settingsObj, 
+    updated_at: new Date().toISOString() 
+}, { onConflict: 'telegram_id' });
+} catch (err) { console.log('Settings sync error:', err); }
+}
+
+// 🔵 Загрузка настроек из Supabase
+async function loadSettingsFromServer() {
+if (!supabaseEnabled) return null;
+try {
+const telegramId = (window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 'anonymous').toString();
+const { data } = await supabaseClient.from('bjj_settings').select('settings').eq('telegram_id', telegramId).single();
+return data ? data.settings : null;
 } catch (err) { return null; }
 }
 // === ГРУППЫ И ИКОНКИ ===
@@ -1886,18 +1954,27 @@ const STORAGE_KEY = 'bjj_learned_v4';
 let progress = {};
 
 async function initApp() {
-// 🔵 1. Загружаем прогресс из Supabase или localStorage
+// 🔵 1. Загружаем прогресс
 const serverProgress = await loadProgressFromServer();
 progress = serverProgress || await loadSetting(STORAGE_KEY, {});
 
-// 🔵 2. Загружаем все настройки из Cloud Storage
+// 🔵 2. Загружаем настройки (приоритет: Cloud → localStorage)
 await loadStyleProfile();
 giFilterState = await loadSetting('bjj_gi_filter', 'gi');
 currentRule = await loadSetting('bjj_rule', 'none');
 currentCategoryFilter = await loadSetting('bjj_category_filter', null);
 await loadDarkMode();
 
-// 🔵 3. Применяем всё
+// 🔵 3. Если ничего не загружено — пробуем Supabase
+const hasLocalSettings = localStorage.getItem('bjj_style_profile') || 
+                          localStorage.getItem('bjj_gi_filter') ||
+                          localStorage.getItem('bjj_dark_mode');
+if (!hasLocalSettings) {
+    console.log('📥 Локальных настроек нет, загружаем из Supabase...');
+    await loadAllSettingsFromServer();
+}
+
+// 🔵 4. Применяем всё
 updateGlobalProgress();
 updateNodeColors();
 applyAllFilters();
@@ -1906,8 +1983,11 @@ console.log('✅ App initialized with settings:', {
     belt: styleProfile.belt,
     gi: giFilterState,
     rule: currentRule,
-    category: currentCategoryFilter
+    category: currentCategoryFilter,
+    dark: document.body.classList.contains('dark')
 });
+
+showToast('✅ Настройки загружены');
 }
 
 const setProgress = async (id, status) => {
@@ -2723,17 +2803,38 @@ let agameProgressExpanded = false;
 
 window.renderAGameModal = () => {
 const content = document.getElementById('agameContent');
-const done = bjjNodesData.filter(n => progress[n.id] === 'done');
-const inProgress = bjjNodesData.filter(n => progress[n.id] === 'in_progress');
-const total = bjjNodesData.length;
-const percent = Math.round((done.length / total) * 100);
 
-const categoryStats = {};
-Object.keys(catLabels).forEach(group => {
-const total = bjjNodesData.filter(n => n.group === group).length;
-const doneCount = done.filter(n => n.group === group).length;
-categoryStats[group] = { total, done: doneCount, percent: total > 0 ? Math.round((doneCount / total) * 100) : 0 };
-});
+// 🔵 Получаем данные Telegram-пользователя
+const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+const userFirstName = tgUser?.first_name || 'Пользователь';
+const userLastName = tgUser?.last_name || '';
+const userUsername = tgUser?.username || '';
+const userPhoto = tgUser?.photo_url || '';
+const userId = tgUser?.id || '';
+
+// 🔵 Генерируем инициалы для аватара (если нет фото)
+const initials = (userFirstName.charAt(0) + (userLastName.charAt(0) || '')).toUpperCase();
+
+// 🔵 Блок профиля
+const profileBlock = `
+<div class="flex items-center gap-3 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl border border-blue-200 dark:border-blue-800 mb-4">
+    ${userPhoto 
+        ? `<img src="${userPhoto}" alt="avatar" class="w-14 h-14 rounded-full object-cover border-2 border-white dark:border-slate-700 shadow-md" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+           <div class="w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-bold text-lg items-center justify-center flex-shrink-0 shadow-md" style="display:none;">${initials}</div>`
+        : `<div class="w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-bold text-lg flex items-center justify-center flex-shrink-0 shadow-md">${initials}</div>`
+    }
+    <div class="flex-1 min-w-0">
+        <div class="font-bold text-slate-800 dark:text-slate-100 truncate">${userFirstName} ${userLastName}</div>
+        ${userUsername ? `<div class="text-xs text-slate-500 dark:text-slate-400 truncate">@${userUsername}</div>` : ''}
+        ${userId ? `<div class="text-xs text-slate-400 dark:text-slate-500 mt-0.5">ID: ${userId}</div>` : ''}
+    </div>
+    <div class="flex-shrink-0">
+        <div class="text-2xl">🥋</div>
+    </div>
+</div>
+`;
+
+const done = bjjNodesData.filter(n => progress[n.id] === 'done');
 
 const topCategories = Object.entries(categoryStats).filter(([_, s]) => s.done > 0).sort((a, b) => b[1].percent - a[1].percent).slice(0, 3);
 const weakCategories = Object.entries(categoryStats).filter(([_, s]) => s.total > 0).sort((a, b) => a[1].percent - b[1].percent).slice(0, 3);
@@ -2879,6 +2980,7 @@ ${agameProgressTab === 'stats' ? statsHtml : ''}
 
 content.innerHTML = `
 <div class="space-y-5">
+${profileBlock}
 <!-- 🔵 НЕЙТРАЛЬНЫЙ БЛОК С ПРОЦЕНТОМ И РАСКРЫТИЕМ -->
 <div class="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
 <div class="flex items-center justify-between mb-3 cursor-pointer" onclick="toggleAGameProgress()">
