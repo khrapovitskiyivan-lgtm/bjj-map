@@ -2586,13 +2586,13 @@ html += `<div class="mb-4">
 <div class="text-xs text-orange-700 dark:text-orange-300 mb-2">Подготовьте тело к нагрузке, разогрейте суставы</div>
 <div class="space-y-2">`;
 warmup.forEach((ex, idx) => {
-html += `<div class="flex items-start gap-2 p-2 bg-white dark:bg-slate-800 rounded border border-orange-100 dark:border-orange-900/30">
+html += `<div class="flex items-start gap-2 p-2 rounded border" style="background:var(--bg-secondary);border-color:var(--border-light);">
 <div class="flex-shrink-0 w-6 h-6 rounded-full bg-orange-500 text-white flex items-center justify-center text-xs font-bold">${idx + 1}</div>
 <div class="flex-1 min-w-0">
-<div class="font-semibold text-xs text-slate-800 dark:text-slate-100">${ex.name}</div>
-<div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">${ex.desc}</div>
+<div class="font-semibold text-xs" style="color:var(--text-primary);">${ex.name}</div>
+<div class="text-xs mt-0.5" style="color:var(--text-secondary);">${ex.desc}</div>
 </div>
-<div class="text-xs text-orange-600 dark:text-orange-400 font-semibold flex-shrink-0">${ex.duration} мин</div>
+<div class="text-xs font-semibold flex-shrink-0" style="color:var(--warning);">${ex.duration} мин</div>
 </div>`;
 });
 html += `</div></div></div>`;
@@ -2609,13 +2609,13 @@ const chainTo = bjjNodesData.find(n => n.id === tech.chain_to?.[0]);
 html += `<div class="workout-drill"><div class="flex items-start gap-3">
 <div class="flex-shrink-0 w-8 h-8 rounded-full bg-amber-500 text-white flex items-center justify-center font-bold text-sm">${idx + 1}</div>
 <div class="flex-1 min-w-0">
-<div class="font-semibold text-sm text-slate-800 dark:text-slate-100 mb-1">${tech.label}</div>
-<div class="text-xs text-slate-600 dark:text-slate-300 mb-1">${catLabels[tech.group]} · ${beltIcons[tech.belt]} ${beltNames[tech.belt]}</div>
+<div class="font-semibold text-sm mb-1" style="color:var(--text-primary);">${tech.label}</div>
+<div class="text-xs mb-1" style="color:var(--text-secondary);">${catLabels[tech.group]} · ${beltIcons[tech.belt]} ${beltNames[tech.belt]}</div>
 <div class="flex items-center gap-2 text-xs">
-<span class="text-amber-700 dark:text-amber-300 font-semibold">⏱ ${timePerDrill} мин</span>
-${tech.difficulty ? `<span class="text-slate-500">· ${'⭐'.repeat(tech.difficulty)}</span>` : ''}
+<span class="font-semibold" style="color:var(--warning);">⏱ ${timePerDrill} мин</span>
+${tech.difficulty ? `<span style="color:var(--text-tertiary);">· ${'⭐'.repeat(tech.difficulty)}</span>` : ''}
 </div>
-${chainTo ? `<div class="text-xs text-blue-600 dark:text-blue-300 mt-1">→ ${chainTo.label}</div>` : ''}
+${chainTo ? `<div class="text-xs mt-1" style="color:var(--accent);">→ ${chainTo.label}</div>` : ''}
 </div></div></div>`;
 });
 html += `</div></div>`;
@@ -2630,13 +2630,13 @@ html += `<div class="mb-4">
 <div class="text-xs text-emerald-700 dark:text-emerald-300 mb-2">Восстановление, растяжка рабочих зон, дыхание</div>
 <div class="space-y-2">`;
 cooldown.forEach((ex, idx) => {
-html += `<div class="flex items-start gap-2 p-2 bg-white dark:bg-slate-800 rounded border border-emerald-100 dark:border-emerald-900/30">
+html += `<div class="flex items-start gap-2 p-2 rounded border" style="background:var(--bg-secondary);border-color:var(--border-light);">
 <div class="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold">${idx + 1}</div>
 <div class="flex-1 min-w-0">
-<div class="font-semibold text-xs text-slate-800 dark:text-slate-100">${ex.name}</div>
-<div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">${ex.desc}</div>
+<div class="font-semibold text-xs" style="color:var(--text-primary);">${ex.name}</div>
+<div class="text-xs mt-0.5" style="color:var(--text-secondary);">${ex.desc}</div>
 </div>
-<div class="text-xs text-emerald-600 dark:text-emerald-400 font-semibold flex-shrink-0">${ex.duration} мин</div>
+<div class="text-xs font-semibold flex-shrink-0" style="color:var(--success);">${ex.duration} мин</div>
 </div>`;
 });
 html += `</div></div></div>`;
@@ -3003,7 +3003,7 @@ const positions = [
       <div class="modal-section">
         <div class="modal-section-title">📍 Ваша позиция</div>
         <div class="grid grid-cols-2 gap-2">
-          ${positions.map(pos => `<button onclick="showDecisionOptions(${pos.id})" class="p-3 bg-white dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600 hover:border-emerald-500 dark:hover:border-emerald-500 transition text-left"><div class="text-2xl mb-1">${pos.icon}</div><div class="text-xs font-medium text-slate-700 dark:text-slate-200">${pos.label}</div></button>`).join('')}
+          ${positions.map(pos => `<button onclick="showDecisionOptions(${pos.id})" class="p-3 rounded-lg border transition text-left" style="background:var(--bg-secondary);border-color:var(--border-light);"><div class="text-2xl mb-1">${pos.icon}</div><div class="text-xs font-medium" style="color:var(--text-primary);">${pos.label}</div></button>`).join('')}
         </div>
       </div>
       <div id="decisionOptions"></div>
@@ -3048,16 +3048,16 @@ window.showDecisionOptions = (positionId) => {
     if (items.length === 0) return '';
     return `<div class="modal-section"><div class="modal-section-title">${icon} ${title} (${items.length})</div><div class="space-y-2">${items.map(item => `<button onclick="focusNode(${item.id}); toggleModal('decisionModal')" class="w-full p-3 bg-${color}-50 dark:bg-${color}-900/20 rounded-lg border border-${color}-200 dark:border-${color}-800 text-left hover:shadow-md transition"><div class="text-sm font-semibold text-${color}-900 dark:text-${color}-200 mb-1">${item.label}</div><div class="text-xs text-${color}-700 dark:text-${color}-300">📌 ${item.trigger}</div><div class="text-xs text-${color}-600 dark:text-${color}-400 mt-1">${beltIcons[item.belt] || '⚪'} ${beltNames[item.belt] || item.belt}</div></button>`).join('')}</div></div>`;
   };
-  optionsDiv.innerHTML = `
-    <div class="mt-4 p-3 bg-slate-100 dark:bg-slate-700 rounded-lg">
-      <div class="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">📍 Вы выбрали:</div>
-      <div class="text-sm font-bold text-slate-800 dark:text-slate-100">${position.label}</div>
-    </div>
+optionsDiv.innerHTML = `
+<div class="mt-4 p-3 rounded-lg" style="background:var(--bg-tertiary);">
+<div class="text-xs font-semibold uppercase mb-1" style="color:var(--text-secondary);">📍 Вы выбрали:</div>
+<div class="text-sm font-bold" style="color:var(--text-primary);">${position.label}</div>
+</div>
     ${renderSection('Атаки и сабмишены', '🔥', attacks, 'red')}
     ${renderSection('Свипы', '🔄', sweeps, 'amber')}
     ${renderSection('Переходы', '➡️', transitions, 'purple')}
     ${renderSection('Защиты', '🛡️', escapes, 'emerald')}
-    ${outgoingEdges.length === 0 ? `<div class="mt-4 p-4 bg-slate-100 dark:bg-slate-700 rounded-lg text-center"><div class="text-3xl mb-2">🤔</div><div class="text-sm text-slate-600 dark:text-slate-300">Для этой позиции пока нет связей</div></div>` : ''}
+${outgoingEdges.length === 0 ? `<div class="mt-4 p-4 rounded-lg text-center" style="background:var(--bg-tertiary);"><div class="text-3xl mb-2">🤔</div><div class="text-sm" style="color:var(--text-secondary);">Для этой позиции пока нет связей</div></div>` : ''}
   `;
   optionsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
   triggerHaptic('medium');
