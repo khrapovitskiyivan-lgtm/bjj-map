@@ -2822,14 +2822,8 @@ oscillator.stop(audioCtx.currentTime + i * 0.4 + duration / 1000);
 // === A-GAME ANALYZER ===
 // === ГЛОБАЛЬНАЯ ПЕРЕМЕННАЯ ДЛЯ РАСКРЫТИЯ ПРОГРЕССА ===
 let agameProgressExpanded = false;
-
 window.renderAGameModal = () => {
-try {
 const content = document.getElementById('agameContent');
-if (!content) {
-console.error('agameContent not found');
-return;
-}
 
 // 🔵 Получаем данные Telegram-пользователя
 const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
@@ -2842,15 +2836,12 @@ const userId = tgUser?.id || '';
 // 🔵 Генерируем инициалы для аватара (если нет фото)
 const initials = (userFirstName.charAt(0) + (userLastName.charAt(0) || '')).toUpperCase();
 
-// 🔵 Блок профиля с безопасным onerror
+// 🔵 Блок профиля
 const profileBlock = `
 <div class="flex items-center gap-3 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl border border-blue-200 dark:border-blue-800 mb-4">
     ${userPhoto 
-        ? `<div class="relative flex-shrink-0">
-            <img src="${userPhoto}" alt="avatar" class="w-14 h-14 rounded-full object-cover border-2 border-white dark:border-slate-700 shadow-md absolute inset-0" 
-                 onerror="this.style.display='none'">
-            <div class="w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-bold text-lg flex items-center justify-center shadow-md">${initials}</div>
-           </div>`
+        ? `<img src="${userPhoto}" alt="avatar" class="w-14 h-14 rounded-full object-cover border-2 border-white dark:border-slate-700 shadow-md" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+           <div class="w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-bold text-lg items-center justify-center flex-shrink-0 shadow-md" style="display:none;">${initials}</div>`
         : `<div class="w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-bold text-lg flex items-center justify-center flex-shrink-0 shadow-md">${initials}</div>`
     }
     <div class="flex-1 min-w-0">
@@ -2868,17 +2859,14 @@ const done = bjjNodesData.filter(n => progress[n.id] === 'done');
 const inProgress = bjjNodesData.filter(n => progress[n.id] === 'in_progress');
 const total = bjjNodesData.length;
 const percent = Math.round((done.length / total) * 100);
-
 const categoryStats = {};
 Object.keys(catLabels).forEach(group => {
 const total = bjjNodesData.filter(n => n.group === group).length;
 const doneCount = done.filter(n => n.group === group).length;
 categoryStats[group] = { total, done: doneCount, percent: total > 0 ? Math.round((doneCount / total) * 100) : 0 };
 });
-
 const topCategories = Object.entries(categoryStats).filter(([_, s]) => s.done > 0).sort((a, b) => b[1].percent - a[1].percent).slice(0, 3);
 const weakCategories = Object.entries(categoryStats).filter(([_, s]) => s.total > 0).sort((a, b) => a[1].percent - b[1].percent).slice(0, 3);
-
 const keyPositions = [
 { id: 1, label: 'Закрытый гард' }, { id: 14, label: 'Сайд-контроль' }, { id: 16, label: 'Маунт' },
 { id: 17, label: 'Контроль спины' }, { id: 3, label: 'Халф-гард' }, { id: 5, label: 'Баттерфляй' },
@@ -2887,7 +2875,6 @@ const keyPositions = [
 
 // 🔵 АВТОМАТИЧЕСКИЕ РЕКОМЕНДАЦИИ БЕЗ УКАЗАНИЯ ПОЯСА, НА РУССКОМ
 const recommendations = [];
-
 // Защита
 if (categoryStats.escape && categoryStats.escape.percent < 50) {
 const escapeNodes = bjjNodesData.filter(n => n.group === 'escape' && progress[n.id] !== 'done').slice(0, 4);
@@ -2896,7 +2883,6 @@ const techList = escapeNodes.map(n => n.label).join(', ');
 recommendations.push({ icon: '🛡️', text: `Укрепите защиты: ${techList}` });
 }
 }
-
 // Проходы гарда
 if (categoryStats.guard_pass && categoryStats.guard_pass.percent < 40) {
 const passNodes = bjjNodesData.filter(n => n.group === 'guard_pass' && progress[n.id] !== 'done').slice(0, 4);
@@ -2905,7 +2891,6 @@ const techList = passNodes.map(n => n.label).join(', ');
 recommendations.push({ icon: '🚪', text: `Изучите проходы гарда: ${techList}` });
 }
 }
-
 // Позиции
 if (categoryStats.position && categoryStats.position.percent < 50) {
 const posNodes = bjjNodesData.filter(n => n.group === 'position' && progress[n.id] !== 'done').slice(0, 4);
@@ -2914,7 +2899,6 @@ const techList = posNodes.map(n => n.label).join(', ');
 recommendations.push({ icon: '📍', text: `Освойте базовые позиции: ${techList}` });
 }
 }
-
 // Тейкдауны
 if (categoryStats.takedown && categoryStats.takedown.percent < 30) {
 const tdNodes = bjjNodesData.filter(n => n.group === 'takedown' && progress[n.id] !== 'done').slice(0, 4);
@@ -2923,7 +2907,6 @@ const techList = tdNodes.map(n => n.label).join(', ');
 recommendations.push({ icon: '🤼', text: `Изучите тейкдауны: ${techList}` });
 }
 }
-
 // Сабмишены
 if (categoryStats.submission && categoryStats.submission.percent < 40) {
 const subNodes = bjjNodesData.filter(n => n.group === 'submission' && progress[n.id] !== 'done').slice(0, 4);
@@ -2932,7 +2915,6 @@ const techList = subNodes.map(n => n.label).join(', ');
 recommendations.push({ icon: '🔒', text: `Изучите сабмишены: ${techList}` });
 }
 }
-
 // Свипы
 if (categoryStats.sweep && categoryStats.sweep.percent < 40) {
 const sweepNodes = bjjNodesData.filter(n => n.group === 'sweep' && progress[n.id] !== 'done').slice(0, 4);
@@ -2941,7 +2923,6 @@ const techList = sweepNodes.map(n => n.label).join(', ');
 recommendations.push({ icon: '🔄', text: `Освойте свипы: ${techList}` });
 }
 }
-
 // Переходы
 if (categoryStats.transition && categoryStats.transition.percent < 30) {
 const transNodes = bjjNodesData.filter(n => n.group === 'transition' && progress[n.id] !== 'done').slice(0, 4);
@@ -2950,7 +2931,6 @@ const techList = transNodes.map(n => n.label).join(', ');
 recommendations.push({ icon: '➡️', text: `Изучите цепочки переходов: ${techList}` });
 }
 }
-
 if (recommendations.length === 0) {
 recommendations.push({ icon: '✨', text: 'Отличный прогресс! Продолжайте развивать свой A-Game.' });
 }
@@ -2978,7 +2958,6 @@ progressListHtml += `<div class="technique-card done mb-1" onclick="focusNode(${
 progressListHtml += `</div>`;
 }
 }
-
 // Вкладка "Пояса"
 let beltsHtml = '<div class="space-y-2">';
 beltOrder.forEach(belt => {
@@ -2988,7 +2967,6 @@ const beltPercent = beltTotal > 0 ? Math.round((beltDone / beltTotal) * 100) : 0
 beltsHtml += `<div class="progress-bar-container"><div class="progress-bar-header"><span class="progress-bar-label text-xs">${beltIcons[belt]} ${beltNames[belt]} пояс</span><span class="progress-bar-value text-xs">${beltDone}/${beltTotal} (${beltPercent}%)</span></div><div class="progress-bar"><div class="progress-bar-fill" style="width: ${beltPercent}%"></div></div></div>`;
 });
 beltsHtml += '</div>';
-
 // Вкладка "Статистика"
 const byGroup = {};
 Object.keys(catLabels).forEach(g => {
@@ -3001,7 +2979,6 @@ Object.entries(byGroup).forEach(([group, stats]) => {
 statsHtml += `<div class="progress-bar-container"><div class="progress-bar-header"><span class="progress-bar-label text-xs">${groupIcons[group] || '🥋'} ${catLabels[group]}</span><span class="progress-bar-value text-xs">${stats.done}/${stats.total} (${stats.percent}%)</span></div><div class="progress-bar"><div class="progress-bar-fill" style="width: ${stats.percent}%"></div></div></div>`;
 });
 statsHtml += '</div>';
-
 progressExpandedContent = `
 <div class="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700">
 <div class="flex gap-1 mb-3">
@@ -3042,11 +3019,8 @@ ${profileBlock}
 </div>
 ${progressExpandedContent}
 </div>
-
 ${topCategories.length > 0 ? `<div class="modal-section"><div class="modal-section-title">💪 Сильные стороны</div><div class="space-y-2">${topCategories.map(([group, stats]) => `<div class="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800"><div class="flex items-center justify-between mb-1"><span class="text-sm font-semibold text-emerald-900 dark:text-emerald-200">${catLabels[group]}</span><span class="text-xs font-bold text-emerald-700 dark:text-emerald-300">${stats.percent}%</span></div><div class="stat-bar"><div class="stat-bar-fill bg-emerald-500" style="width: ${stats.percent}%"></div></div><div class="text-xs text-emerald-700 dark:text-emerald-300 mt-1">${stats.done} из ${stats.total}</div></div>`).join('')}</div></div>` : ''}
-
 ${weakCategories.length > 0 ? `<div class="modal-section"><div class="modal-section-title">🎯 Точки роста</div><div class="space-y-2">${weakCategories.map(([group, stats]) => `<div class="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800"><div class="flex items-center justify-between mb-1"><span class="text-sm font-semibold text-amber-900 dark:text-amber-200">${catLabels[group]}</span><span class="text-xs font-bold text-amber-700 dark:text-amber-300">${stats.percent}%</span></div><div class="stat-bar"><div class="stat-bar-fill bg-amber-500" style="width: ${stats.percent}%"></div></div><div class="text-xs text-amber-700 dark:text-amber-300 mt-1">${stats.done} из ${stats.total}</div></div>`).join('')}</div></div>` : ''}
-
 <div class="modal-section">
 <div class="modal-section-title">Карта позиций</div>
 <div class="position-grid" id="heatmapGrid">
@@ -3059,7 +3033,6 @@ return `<div class="position-cell heat-${heat} ${isSelected ? 'ring-2 ring-blue-
 }).join('')}
 </div>
 </div>
-
 <div class="modal-section">
 <div class="modal-section-title">💡 Рекомендации</div>
 <div class="space-y-2">
@@ -3068,10 +3041,6 @@ ${recommendations.map(rec => `<div class="p-3 bg-blue-50 dark:bg-blue-900/20 rou
 </div>
 </div>
 `;
-} catch (error) {
-console.error('Error in renderAGameModal:', error);
-showToast('❌ Ошибка загрузки "Моя игра"');
-}
 };
 
 // 🔵 ФУНКЦИИ ДЛЯ РАСКРЫТИЯ ПРОГРЕССА
