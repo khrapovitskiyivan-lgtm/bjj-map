@@ -17,33 +17,45 @@
 <style>
 /* === MODERN MINIMAL GRAY THEME === */
 :root {
---bg-primary: #fafafa;
---bg-secondary: #ffffff;
---bg-tertiary: #f5f5f7;
---bg-hover: #f0f0f2;
---text-primary: #1a1a1a;
---text-secondary: #6b7280;
---text-tertiary: #9ca3af;
---border-light: #e5e7eb;
---border-medium: #d1d5db;
---accent: #3b82f6;
---accent-hover: #2563eb;
---success: #10b981;
---warning: #f59e0b;
---danger: #ef4444;
---shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
---shadow-md: 0 4px 12px rgba(0,0,0,0.06);
---shadow-lg: 0 8px 24px rgba(0,0,0,0.08);
---radius-sm: 8px;
---radius-md: 12px;
---radius-lg: 16px;
---nav-height: 68px;
+    /* Светлая тема — перетекающие бело-серые тона */
+    --bg-primary: linear-gradient(135deg, #fafafa 0%, #f0f0f2 100%);
+    --bg-secondary: linear-gradient(180deg, #ffffff 0%, #f8f8fa 100%);
+    --bg-tertiary: linear-gradient(135deg, #f5f5f7 0%, #ebebef 100%);
+    --bg-hover: linear-gradient(135deg, #f0f0f2 0%, #e6e6ea 100%);
+    --bg-solid-primary: #fafafa;
+    --bg-solid-secondary: #ffffff;
+    --bg-solid-tertiary: #f5f5f7;
+    --bg-solid-hover: #f0f0f2;
+    
+    --text-primary: #1a1a1a;
+    --text-secondary: #5a5a62;
+    --text-tertiary: #8a8a92;
+    
+    --border-light: #e5e7eb;
+    --border-medium: #d1d5db;
+    
+    --accent: #3b82f6;
+    --accent-hover: #2563eb;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
+    --shadow-lg: 0 8px 24px rgba(0,0,0,0.08);
+    
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --nav-height: 68px;
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { height: 100dvh; margin: 0; padding: 0; overflow: hidden; }
 body {
 font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
 background: var(--bg-primary);
+    background-image: var(--bg-primary);
+background-attachment: fixed;
 color: var(--text-primary);
 overscroll-behavior: none;
 -webkit-overflow-scrolling: touch;
@@ -54,15 +66,22 @@ padding-top: env(safe-area-inset-top);
 }
 /* === DARK THEME === */
 body.dark {
---bg-primary: #0a0a0a;
---bg-secondary: #141414;
---bg-tertiary: #1a1a1a;
---bg-hover: #222222;
---text-primary: #f5f5f5;
---text-secondary: #a1a1aa;
---text-tertiary: #71717a;
---border-light: #27272a;
---border-medium: #3f3f46;
+    /* Темная тема — перетекающие серо-черные тона */
+    --bg-primary: linear-gradient(135deg, #0a0a0a 0%, #141418 100%);
+    --bg-secondary: linear-gradient(180deg, #16161a 0%, #1c1c20 100%);
+    --bg-tertiary: linear-gradient(135deg, #1a1a1e 0%, #222228 100%);
+    --bg-hover: linear-gradient(135deg, #24242a 0%, #2a2a30 100%);
+    --bg-solid-primary: #0a0a0a;
+    --bg-solid-secondary: #16161a;
+    --bg-solid-tertiary: #1a1a1e;
+    --bg-solid-hover: #24242a;
+    
+    --text-primary: #f0f0f2;
+    --text-secondary: #a8a8b0;
+    --text-tertiary: #6a6a72;
+    
+    --border-light: #27272d;
+    --border-medium: #3a3a42;
 }
 /* === GRAPH === */
 #mynetwork {
@@ -918,9 +937,7 @@ gap: 6px;
 body.app-blurred header,
 body.app-blurred main,
 body.app-blurred .fab-container,
-body.app-blurred .bottom-nav,
-body.app-blurred .bottom-sheet,
-body.app-blurred .bottom-sheet-overlay {
+body.app-blurred .bottom-nav {
 filter: blur(8px) brightness(0.7);
 pointer-events: none;
 transition: filter 0.3s ease;
@@ -1888,6 +1905,7 @@ interaction: { hover: true, dragNodes: true, dragView: true, zoomView: true, nav
 // === ПРОГРЕСС ===
 const STORAGE_KEY = 'bjj_learned_v4';
 let progress = {};
+    let lastOpenedModal = null; // Запоминаем модалку, из которой открыли карточку
 
 async function initApp() {
 // 🔵 1. Загружаем прогресс из Supabase или localStorage
@@ -2001,6 +2019,7 @@ selectedHeatmapPosition = null; // Сбрасываем выделение пр�
 } else {
     modal.classList.add('active');
     modalState[modalId] = true;
+      lastOpenedModal = modalId; // ← ЗАПОМИНАЕМ, откуда открыли
     triggerHaptic('medium');
     
     if (modalId === 'progressModal') renderProgressModal();
@@ -2552,11 +2571,56 @@ const cooldown = cooldownByBelt[userBelt] || cooldownByBelt.white;
 
 // 🔵 ИНФОРМАЦИЯ ОБ УРОВНЕ
 const beltInfo = {
-  white:   { name: 'Белый пояс',      bg: 'rgba(100,116,139,0.1)', border: 'rgba(100,116,139,0.3)', text: '#475569', icon: '⚪', desc: 'Базовые техники и фундаментальные движения' },
-  blue:    { name: 'Синий пояс',      bg: 'rgba(59,130,246,0.1)',  border: 'rgba(59,130,246,0.3)',  text: '#3b82f6', icon: '🔵', desc: 'Базовые + начинающие продвинутые техники' },
-  purple:  { name: 'Фиолетовый пояс', bg: 'rgba(168,85,247,0.1)',  border: 'rgba(168,85,247,0.3)',  text: '#a855f7', icon: '🟣', desc: 'Продвинутые техники и цепочки атак' },
-  brown:   { name: 'Коричневый пояс', bg: 'rgba(245,158,11,0.1)',  border: 'rgba(245,158,11,0.3)',  text: '#f59e0b', icon: '🟤', desc: 'Сложные техники и мастерские детали' },
-  black:   { name: 'Чёрный пояс',     bg: 'rgba(100,116,139,0.15)',border: 'rgba(100,116,139,0.4)', text: '#f5f5f5', icon: '⚫', desc: 'Полный арсенал техник БЖЖ' }
+    white:   { 
+        name: 'Белый пояс', 
+        gradient: 'linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 50%, #94a3b8 100%)',
+        gradientLight: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+        border: 'rgba(148,163,184,0.4)', 
+        text: '#475569', 
+        icon: '⚪', 
+        desc: 'Базовые техники и фундаментальные движения',
+        accent: '#64748b'
+    },
+    blue:    { 
+        name: 'Синий пояс', 
+        gradient: 'linear-gradient(135deg, #93c5fd 0%, #3b82f6 50%, #1d4ed8 100%)',
+        gradientLight: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+        border: 'rgba(59,130,246,0.4)', 
+        text: '#1d4ed8', 
+        icon: '🔵', 
+        desc: 'Базовые + начинающие продвинутые техники',
+        accent: '#3b82f6'
+    },
+    purple:  { 
+        name: 'Фиолетовый пояс', 
+        gradient: 'linear-gradient(135deg, #d8b4fe 0%, #a855f7 50%, #7e22ce 100%)',
+        gradientLight: 'linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%)',
+        border: 'rgba(168,85,247,0.4)', 
+        text: '#7e22ce', 
+        icon: '🟣', 
+        desc: 'Продвинутые техники и цепочки атак',
+        accent: '#a855f7'
+    },
+    brown:   { 
+        name: 'Коричневый пояс', 
+        gradient: 'linear-gradient(135deg, #fdba74 0%, #f59e0b 50%, #b45309 100%)',
+        gradientLight: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)',
+        border: 'rgba(245,158,11,0.4)', 
+        text: '#b45309', 
+        icon: '🟤', 
+        desc: 'Сложные техники и мастерские детали',
+        accent: '#f59e0b'
+    },
+    black:   { 
+        name: 'Чёрный пояс', 
+        gradient: 'linear-gradient(135deg, #4b5563 0%, #1f2937 50%, #0f172a 100%)',
+        gradientLight: 'linear-gradient(135deg, #f9fafb 0%, #e5e7eb 100%)',
+        border: 'rgba(55,65,81,0.5)', 
+        text: '#1f2937', 
+        icon: '⚫', 
+        desc: 'Полный арсенал техник БЖЖ',
+        accent: '#374151'
+    }
 };
 const beltData = beltInfo[userBelt];
 
@@ -3079,6 +3143,7 @@ const scenarios = [
 let selectedHeatmapPosition = null;
 let activeScenario = null, scenarioTimer = null, scenarioTimeLeft = 0;
 
+let scenarioPaused = false; // ← НОВАЯ ПЕРЕМЕННАЯ для состояния паузы
 window.renderScenarioModal = () => {
   const content = document.getElementById('scenarioContent');
   content.innerHTML = `
@@ -3102,6 +3167,22 @@ window.startScenario = (scenarioId) => {
   if (!scenario) return;
   activeScenario = scenario;
   scenarioTimeLeft = scenario.duration;
+    window.pauseScenario = () => {
+    scenarioPaused = !scenarioPaused;
+    const btn = document.getElementById('scenarioPauseBtn');
+    if (btn) {
+        if (scenarioPaused) {
+            btn.textContent = '▶️ Продолжить';
+            btn.classList.remove('bg-amber-500', 'hover:bg-amber-600');
+            btn.classList.add('bg-emerald-500', 'hover:bg-emerald-600');
+        } else {
+            btn.textContent = '⏸️ Пауза';
+            btn.classList.remove('bg-emerald-500', 'hover:bg-emerald-600');
+            btn.classList.add('bg-amber-500', 'hover:bg-amber-600');
+        }
+    }
+    triggerHaptic('light');
+};
   document.body.classList.add('app-blurred');
   toggleModal('scenarioModal');
   const overlay = document.createElement('div');
@@ -3115,15 +3196,33 @@ window.startScenario = (scenarioId) => {
     const pos = bjjNodesData.find(n => n.id === id);
     return pos ? `<div class="text-sm text-emerald-400">✓ ${pos.label}</div>` : '';
   }).join('')}</div>` : '';
-  overlay.innerHTML = `<div class="text-center max-w-md w-full"><div class="text-5xl mb-3">${scenario.icon}</div><h2 class="text-2xl font-bold text-white mb-2">${scenario.title}</h2><p class="text-sm text-white/70 mb-4">${scenario.description}</p><div class="scenario-timer" id="scenarioTimerDisplay">${formatTime(scenarioTimeLeft)}</div><div class="bg-white/10 rounded-xl p-4 mb-4"><div class="text-xs text-white/60 mb-2 uppercase tracking-wider">Стартовые позиции:</div>${startPositionsHtml}${goalPositionsHtml}</div><div class="flex gap-2 justify-center"><button onclick="focusScenarioPosition()" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium text-sm transition">📍 Показать позицию</button><button onclick="stopScenario()" class="px-4 py-2 bg-slate-500 hover:bg-slate-600 text-white rounded-lg font-medium text-sm transition">⏹️ Стоп</button></div></div>`;
+  overlay.innerHTML = `<div class="text-center max-w-md w-full"><div class="text-5xl mb-3">${scenario.icon}</div><h2 class="text-2xl font-bold text-white mb-2">${scenario.title}</h2><p class="text-sm text-white/70 mb-4">${scenario.description}</p><div class="scenario-timer" id="scenarioTimerDisplay">${formatTime(scenarioTimeLeft)}</div><div class="bg-white/10 rounded-xl p-4 mb-4"><div class="text-xs text-white/60 mb-2 uppercase tracking-wider">Стартовые позиции:</div>${startPositionsHtml}${goalPositionsHtml}</div>// НАЙТИ В КОДЕ:
+// <div class="flex gap-2 justify-center">
+//   <button onclick="focusScenarioPosition()" ...>📍 Показать позицию</button>
+//   <button onclick="stopScenario()" ...>⏹️ Стоп</button>
+// </div>
+
+// ЗАМЕНИТЬ НА:
+<div class="flex gap-2 justify-center flex-wrap">
+<button onclick="focusScenarioPosition()" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium text-sm transition">📍 Позиция</button>
+<button onclick="pauseScenario()" id="scenarioPauseBtn" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-medium text-sm transition">⏸️ Пауза</button>
+<button onclick="stopScenario()" class="px-4 py-2 bg-slate-500 hover:bg-slate-600 text-white rounded-lg font-medium text-sm transition">⏹️ Стоп</button>
+</div>
+</div>`;
   document.body.appendChild(overlay);
-  scenarioTimer = setInterval(() => {
+scenarioTimer = setInterval(() => {
+    if (scenarioPaused) return; // ← НОВАЯ ПРОВЕРКА: если пауза — не тикаем
     scenarioTimeLeft--;
     const display = document.getElementById('scenarioTimerDisplay');
     if (display) display.textContent = formatTime(scenarioTimeLeft);
-    if (scenarioTimeLeft <= 10 && scenarioTimeLeft > 0) triggerHaptic('light');
-    if (scenarioTimeLeft <= 0) { stopScenario(); showToast('🎉 Сценарий завершён!'); triggerHaptic('heavy'); playBeepSound(880, 300, 3); }
-  }, 1000);
+    if (scenarioTimeLeft <= 10 && scenarioTimeLeft > 0 && !scenarioPaused) triggerHaptic('light');
+    if (scenarioTimeLeft <= 0) { 
+        stopScenario(); 
+        showToast('🎉 Сценарий завершён!'); 
+        triggerHaptic('heavy'); 
+        playBeepSound(880, 300, 3); 
+    }
+}, 1000);
   triggerHaptic('medium');
 };
 
@@ -3155,6 +3254,7 @@ document.body.classList.remove('app-blurred');
   const overlay = document.getElementById('scenarioOverlay');
   if (overlay) overlay.remove();
   activeScenario = null;
+    scenarioPaused = false; // Сбрасываем состояние паузы
   document.body.classList.remove('app-blurred');
 };
 
@@ -3251,14 +3351,21 @@ detailsHtml = `<div class="mb-3 p-3 rounded-lg" style="background:${diffInfo.bg}
 document.getElementById('nodeDetails').innerHTML = `
 <div class="fade-in">
 <!-- Строка 1: Поделиться + Название + Крестик -->
+<!-- Строка 1: Поделиться + Название + Кнопки -->
 <div class="flex items-start justify-between gap-2 mb-3">
-<div class="flex items-start gap-2 flex-1 min-w-0">
-<button onclick="shareNode(${nodeId})" class="p-2 bg-slate-100 dark:bg-slate-700 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition text-slate-500 dark:text-slate-300 flex-shrink-0 mt-0.5" title="Поделиться">
-<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-</button>
-<h2 class="text-lg font-bold text-slate-800 dark:text-slate-100 flex-1 min-w-0">${n.title}</h2>
-</div>
-<button onclick="document.getElementById('bottomSheet').classList.remove('active'); document.getElementById('bottomSheetOverlay').classList.remove('active');" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 flex items-center justify-center text-slate-500 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white transition flex-shrink-0" title="Закрыть" style="font-size:18px;line-height:1;">×</button>
+    <div class="flex items-start gap-2 flex-1 min-w-0">
+        <button onclick="shareNode(${nodeId})" class="p-2 bg-slate-100 dark:bg-slate-700 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition text-slate-500 dark:text-slate-300 flex-shrink-0 mt-0.5" title="Поделиться">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        </button>
+        <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100 flex-1 min-w-0">${n.title}</h2>
+    </div>
+    <!-- ДВЕ КНОПКИ: Назад + Закрыть -->
+    <div class="flex gap-1.5 flex-shrink-0">
+        <button onclick="goBackFromNode()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 flex items-center justify-center text-slate-500 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white transition" title="Назад">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        </button>
+        <button onclick="document.getElementById('bottomSheet').classList.remove('active'); document.getElementById('bottomSheetOverlay').classList.remove('active');" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 flex items-center justify-center text-slate-500 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white transition" title="Закрыть" style="font-size:18px;line-height:1;">×</button>
+    </div>
 </div>
 <!-- Строка 2+: Метаданные -->
 <div>
@@ -3286,6 +3393,20 @@ ${detailsHtml}
 
 window.updateProgress = (id, status) => { setProgress(id, status); renderNodeDetails(id); };
 window.focusNode = (id) => {
+    window.goBackFromNode = () => {
+    // Закрываем bottom sheet
+    document.getElementById('bottomSheet').classList.remove('active');
+    document.getElementById('bottomSheetOverlay').classList.remove('active');
+    
+    // Возвращаемся в предыдущую модалку, если она есть
+    if (lastOpenedModal && document.getElementById(lastOpenedModal)) {
+        // Небольшая задержка для плавности
+        setTimeout(() => {
+            toggleModal(lastOpenedModal);
+        }, 250);
+    }
+    triggerHaptic('light');
+};
   network.focus(id, { scale: 1.8, animation: true });
   setTimeout(() => { network.selectNodes([id]); renderNodeDetails(id); }, 300);
 };
