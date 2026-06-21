@@ -1159,112 +1159,50 @@ const cloudStorageEnabled = !!cloudStorage;
 
 // Универсальная функция сохранения (Cloud + localStorage + Supabase)
 async function saveSetting(key, value) {
-const stringValue = JSON.stringify(value);
-// 1. Всегда сохраняем в localStorage (быстрый доступ)
-try { 
-localStorage.setItem(key, stringValue); 
-console.log('✅ Saved to localStorage:', key);
-} catch(e) { 
-console.error('❌ localStorage save error:', e);
-}
-// 2. Сохраняем в Telegram Cloud Storage с таймаутом
-if (cloudStorageEnabled) {
-try {
-await Promise.race([
-new Promise((resolve, reject) => {
-cloudStorage.setItem(key, stringValue, (success, error) => {
-if (success) {
-console.log('✅ Saved to Cloud Storage:', key);
-resolve();
-} else {
-console.warn('⚠️ Cloud Storage save failed:', error);
-reject(error);
-}
-});
-}),
-new Promise((_, reject) => setTimeout(() => reject(new Error('Cloud Storage timeout')), 3000))
-]);
-} catch(e) { 
-console.log('Cloud save error (timeout or failed):', e.message);
-// Не блокируем работу приложения — localStorage уже сохранён
-}
-}
-}
-
-// 🔵 Сохраняем все настройки в Supabase одним запросом
-async function saveAllSettingsToServer() {
-if (!supabaseEnabled) return;
-try {
-const settingsObj = {
-styleProfile: styleProfile,
-giFilterState: giFilterState,
-currentRule: currentRule,
-currentCategoryFilter: currentCategoryFilter,
-darkMode: document.body.classList.contains('dark'),
-onboardingSeen: localStorage.getItem('bjj_onboarding_seen') === 'true'
-};
-await syncSettingsToServer(settingsObj);
-} catch(e) { console.log('Settings batch save error:', e); }
+    const stringValue = JSON.stringify(value);
+    
+    // 1. Всегда сохраняем в localStorage (быстрый доступ)
+    try { localStorage.setItem(key, stringValue); } catch(e) {}
+    
+    // 2. Сохраняем в Telegram Cloud Storage (облако)
+    if (cloudStorageEnabled) {
+        try {
+            await new Promise((resolve, reject) => {
+                cloudStorage.setItem(key, stringValue, (success, error) => {
+                    if (success) resolve();
+                    else reject(error);
+                });
+            });
+        } catch(e) { console.log('Cloud save error:', e); }
+    }
 }
 
 // Универсальная функция загрузки
 async function loadSetting(key, defaultValue = null) {
-// 1. Сначала пробуем Telegram Cloud Storage с таймаутом
-if (cloudStorageEnabled) {
-try {
-const value = await Promise.race([
-new Promise((resolve) => {
-cloudStorage.getItem(key, (success, value, error) => {
-if (success && value) resolve(value);
-else resolve(null);
-});
-}),
-new Promise(resolve => setTimeout(() => resolve(null), 2000)) // Таймаут 2 секунды
-]);
-if (value) {
-try { localStorage.setItem(key, value); } catch(e) {}
-try { return JSON.parse(value); } catch(e) { return defaultValue; }
-}
-} catch(e) { console.log('Cloud load error:', e); }
-}
-// 2. Fallback на localStorage
-try {
-const localValue = localStorage.getItem(key);
-if (localValue) return JSON.parse(localValue);
-} catch(e) {}
-return defaultValue;
-}
-
-// 🔵 Загрузка ВСЕХ настроек из Supabase (если Cloud Storage пуст)
-async function loadAllSettingsFromServer() {
-const serverSettings = await loadSettingsFromServer();
-if (!serverSettings) return;
-
-console.log('📥 Загружены настройки из Supabase:', serverSettings);
-
-if (serverSettings.styleProfile) {
-styleProfile = { ...styleProfile, ...serverSettings.styleProfile };
-try { localStorage.setItem('bjj_style_profile', JSON.stringify(styleProfile)); } catch(e) {}
-}
-if (serverSettings.giFilterState !== undefined) {
-giFilterState = serverSettings.giFilterState;
-try { localStorage.setItem('bjj_gi_filter', JSON.stringify(giFilterState)); } catch(e) {}
-}
-if (serverSettings.currentRule !== undefined) {
-currentRule = serverSettings.currentRule;
-try { localStorage.setItem('bjj_rule', JSON.stringify(currentRule)); } catch(e) {}
-}
-if (serverSettings.currentCategoryFilter !== undefined) {
-currentCategoryFilter = serverSettings.currentCategoryFilter;
-try { localStorage.setItem('bjj_category_filter', JSON.stringify(currentCategoryFilter)); } catch(e) {}
-}
-if (serverSettings.darkMode) {
-document.body.classList.add('dark');
-try { localStorage.setItem('bjj_dark_mode', 'true'); } catch(e) {}
-}
-if (serverSettings.onboardingSeen) {
-try { localStorage.setItem('bjj_onboarding_seen', 'true'); } catch(e) {}
-}
+    // 1. Сначала пробуем Telegram Cloud Storage
+    if (cloudStorageEnabled) {
+        try {
+            const value = await new Promise((resolve, reject) => {
+                cloudStorage.getItem(key, (success, value, error) => {
+                    if (success && value) resolve(value);
+                    else resolve(null);
+                });
+            });
+            if (value) {
+                // Синхронизируем с localStorage
+                try { localStorage.setItem(key, value); } catch(e) {}
+                return JSON.parse(value);
+            }
+        } catch(e) { console.log('Cloud load error:', e); }
+    }
+    
+    // 2. Fallback на localStorage
+    try {
+        const localValue = localStorage.getItem(key);
+        if (localValue) return JSON.parse(localValue);
+    } catch(e) {}
+    
+    return defaultValue;
 }
 
 // Массовое сохранение нескольких ключей
@@ -1301,29 +1239,6 @@ try {
 const telegramId = (window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 'anonymous').toString();
 const { data } = await supabaseClient.from('bjj_progress').select('progress').eq('telegram_id', telegramId).single();
 return data ? data.progress : null;
-} catch (err) { return null; }
-}
-
-// 🔵 Сохранение настроек в Supabase
-async function syncSettingsToServer(settingsObj) {
-if (!supabaseEnabled) return;
-try {
-const telegramId = (window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 'anonymous').toString();
-await supabaseClient.from('bjj_settings').upsert({ 
-    telegram_id: telegramId, 
-    settings: settingsObj, 
-    updated_at: new Date().toISOString() 
-}, { onConflict: 'telegram_id' });
-} catch (err) { console.log('Settings sync error:', err); }
-}
-
-// 🔵 Загрузка настроек из Supabase
-async function loadSettingsFromServer() {
-if (!supabaseEnabled) return null;
-try {
-const telegramId = (window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 'anonymous').toString();
-const { data } = await supabaseClient.from('bjj_settings').select('settings').eq('telegram_id', telegramId).single();
-return data ? data.settings : null;
 } catch (err) { return null; }
 }
 // === ГРУППЫ И ИКОНКИ ===
@@ -1971,24 +1886,16 @@ const STORAGE_KEY = 'bjj_learned_v4';
 let progress = {};
 
 async function initApp() {
-console.log('🚀 Initializing app...');
-try {
 // 🔵 1. Загружаем прогресс из Supabase или localStorage
 const serverProgress = await loadProgressFromServer();
 progress = serverProgress || await loadSetting(STORAGE_KEY, {});
-console.log('✅ Progress loaded:', Object.keys(progress).length, 'items');
 
-// 🔵 2. Загружаем все настройки с таймаутом
-await Promise.race([
-(async () => {
+// 🔵 2. Загружаем все настройки из Cloud Storage
 await loadStyleProfile();
 giFilterState = await loadSetting('bjj_gi_filter', 'gi');
 currentRule = await loadSetting('bjj_rule', 'none');
 currentCategoryFilter = await loadSetting('bjj_category_filter', null);
 await loadDarkMode();
-})(),
-new Promise(resolve => setTimeout(resolve, 5000)) // Общий таймаут 5 секунд
-]);
 
 // 🔵 3. Применяем всё
 updateGlobalProgress();
@@ -1996,20 +1903,11 @@ updateNodeColors();
 applyAllFilters();
 
 console.log('✅ App initialized with settings:', {
-belt: styleProfile.belt,
-gi: giFilterState,
-rule: currentRule,
-category: currentCategoryFilter,
-dark: document.body.classList.contains('dark')
+    belt: styleProfile.belt,
+    gi: giFilterState,
+    rule: currentRule,
+    category: currentCategoryFilter
 });
-} catch (error) {
-console.error('❌ initApp error:', error);
-// Даже если ошибка — применяем фильтры с дефолтными значениями
-applyAllFilters();
-}
-}
-
-showToast('✅ Настройки загружены');
 }
 
 const setProgress = async (id, status) => {
@@ -2822,51 +2720,24 @@ oscillator.stop(audioCtx.currentTime + i * 0.4 + duration / 1000);
 // === A-GAME ANALYZER ===
 // === ГЛОБАЛЬНАЯ ПЕРЕМЕННАЯ ДЛЯ РАСКРЫТИЯ ПРОГРЕССА ===
 let agameProgressExpanded = false;
+
 window.renderAGameModal = () => {
 const content = document.getElementById('agameContent');
-
-// 🔵 Получаем данные Telegram-пользователя
-const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
-const userFirstName = tgUser?.first_name || 'Пользователь';
-const userLastName = tgUser?.last_name || '';
-const userUsername = tgUser?.username || '';
-const userPhoto = tgUser?.photo_url || '';
-const userId = tgUser?.id || '';
-
-// 🔵 Генерируем инициалы для аватара (если нет фото)
-const initials = (userFirstName.charAt(0) + (userLastName.charAt(0) || '')).toUpperCase();
-
-// 🔵 Блок профиля
-const profileBlock = `
-<div class="flex items-center gap-3 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl border border-blue-200 dark:border-blue-800 mb-4">
-    ${userPhoto 
-        ? `<img src="${userPhoto}" alt="avatar" class="w-14 h-14 rounded-full object-cover border-2 border-white dark:border-slate-700 shadow-md" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-           <div class="w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-bold text-lg items-center justify-center flex-shrink-0 shadow-md" style="display:none;">${initials}</div>`
-        : `<div class="w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-bold text-lg flex items-center justify-center flex-shrink-0 shadow-md">${initials}</div>`
-    }
-    <div class="flex-1 min-w-0">
-        <div class="font-bold text-slate-800 dark:text-slate-100 truncate">${userFirstName} ${userLastName}</div>
-        ${userUsername ? `<div class="text-xs text-slate-500 dark:text-slate-400 truncate">@${userUsername}</div>` : ''}
-        ${userId ? `<div class="text-xs text-slate-400 dark:text-slate-500 mt-0.5">ID: ${userId}</div>` : ''}
-    </div>
-    <div class="flex-shrink-0">
-        <div class="text-2xl">🥋</div>
-    </div>
-</div>
-`;
-
 const done = bjjNodesData.filter(n => progress[n.id] === 'done');
 const inProgress = bjjNodesData.filter(n => progress[n.id] === 'in_progress');
 const total = bjjNodesData.length;
 const percent = Math.round((done.length / total) * 100);
+
 const categoryStats = {};
 Object.keys(catLabels).forEach(group => {
 const total = bjjNodesData.filter(n => n.group === group).length;
 const doneCount = done.filter(n => n.group === group).length;
 categoryStats[group] = { total, done: doneCount, percent: total > 0 ? Math.round((doneCount / total) * 100) : 0 };
 });
+
 const topCategories = Object.entries(categoryStats).filter(([_, s]) => s.done > 0).sort((a, b) => b[1].percent - a[1].percent).slice(0, 3);
 const weakCategories = Object.entries(categoryStats).filter(([_, s]) => s.total > 0).sort((a, b) => a[1].percent - b[1].percent).slice(0, 3);
+
 const keyPositions = [
 { id: 1, label: 'Закрытый гард' }, { id: 14, label: 'Сайд-контроль' }, { id: 16, label: 'Маунт' },
 { id: 17, label: 'Контроль спины' }, { id: 3, label: 'Халф-гард' }, { id: 5, label: 'Баттерфляй' },
@@ -2875,64 +2746,72 @@ const keyPositions = [
 
 // 🔵 АВТОМАТИЧЕСКИЕ РЕКОМЕНДАЦИИ БЕЗ УКАЗАНИЯ ПОЯСА, НА РУССКОМ
 const recommendations = [];
+
 // Защита
 if (categoryStats.escape && categoryStats.escape.percent < 50) {
 const escapeNodes = bjjNodesData.filter(n => n.group === 'escape' && progress[n.id] !== 'done').slice(0, 4);
 if (escapeNodes.length > 0) {
 const techList = escapeNodes.map(n => n.label).join(', ');
-recommendations.push({ icon: '🛡️', text: `Укрепите защиты: ${techList}` });
+recommendations.push({ icon: '', text: `Укрепите защиты: ${techList}` });
 }
 }
+
 // Проходы гарда
 if (categoryStats.guard_pass && categoryStats.guard_pass.percent < 40) {
 const passNodes = bjjNodesData.filter(n => n.group === 'guard_pass' && progress[n.id] !== 'done').slice(0, 4);
 if (passNodes.length > 0) {
 const techList = passNodes.map(n => n.label).join(', ');
-recommendations.push({ icon: '🚪', text: `Изучите проходы гарда: ${techList}` });
+recommendations.push({ icon: '', text: `Изучите проходы гарда: ${techList}` });
 }
 }
+
 // Позиции
 if (categoryStats.position && categoryStats.position.percent < 50) {
 const posNodes = bjjNodesData.filter(n => n.group === 'position' && progress[n.id] !== 'done').slice(0, 4);
 if (posNodes.length > 0) {
 const techList = posNodes.map(n => n.label).join(', ');
-recommendations.push({ icon: '📍', text: `Освойте базовые позиции: ${techList}` });
+recommendations.push({ icon: '', text: `Освойте базовые позиции: ${techList}` });
 }
 }
+
 // Тейкдауны
 if (categoryStats.takedown && categoryStats.takedown.percent < 30) {
 const tdNodes = bjjNodesData.filter(n => n.group === 'takedown' && progress[n.id] !== 'done').slice(0, 4);
 if (tdNodes.length > 0) {
 const techList = tdNodes.map(n => n.label).join(', ');
-recommendations.push({ icon: '🤼', text: `Изучите тейкдауны: ${techList}` });
+recommendations.push({ icon: '', text: `Изучите тейкдауны: ${techList}` });
 }
 }
+
 // Сабмишены
 if (categoryStats.submission && categoryStats.submission.percent < 40) {
 const subNodes = bjjNodesData.filter(n => n.group === 'submission' && progress[n.id] !== 'done').slice(0, 4);
 if (subNodes.length > 0) {
 const techList = subNodes.map(n => n.label).join(', ');
-recommendations.push({ icon: '🔒', text: `Изучите сабмишены: ${techList}` });
+recommendations.push({ icon: '', text: `Изучите сабмишены: ${techList}` });
 }
 }
+
 // Свипы
 if (categoryStats.sweep && categoryStats.sweep.percent < 40) {
 const sweepNodes = bjjNodesData.filter(n => n.group === 'sweep' && progress[n.id] !== 'done').slice(0, 4);
 if (sweepNodes.length > 0) {
 const techList = sweepNodes.map(n => n.label).join(', ');
-recommendations.push({ icon: '🔄', text: `Освойте свипы: ${techList}` });
+recommendations.push({ icon: '', text: `Освойте свипы: ${techList}` });
 }
 }
+
 // Переходы
 if (categoryStats.transition && categoryStats.transition.percent < 30) {
 const transNodes = bjjNodesData.filter(n => n.group === 'transition' && progress[n.id] !== 'done').slice(0, 4);
 if (transNodes.length > 0) {
 const techList = transNodes.map(n => n.label).join(', ');
-recommendations.push({ icon: '➡️', text: `Изучите цепочки переходов: ${techList}` });
+recommendations.push({ icon: '', text: `Изучите цепочки переходов: ${techList}` });
 }
 }
+
 if (recommendations.length === 0) {
-recommendations.push({ icon: '✨', text: 'Отличный прогресс! Продолжайте развивать свой A-Game.' });
+recommendations.push({ icon: '', text: 'Отличный прогресс! Продолжайте развивать свой A-Game.' });
 }
 
 // 🔵 СОДЕРЖИМОЕ РАСКРЫВАЮЩЕГОСЯ БЛОКА ПРОГРЕССА
@@ -2958,6 +2837,7 @@ progressListHtml += `<div class="technique-card done mb-1" onclick="focusNode(${
 progressListHtml += `</div>`;
 }
 }
+
 // Вкладка "Пояса"
 let beltsHtml = '<div class="space-y-2">';
 beltOrder.forEach(belt => {
@@ -2967,6 +2847,7 @@ const beltPercent = beltTotal > 0 ? Math.round((beltDone / beltTotal) * 100) : 0
 beltsHtml += `<div class="progress-bar-container"><div class="progress-bar-header"><span class="progress-bar-label text-xs">${beltIcons[belt]} ${beltNames[belt]} пояс</span><span class="progress-bar-value text-xs">${beltDone}/${beltTotal} (${beltPercent}%)</span></div><div class="progress-bar"><div class="progress-bar-fill" style="width: ${beltPercent}%"></div></div></div>`;
 });
 beltsHtml += '</div>';
+
 // Вкладка "Статистика"
 const byGroup = {};
 Object.keys(catLabels).forEach(g => {
@@ -2979,6 +2860,7 @@ Object.entries(byGroup).forEach(([group, stats]) => {
 statsHtml += `<div class="progress-bar-container"><div class="progress-bar-header"><span class="progress-bar-label text-xs">${groupIcons[group] || '🥋'} ${catLabels[group]}</span><span class="progress-bar-value text-xs">${stats.done}/${stats.total} (${stats.percent}%)</span></div><div class="progress-bar"><div class="progress-bar-fill" style="width: ${stats.percent}%"></div></div></div>`;
 });
 statsHtml += '</div>';
+
 progressExpandedContent = `
 <div class="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700">
 <div class="flex gap-1 mb-3">
@@ -2997,7 +2879,6 @@ ${agameProgressTab === 'stats' ? statsHtml : ''}
 
 content.innerHTML = `
 <div class="space-y-5">
-${profileBlock}
 <!-- 🔵 НЕЙТРАЛЬНЫЙ БЛОК С ПРОЦЕНТОМ И РАСКРЫТИЕМ -->
 <div class="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
 <div class="flex items-center justify-between mb-3 cursor-pointer" onclick="toggleAGameProgress()">
@@ -3019,8 +2900,11 @@ ${profileBlock}
 </div>
 ${progressExpandedContent}
 </div>
+
 ${topCategories.length > 0 ? `<div class="modal-section"><div class="modal-section-title">💪 Сильные стороны</div><div class="space-y-2">${topCategories.map(([group, stats]) => `<div class="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800"><div class="flex items-center justify-between mb-1"><span class="text-sm font-semibold text-emerald-900 dark:text-emerald-200">${catLabels[group]}</span><span class="text-xs font-bold text-emerald-700 dark:text-emerald-300">${stats.percent}%</span></div><div class="stat-bar"><div class="stat-bar-fill bg-emerald-500" style="width: ${stats.percent}%"></div></div><div class="text-xs text-emerald-700 dark:text-emerald-300 mt-1">${stats.done} из ${stats.total}</div></div>`).join('')}</div></div>` : ''}
+
 ${weakCategories.length > 0 ? `<div class="modal-section"><div class="modal-section-title">🎯 Точки роста</div><div class="space-y-2">${weakCategories.map(([group, stats]) => `<div class="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800"><div class="flex items-center justify-between mb-1"><span class="text-sm font-semibold text-amber-900 dark:text-amber-200">${catLabels[group]}</span><span class="text-xs font-bold text-amber-700 dark:text-amber-300">${stats.percent}%</span></div><div class="stat-bar"><div class="stat-bar-fill bg-amber-500" style="width: ${stats.percent}%"></div></div><div class="text-xs text-amber-700 dark:text-amber-300 mt-1">${stats.done} из ${stats.total}</div></div>`).join('')}</div></div>` : ''}
+
 <div class="modal-section">
 <div class="modal-section-title">Карта позиций</div>
 <div class="position-grid" id="heatmapGrid">
@@ -3033,6 +2917,7 @@ return `<div class="position-cell heat-${heat} ${isSelected ? 'ring-2 ring-blue-
 }).join('')}
 </div>
 </div>
+
 <div class="modal-section">
 <div class="modal-section-title">💡 Рекомендации</div>
 <div class="space-y-2">
