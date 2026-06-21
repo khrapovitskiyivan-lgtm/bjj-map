@@ -2932,7 +2932,7 @@ const status = progress[pos.id];
 const heat = status === 'done' ? 4 : status === 'in_progress' ? 2 : 0;
 const node = bjjNodesData.find(n => n.id === pos.id);
 const isSelected = selectedHeatmapPosition === pos.id;
-return `<div class="position-cell heat-${heat} ${isSelected ? 'ring-2 ring-blue-500 ring-offset-2 dark:ring-offset-slate-800' : ''}" onclick="selectHeatmapPosition(${pos.id})"><div class="text-lg">${groupIcons[node?.group] || '🥋'}</div><div>${pos.label}</div></div>`;
+return `<div class="position-cell heat-${heat} ${isSelected ? 'ring-2 ring-blue-500 dark:ring-blue-400 ring-offset-2 dark:ring-offset-slate-800' : ''}" onclick="selectHeatmapPosition(${pos.id})"><div class="text-lg">${groupIcons[node?.group] || '🥋'}</div><div>${pos.label}</div></div>`;
 }).join('')}
 </div>
 </div>
@@ -3014,7 +3014,7 @@ selectedHeatmapPosition = posId;
 document.querySelectorAll('#heatmapGrid .position-cell').forEach((cell, idx) => {
 const keyPositions = [1, 14, 16, 17, 3, 5, 10, 11, 21];
 if (keyPositions[idx] === posId) {
-cell.classList.add('ring-2', 'ring-blue-500', 'ring-offset-2', 'dark:ring-offset-slate-800');
+cell.classList.add('ring-2', 'ring-blue-500', 'dark:ring-blue-400', 'ring-offset-2', 'dark:ring-offset-slate-800');
 } else {
 cell.classList.remove('ring-2', 'ring-blue-500', 'ring-offset-2', 'dark:ring-offset-slate-800');
 }
@@ -3232,9 +3232,9 @@ if (details.mistakes) detailsHtml += `<div class="mb-3 p-3 rounded-lg" style="ba
   
   // Chain To
   const chainToNodes = (n.chain_to || []).map(id => bjjNodesData.find(x => x.id === id)).filter(Boolean);
-  if (chainToNodes.length > 0) {
-    detailsHtml += `<div class="mb-3"><div class="flex items-center gap-2 mb-2"><span class="text-lg">🔗</span><h3 class="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Цепочки атак (${chainToNodes.length})</h3></div><div class="space-y-1 max-h-60 overflow-y-auto">${chainToNodes.map(node => `<button onclick="focusNode(${node.id})" class="w-full flex items-center gap-2 p-2 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 hover:from-blue-100 hover:to-indigo-100 dark:hover:from-blue-900/30 dark:hover:to-indigo-900/30 rounded-lg transition text-left text-sm border border-blue-200 dark:border-blue-800"><span class="text-blue-500">→</span><span class="flex-1 font-medium text-slate-700 dark:text-slate-200 truncate">${node.label}</span><span class="text-xs text-slate-500 dark:text-slate-400">${catLabels[node.group] || ''}</span></button>`).join('')}</div></div>`;
-  }
+if (chainToNodes.length > 0) {
+  detailsHtml += `<div class="mb-3"><div class="flex items-center gap-2 mb-2"><span class="text-lg">🔗</span><h3 class="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Цепочки атак (${chainToNodes.length})</h3></div><div class="space-y-1 max-h-60 overflow-y-auto">${chainToNodes.map(node => `<button onclick="focusNode(${node.id})" class="w-full flex items-center gap-2 p-2 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 hover:from-blue-100 hover:to-indigo-100 dark:hover:from-blue-900/40 dark:hover:to-indigo-900/40 rounded-lg transition text-left text-sm border border-blue-200 dark:border-blue-700"><span class="text-blue-500 dark:text-blue-400">→</span><span class="flex-1 font-medium text-slate-700 dark:text-slate-200 truncate">${node.label}</span><span class="text-xs text-slate-500 dark:text-slate-400">${catLabels[node.group] || ''}</span></button>`).join('')}</div></div>`;
+}
   
   // Difficulty
 const difficulty = n.difficulty || 1;
