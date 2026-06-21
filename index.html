@@ -1153,6 +1153,73 @@ setTimeout(() => toast.classList.remove('show'), duration);
 const SUPABASE_URL = 'https://ifrgxxcbkzuwfiuihgev.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlmcmd4eGNia3p1d2ZpdWloZ2V2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2ODY4MDYsImV4cCI6MjA5NjI2MjgwNn0.Jn0Mp5_yKoU1wG1pFhY6-zCFl7z29L_ppvcPSSue2NU';
 let supabaseClient = null, supabaseEnabled = false;
+    // === TELEGRAM CLOUD STORAGE ===
+const cloudStorage = window.Telegram?.WebApp?.CloudStorage;
+const cloudStorageEnabled = !!cloudStorage;
+
+// Универсальная функция сохранения (Cloud + localStorage + Supabase)
+async function saveSetting(key, value) {
+    const stringValue = JSON.stringify(value);
+    
+    // 1. Всегда сохраняем в localStorage (быстрый доступ)
+    try { localStorage.setItem(key, stringValue); } catch(e) {}
+    
+    // 2. Сохраняем в Telegram Cloud Storage (облако)
+    if (cloudStorageEnabled) {
+        try {
+            await new Promise((resolve, reject) => {
+                cloudStorage.setItem(key, stringValue, (success, error) => {
+                    if (success) resolve();
+                    else reject(error);
+                });
+            });
+        } catch(e) { console.log('Cloud save error:', e); }
+    }
+}
+
+// Универсальная функция загрузки
+async function loadSetting(key, defaultValue = null) {
+    // 1. Сначала пробуем Telegram Cloud Storage
+    if (cloudStorageEnabled) {
+        try {
+            const value = await new Promise((resolve, reject) => {
+                cloudStorage.getItem(key, (success, value, error) => {
+                    if (success && value) resolve(value);
+                    else resolve(null);
+                });
+            });
+            if (value) {
+                // Синхронизируем с localStorage
+                try { localStorage.setItem(key, value); } catch(e) {}
+                return JSON.parse(value);
+            }
+        } catch(e) { console.log('Cloud load error:', e); }
+    }
+    
+    // 2. Fallback на localStorage
+    try {
+        const localValue = localStorage.getItem(key);
+        if (localValue) return JSON.parse(localValue);
+    } catch(e) {}
+    
+    return defaultValue;
+}
+
+// Массовое сохранение нескольких ключей
+async function saveSettingsBatch(settingsObj) {
+    for (const [key, value] of Object.entries(settingsObj)) {
+        await saveSetting(key, value);
+    }
+}
+
+// Массовая загрузка
+async function loadSettingsBatch(keys, defaults = {}) {
+    const result = {};
+    for (const key of keys) {
+        result[key] = await loadSetting(key, defaults[key] || null);
+    }
+    return result;
+}
 try {
 if (typeof window.supabase !== 'undefined') {
 supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -1819,20 +1886,37 @@ const STORAGE_KEY = 'bjj_learned_v4';
 let progress = {};
 
 async function initApp() {
-  const serverProgress = await loadProgressFromServer();
-  progress = serverProgress || JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-  updateGlobalProgress();
-  updateNodeColors();
-  applyAllFilters();
+// 🔵 1. Загружаем прогресс из Supabase или localStorage
+const serverProgress = await loadProgressFromServer();
+progress = serverProgress || await loadSetting(STORAGE_KEY, {});
+
+// 🔵 2. Загружаем все настройки из Cloud Storage
+await loadStyleProfile();
+giFilterState = await loadSetting('bjj_gi_filter', 'gi');
+currentRule = await loadSetting('bjj_rule', 'none');
+currentCategoryFilter = await loadSetting('bjj_category_filter', null);
+await loadDarkMode();
+
+// 🔵 3. Применяем всё
+updateGlobalProgress();
+updateNodeColors();
+applyAllFilters();
+
+console.log('✅ App initialized with settings:', {
+    belt: styleProfile.belt,
+    gi: giFilterState,
+    rule: currentRule,
+    category: currentCategoryFilter
+});
 }
 
 const setProgress = async (id, status) => {
 progress[id] = status;
-localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+await saveSetting(STORAGE_KEY, progress);
 await syncProgressToServer(progress);
 updateGlobalProgress();
 updateNodeColors();
-updateAGameHeatmap(); // ДОБАВИТЬ
+updateAGameHeatmap();
 triggerHaptic('light');
 };
 
@@ -2013,13 +2097,51 @@ content.innerHTML = `
 `;
 }
 
-window.toggleGiFilter = () => { giFilterState = 'gi'; applyAllFilters(); renderSettingsModal(); triggerHaptic('light'); };
-window.toggleNogiFilter = () => { giFilterState = 'nogi'; applyAllFilters(); renderSettingsModal(); triggerHaptic('light'); };
-window.setRule = (rule) => { currentRule = rule; applyAllFilters(); renderSettingsModal(); triggerHaptic('light'); };
-window.setCategoryFilter = (filter) => { currentCategoryFilter = filter; applyAllFilters(); renderSettingsModal(); triggerHaptic('light'); };
+window.toggleGiFilter = async () => { 
+    giFilterState = 'gi'; 
+    await saveSetting('bjj_gi_filter', giFilterState);
+    applyAllFilters(); 
+    renderSettingsModal(); 
+    triggerHaptic('light'); 
+};
+window.toggleNogiFilter = async () => { 
+    giFilterState = 'nogi'; 
+    await saveSetting('bjj_gi_filter', giFilterState);
+    applyAllFilters(); 
+    renderSettingsModal(); 
+    triggerHaptic('light'); 
+};
+window.setRule = async (rule) => { 
+    currentRule = rule; 
+    await saveSetting('bjj_rule', currentRule);
+    applyAllFilters(); 
+    renderSettingsModal(); 
+    triggerHaptic('light'); 
+};
+window.setCategoryFilter = async (filter) => { 
+    currentCategoryFilter = filter; 
+    await saveSetting('bjj_category_filter', currentCategoryFilter);
+    applyAllFilters(); 
+    renderSettingsModal(); 
+    triggerHaptic('light'); 
+};
 
 // === STYLE MODAL ===
-let styleProfile = JSON.parse(localStorage.getItem('bjj_style_profile') || '{"belt": "white"}');
+let styleProfile = { belt: 'white', flexibility: false, pressure: false, long_limbs: false, speed: false };
+
+// Асинхронная загрузка профиля
+async function loadStyleProfile() {
+    const saved = await loadSetting('bjj_style_profile', null);
+    if (saved) {
+        styleProfile = { ...styleProfile, ...saved };
+    } else {
+        // Fallback на localStorage
+        try {
+            const local = localStorage.getItem('bjj_style_profile');
+            if (local) styleProfile = { ...styleProfile, ...JSON.parse(local) };
+        } catch(e) {}
+    }
+}
 
 function renderStyleModal() {
   const content = document.getElementById('styleContent');
@@ -2059,12 +2181,12 @@ window.updateStyleProfile = () => {
   styleProfile.long_limbs = document.getElementById('styleLong').checked;
   styleProfile.speed = document.getElementById('styleSpeed').checked;
 };
-window.saveStyleProfile = () => {
-  localStorage.setItem('bjj_style_profile', JSON.stringify(styleProfile));
-  toggleModal('styleModal');
-  applyAllFilters();
-  showToast('✅ Профиль сохранён');
-  triggerHaptic('medium');
+window.saveStyleProfile = async () => {
+await saveSetting('bjj_style_profile', styleProfile);
+toggleModal('styleModal');
+applyAllFilters();
+showToast('✅ Профиль сохранён');
+triggerHaptic('medium');
 };
 
 // === INFO MODAL ===
@@ -3266,12 +3388,17 @@ networkEl.addEventListener('wheel', function(e) {
 e.preventDefault();
 }, { passive: false });
 // === ТЁМНАЯ ТЕМА ===
-window.toggleDarkMode = () => {
-  document.body.classList.toggle('dark');
-  const isDark = document.body.classList.contains('dark');
-  localStorage.setItem('bjj_dark_mode', isDark);
+window.toggleDarkMode = async () => {
+document.body.classList.toggle('dark');
+const isDark = document.body.classList.contains('dark');
+await saveSetting('bjj_dark_mode', isDark);
 };
-if (localStorage.getItem('bjj_dark_mode') === 'true') { document.body.classList.add('dark'); }
+
+// Асинхронная загрузка темы
+async function loadDarkMode() {
+    const isDark = await loadSetting('bjj_dark_mode', false);
+    if (isDark) document.body.classList.add('dark');
+}
 
 // === ЭКСПОРТ/ИМПОРТ ===
 window.exportProgress = () => {
@@ -3285,25 +3412,25 @@ window.exportProgress = () => {
   triggerHaptic('medium');
 };
 window.importProgress = (input) => {
-  const file = input.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = async (e) => {
-    try {
-      const importedData = JSON.parse(e.target.result);
-      if (typeof importedData === 'object' && importedData !== null) {
-        progress = importedData;
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
-        await syncProgressToServer(progress);
-        updateGlobalProgress();
-        updateNodeColors();
-        alert('✅ Прогресс успешно восстановлен!');
-        toggleModal('infoModal');
-      } else { alert('❌ Неверный формат файла'); }
-    } catch (err) { alert('❌ Ошибка чтения файла'); }
-  };
-  reader.readAsText(file);
-  input.value = '';
+const file = input.files[0];
+if (!file) return;
+const reader = new FileReader();
+reader.onload = async (e) => {
+try {
+const importedData = JSON.parse(e.target.result);
+if (typeof importedData === 'object' && importedData !== null) {
+progress = importedData;
+await saveSetting(STORAGE_KEY, progress);
+await syncProgressToServer(progress);
+updateGlobalProgress();
+updateNodeColors();
+alert('✅ Прогресс успешно восстановлен!');
+toggleModal('infoModal');
+} else { alert('❌ Неверный формат файла'); }
+} catch (err) { alert('❌ Ошибка чтения файла'); }
+};
+reader.readAsText(file);
+input.value = '';
 };
 
 // === ONBOARDING ===
@@ -3389,11 +3516,11 @@ window.selectOnboardingBelt = (belt) => {
         nextOnboardingStep();
     }, 400);
 };
-function closeOnboarding(skip = false) {
+async function closeOnboarding(skip = false) {
 const modal = document.getElementById('onboarding-modal');
 modal.classList.remove('active');
 setTimeout(() => modal.classList.add('hidden'), 300);
-localStorage.setItem('bjj_onboarding_seen', 'true');
+await saveSetting('bjj_onboarding_seen', true);
 // 🔵 Применяем фильтры после выбора пояса
 applyAllFilters();
 updateNodeColors();
@@ -3408,8 +3535,9 @@ setTimeout(() => {
 // === ЗАПУСК ===
 initApp();
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('service-worker.js').catch(console.error);
-window.addEventListener('DOMContentLoaded', () => {
-  if (!localStorage.getItem('bjj_onboarding_seen')) setTimeout(showOnboarding, 500);
+window.addEventListener('DOMContentLoaded', async () => {
+const onboardingSeen = await loadSetting('bjj_onboarding_seen', false);
+if (!onboardingSeen) setTimeout(showOnboarding, 500);
 });
 </script>
 </body>
