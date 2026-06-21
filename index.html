@@ -2732,6 +2732,12 @@ const inProgress = bjjNodesData.filter(n => progress[n.id] === 'in_progress');
 const total = bjjNodesData.length;
 const percent = Math.round((done.length / total) * 100);
 
+// 🔵 Получаем данные пользователя Telegram
+const telegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+const userName = telegramUser ? `${telegramUser.first_name || ''} ${telegramUser.last_name || ''}`.trim() : 'Пользователь';
+const userPhoto = telegramUser?.photo_url || null;
+const userInitials = userName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || '?';
+
 const categoryStats = {};
 Object.keys(catLabels).forEach(group => {
 const total = bjjNodesData.filter(n => n.group === group).length;
@@ -2883,6 +2889,18 @@ ${agameProgressTab === 'stats' ? statsHtml : ''}
 
 content.innerHTML = `
 <div class="space-y-5">
+<!-- 🔵 БЛОК ПРОФИЛЯ TELEGRAM -->
+<div class="flex items-center gap-3 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
+${userPhoto ? 
+`<img src="${userPhoto}" alt="${userName}" class="w-14 h-14 rounded-full object-cover border-2 border-white dark:border-slate-700 shadow-md" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+<div class="w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white flex items-center justify-center text-lg font-bold border-2 border-white dark:border-slate-700 shadow-md" style="display:none;">${userInitials}</div>` :
+`<div class="w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white flex items-center justify-center text-lg font-bold border-2 border-white dark:border-slate-700 shadow-md">${userInitials}</div>`
+}
+<div class="flex-1 min-w-0">
+<div class="text-sm font-bold text-slate-800 dark:text-slate-100 truncate">${userName}</div>
+<div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">${telegramUser?.username ? '@' + telegramUser.username : 'BJJ Map Pro'}</div>
+</div>
+</div>
 <!-- 🔵 НЕЙТРАЛЬНЫЙ БЛОК С ПРОЦЕНТОМ И РАСКРЫТИЕМ -->
 <div class="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
 <div class="flex items-center justify-between mb-3 cursor-pointer" onclick="toggleAGameProgress()">
