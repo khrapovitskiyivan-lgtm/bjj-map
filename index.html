@@ -2285,7 +2285,7 @@ function renderProgressModal() {
       </div>
     `;
     if (inProgress.length === 0 && done.length === 0) {
-      html += `<div class="text-center py-8"><div class="text-5xl mb-3">🎯</div><p class="text-sm text-slate-500">Вы пока не отметили ни одной техники</p></div>`;
+      html += `<div class="text-center py-8"><div class="text-5xl mb-3">🎯</div><p class="text-sm text-slate-500 dark:text-slate-400">Вы пока не отметили ни одной техники</p></div>`;
     } else {
       if (inProgress.length > 0) {
         html += `<h3 class="text-xs font-bold text-amber-700 dark:text-amber-300 uppercase tracking-wider mb-2">📚 В процессе (${inProgress.length})</h3>`;
@@ -2552,26 +2552,23 @@ const cooldown = cooldownByBelt[userBelt] || cooldownByBelt.white;
 
 // 🔵 ИНФОРМАЦИЯ ОБ УРОВНЕ
 const beltInfo = {
-white: { name: 'Белый пояс', color: 'slate', icon: '⚪', desc: 'Базовые техники и фундаментальные движения' },
-blue: { name: 'Синий пояс', color: 'blue', icon: '🔵', desc: 'Базовые + начинающие продвинутые техники' },
-purple: { name: 'Фиолетовый пояс', color: 'purple', icon: '🟣', desc: 'Продвинутые техники и цепочки атак' },
-brown: { name: 'Коричневый пояс', color: 'amber', icon: '🟤', desc: 'Сложные техники и мастерские детали' },
-black: { name: 'Чёрный пояс', color: 'slate', icon: '⚫', desc: 'Полный арсенал техник БЖЖ' }
+  white:   { name: 'Белый пояс',      bg: 'rgba(100,116,139,0.1)', border: 'rgba(100,116,139,0.3)', text: '#475569', icon: '⚪', desc: 'Базовые техники и фундаментальные движения' },
+  blue:    { name: 'Синий пояс',      bg: 'rgba(59,130,246,0.1)',  border: 'rgba(59,130,246,0.3)',  text: '#3b82f6', icon: '🔵', desc: 'Базовые + начинающие продвинутые техники' },
+  purple:  { name: 'Фиолетовый пояс', bg: 'rgba(168,85,247,0.1)',  border: 'rgba(168,85,247,0.3)',  text: '#a855f7', icon: '🟣', desc: 'Продвинутые техники и цепочки атак' },
+  brown:   { name: 'Коричневый пояс', bg: 'rgba(245,158,11,0.1)',  border: 'rgba(245,158,11,0.3)',  text: '#f59e0b', icon: '🟤', desc: 'Сложные техники и мастерские детали' },
+  black:   { name: 'Чёрный пояс',     bg: 'rgba(100,116,139,0.15)',border: 'rgba(100,116,139,0.4)', text: '#f5f5f5', icon: '⚫', desc: 'Полный арсенал техник БЖЖ' }
 };
 const beltData = beltInfo[userBelt];
 
-// 🔵 СБОРКА HTML
 let html = `<div class="workout-result">`;
-
-// Заголовок с информацией о поясе
-html += `<div class="flex items-center gap-3 mb-4 p-3 bg-${beltData.color}-50 dark:bg-${beltData.color}-900/20 rounded-lg border border-${beltData.color}-200 dark:border-${beltData.color}-800">
+html += `<div class="flex items-center gap-3 mb-4 p-3 rounded-lg" style="background:${beltData.bg};border:1px solid ${beltData.border}">
 <div class="text-3xl">${beltData.icon}</div>
 <div class="flex-1">
-<div class="text-sm font-bold text-${beltData.color}-900 dark:text-${beltData.color}-200">Тренировка: ${beltData.name}</div>
-<div class="text-xs text-${beltData.color}-700 dark:text-${beltData.color}-300">${beltData.desc}</div>
+<div class="text-sm font-bold" style="color:${beltData.text}">Тренировка: ${beltData.name}</div>
+<div class="text-xs" style="color:${beltData.text};opacity:0.8">${beltData.desc}</div>
 </div>
 <div class="text-right">
-<div class="text-xs text-slate-500">Всего</div>
+<div class="text-xs text-slate-500 dark:text-slate-400">Всего</div>
 <div class="text-sm font-bold text-slate-800 dark:text-slate-200">${workoutConfig.duration} мин</div>
 </div>
 </div>`;
@@ -2830,7 +2827,7 @@ if (agameProgressExpanded) {
 // Вкладка "Прогресс" - список техник
 let progressListHtml = '';
 if (inProgress.length === 0 && done.length === 0) {
-progressListHtml = `<div class="text-center py-4"><div class="text-3xl mb-2">🎯</div><p class="text-xs text-slate-500">Вы пока не отметили ни одной техники</p></div>`;
+progressListHtml = `<div class="text-center py-4"><div class="text-3xl mb-2">🎯</div><p class="text-xs text-slate-500 dark:text-slate-400">Вы пока не отметили ни одной техники</p></div>`;
 } else {
 if (inProgress.length > 0) {
 progressListHtml += `<div class="mb-3"><div class="text-xs font-bold text-amber-700 dark:text-amber-300 uppercase tracking-wider mb-2">📚 В процессе (${inProgress.length})</div>`;
@@ -2908,7 +2905,7 @@ ${userPhoto ?
 <div class="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">Общий прогресс</div>
 <div class="flex items-center gap-2">
 <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">${percent}%</div>
-<div class="text-xs text-slate-500">Изучено ${done.length} из ${total} техник</div>
+<div class="text-xs text-slate-500 dark:text-slate-400">Изучено ${done.length} из ${total} техник</div>
 </div>
 </div>
 <div class="text-slate-400 transition-transform ${agameProgressExpanded ? 'rotate-180' : ''}">
@@ -2917,8 +2914,8 @@ ${userPhoto ?
 </div>
 <div class="progress-bar mb-3"><div class="progress-bar-fill" style="width: ${percent}%"></div></div>
 <div class="grid grid-cols-2 gap-2 text-xs">
-<div class="p-2 bg-white dark:bg-slate-700 rounded-lg"><div class="text-blue-600 dark:text-blue-400 font-bold">${done.length}</div><div class="text-slate-500">Изучено</div></div>
-<div class="p-2 bg-white dark:bg-slate-700 rounded-lg"><div class="text-amber-600 dark:text-amber-400 font-bold">${inProgress.length}</div><div class="text-slate-500">В процессе</div></div>
+<div class="p-2 bg-white dark:bg-slate-700 rounded-lg"><div class="text-blue-600 dark:text-blue-400 font-bold">${done.length}</div><div class="text-slate-500 dark:text-slate-400">Изучено</div></div>
+<div class="p-2 bg-white dark:bg-slate-700 rounded-lg"><div class="text-amber-600 dark:text-amber-400 font-bold">${inProgress.length}</div><div class="text-slate-500 dark:text-slate-400">В процессе</div></div>
 </div>
 ${progressExpandedContent}
 </div>
@@ -3044,21 +3041,25 @@ window.showDecisionOptions = (positionId) => {
     else if (target.group === 'takedown') attacks.push(item);
     else transitions.push(item);
   });
-  const renderSection = (title, icon, items, color) => {
-    if (items.length === 0) return '';
-    return `<div class="modal-section"><div class="modal-section-title">${icon} ${title} (${items.length})</div><div class="space-y-2">${items.map(item => `<button onclick="focusNode(${item.id}); toggleModal('decisionModal')" class="w-full p-3 bg-${color}-50 dark:bg-${color}-900/20 rounded-lg border border-${color}-200 dark:border-${color}-800 text-left hover:shadow-md transition"><div class="text-sm font-semibold text-${color}-900 dark:text-${color}-200 mb-1">${item.label}</div><div class="text-xs text-${color}-700 dark:text-${color}-300">📌 ${item.trigger}</div><div class="text-xs text-${color}-600 dark:text-${color}-400 mt-1">${beltIcons[item.belt] || '⚪'} ${beltNames[item.belt] || item.belt}</div></button>`).join('')}</div></div>`;
-  };
+const renderSection = (title, icon, items, colorHex) => {
+  if (items.length === 0) return '';
+  const bg = colorHex + '15';      // ~8% прозрачности
+  const border = colorHex + '40';  // ~25%
+  return `<div class="modal-section"><div class="modal-section-title">${icon} ${title} (${items.length})</div><div class="space-y-2">${items.map(item => `<button onclick="focusNode(${item.id}); toggleModal('decisionModal')" class="w-full p-3 rounded-lg text-left hover:shadow-md transition" style="background:${bg};border:1px solid ${border}"><div class="text-sm font-semibold mb-1" style="color:${colorHex}">${item.label}</div><div class="text-xs" style="color:${colorHex};opacity:0.8">📌 ${item.trigger}</div><div class="text-xs mt-1" style="color:var(--text-secondary)">${beltIcons[item.belt] || '⚪'} ${beltNames[item.belt] || item.belt}</div></button>`).join('')}</div></div>`;
+};
+
+// И вызовы:
 optionsDiv.innerHTML = `
 <div class="mt-4 p-3 rounded-lg" style="background:var(--bg-tertiary);">
 <div class="text-xs font-semibold uppercase mb-1" style="color:var(--text-secondary);">📍 Вы выбрали:</div>
 <div class="text-sm font-bold" style="color:var(--text-primary);">${position.label}</div>
 </div>
-    ${renderSection('Атаки и сабмишены', '🔥', attacks, 'red')}
-    ${renderSection('Свипы', '🔄', sweeps, 'amber')}
-    ${renderSection('Переходы', '➡️', transitions, 'purple')}
-    ${renderSection('Защиты', '🛡️', escapes, 'emerald')}
+${renderSection('Атаки и сабмишены', '🔥', attacks, '#ef4444')}
+${renderSection('Свипы', '🔄', sweeps, '#f59e0b')}
+${renderSection('Переходы', '➡️', transitions, '#8b5cf6')}
+${renderSection('Защиты', '🛡️', escapes, '#10b981')}
 ${outgoingEdges.length === 0 ? `<div class="mt-4 p-4 rounded-lg text-center" style="background:var(--bg-tertiary);"><div class="text-3xl mb-2">🤔</div><div class="text-sm" style="color:var(--text-secondary);">Для этой позиции пока нет связей</div></div>` : ''}
-  `;
+`;
   optionsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
   triggerHaptic('medium');
 };
@@ -3226,60 +3227,60 @@ if (details.mistakes) detailsHtml += `<div class="mb-3 p-3 rounded-lg" style="ba
   // Setup From
   const setupFromNodes = (n.setup_from || []).map(id => bjjNodesData.find(x => x.id === id)).filter(Boolean);
   if (setupFromNodes.length > 0) {
-    detailsHtml += `<div class="mb-3"><div class="flex items-center gap-2 mb-2"><span class="text-lg">📥</span><h3 class="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Вход из позиций (${setupFromNodes.length})</h3></div><div class="space-y-1">${setupFromNodes.map(node => `<button onclick="focusNode(${node.id})" class="w-full flex items-center gap-2 p-2 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 rounded-lg transition text-left text-sm border border-slate-200 dark:border-slate-600"><span class="text-slate-400">←</span><span class="flex-1 font-medium text-slate-700 dark:text-slate-200 truncate">${node.label}</span><span class="text-xs text-slate-500">${catLabels[node.group] || ''}</span></button>`).join('')}</div></div>`;
+    detailsHtml += `<div class="mb-3"><div class="flex items-center gap-2 mb-2"><span class="text-lg">📥</span><h3 class="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Вход из позиций (${setupFromNodes.length})</h3></div><div class="space-y-1">${setupFromNodes.map(node => `<button onclick="focusNode(${node.id})" class="w-full flex items-center gap-2 p-2 bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 rounded-lg transition text-left text-sm border border-slate-200 dark:border-slate-600"><span class="text-slate-400">←</span><span class="flex-1 font-medium text-slate-700 dark:text-slate-200 truncate">${node.label}</span><span class="text-xs text-slate-500 dark:text-slate-400">${catLabels[node.group] || ''}</span></button>`).join('')}</div></div>`;
   }
   
   // Chain To
   const chainToNodes = (n.chain_to || []).map(id => bjjNodesData.find(x => x.id === id)).filter(Boolean);
   if (chainToNodes.length > 0) {
-    detailsHtml += `<div class="mb-3"><div class="flex items-center gap-2 mb-2"><span class="text-lg">🔗</span><h3 class="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Цепочки атак (${chainToNodes.length})</h3></div><div class="space-y-1 max-h-60 overflow-y-auto">${chainToNodes.map(node => `<button onclick="focusNode(${node.id})" class="w-full flex items-center gap-2 p-2 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 hover:from-blue-100 hover:to-indigo-100 dark:hover:from-blue-900/30 dark:hover:to-indigo-900/30 rounded-lg transition text-left text-sm border border-blue-200 dark:border-blue-800"><span class="text-blue-500">→</span><span class="flex-1 font-medium text-slate-700 dark:text-slate-200 truncate">${node.label}</span><span class="text-xs text-slate-500">${catLabels[node.group] || ''}</span></button>`).join('')}</div></div>`;
+    detailsHtml += `<div class="mb-3"><div class="flex items-center gap-2 mb-2"><span class="text-lg">🔗</span><h3 class="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Цепочки атак (${chainToNodes.length})</h3></div><div class="space-y-1 max-h-60 overflow-y-auto">${chainToNodes.map(node => `<button onclick="focusNode(${node.id})" class="w-full flex items-center gap-2 p-2 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 hover:from-blue-100 hover:to-indigo-100 dark:hover:from-blue-900/30 dark:hover:to-indigo-900/30 rounded-lg transition text-left text-sm border border-blue-200 dark:border-blue-800"><span class="text-blue-500">→</span><span class="flex-1 font-medium text-slate-700 dark:text-slate-200 truncate">${node.label}</span><span class="text-xs text-slate-500 dark:text-slate-400">${catLabels[node.group] || ''}</span></button>`).join('')}</div></div>`;
   }
   
   // Difficulty
-  const difficulty = n.difficulty || 1;
-  const difficultyLabels = {
-    1: { label: 'Базовый', color: 'emerald', icon: '' },
-    2: { label: 'Начинающий', color: 'blue', icon: '' },
-    3: { label: 'Продвинутый', color: 'amber', icon: '' },
-    4: { label: 'Сложный', color: 'orange', icon: '' },
-    5: { label: 'Мастерский', color: 'red', icon: '' }
-  };
-  const diffInfo = difficultyLabels[difficulty] || difficultyLabels[1];
-  detailsHtml = `<div class="mb-3 p-3 bg-${diffInfo.color}-50 dark:bg-${diffInfo.color}-900/20 rounded-lg border border-${diffInfo.color}-200 dark:border-${diffInfo.color}-800"><div class="flex items-center gap-2 mb-1"><span class="text-lg">${diffInfo.icon}</span><h3 class="text-xs font-bold text-${diffInfo.color}-900 dark:text-${diffInfo.color}-200 uppercase tracking-wider">Сложность</h3></div><div class="flex items-center gap-2"><span class="text-sm font-semibold text-${diffInfo.color}-900 dark:text-${diffInfo.color}-200">${diffInfo.label}</span><div class="flex gap-0.5">${[1,2,3,4,5].map(i => `<span class="text-xs">${i <= difficulty ? '⭐' : '☆'}</span>`).join('')}</div></div></div>` + detailsHtml;
-  
+const difficulty = n.difficulty || 1;
+const difficultyLabels = {
+  1: { label: 'Базовый', bg: 'rgba(16,185,129,0.1)', border: 'rgba(16,185,129,0.3)', text: '#10b981', icon: '🌱' },
+  2: { label: 'Начинающий', bg: 'rgba(59,130,246,0.1)', border: 'rgba(59,130,246,0.3)', text: '#3b82f6', icon: '📘' },
+  3: { label: 'Продвинутый', bg: 'rgba(245,158,11,0.1)', border: 'rgba(245,158,11,0.3)', text: '#f59e0b', icon: '🔥' },
+  4: { label: 'Сложный', bg: 'rgba(249,115,22,0.1)', border: 'rgba(249,115,22,0.3)', text: '#f97316', icon: '⚡' },
+  5: { label: 'Мастерский', bg: 'rgba(239,68,68,0.1)', border: 'rgba(239,68,68,0.3)', text: '#ef4444', icon: '💎' }
+};
+const diffInfo = difficultyLabels[difficulty] || difficultyLabels[1];
+detailsHtml = `<div class="mb-3 p-3 rounded-lg" style="background:${diffInfo.bg};border:1px solid ${diffInfo.border}"><div class="flex items-center gap-2 mb-1"><span class="text-lg">${diffInfo.icon}</span><h3 class="text-xs font-bold uppercase tracking-wider" style="color:${diffInfo.text}">Сложность</h3></div><div class="flex items-center gap-2"><span class="text-sm font-semibold" style="color:${diffInfo.text}">${diffInfo.label}</span><div class="flex gap-0.5">${[1,2,3,4,5].map(i => `<span class="text-xs">${i <= difficulty ? '⭐' : '☆'}</span>`).join('')}</div></div></div>` + detailsHtml;
+    
 document.getElementById('nodeDetails').innerHTML = `
 <div class="fade-in">
 <!-- Строка 1: Поделиться + Название + Крестик -->
 <div class="flex items-start justify-between gap-2 mb-3">
 <div class="flex items-start gap-2 flex-1 min-w-0">
-<button onclick="shareNode(${nodeId})" class="p-2 bg-slate-100 rounded-lg hover:bg-slate-200 transition text-slate-500 flex-shrink-0 mt-0.5" title="Поделиться">
+<button onclick="shareNode(${nodeId})" class="p-2 bg-slate-100 dark:bg-slate-700 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition text-slate-500 dark:text-slate-300 flex-shrink-0 mt-0.5" title="Поделиться">
 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
 </button>
-<h2 class="text-lg font-bold text-slate-800 flex-1 min-w-0">${n.title}</h2>
+<h2 class="text-lg font-bold text-slate-800 dark:text-slate-100 flex-1 min-w-0">${n.title}</h2>
 </div>
-<button onclick="document.getElementById('bottomSheet').classList.remove('active'); document.getElementById('bottomSheetOverlay').classList.remove('active');" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 flex items-center justify-center text-slate-500 hover:text-slate-800 dark:text-slate-300 dark:hover:text-white transition flex-shrink-0" title="Закрыть" style="font-size:18px;line-height:1;">×</button>
+<button onclick="document.getElementById('bottomSheet').classList.remove('active'); document.getElementById('bottomSheetOverlay').classList.remove('active');" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 flex items-center justify-center text-slate-500 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white transition flex-shrink-0" title="Закрыть" style="font-size:18px;line-height:1;">×</button>
 </div>
-<!-- Строка 2+: Метаданные БЕЗ отступа, на всю ширину -->
+<!-- Строка 2+: Метаданные -->
 <div>
 <div class="flex gap-2 flex-wrap mb-2">
-<span class="px-2 py-0.5 bg-slate-100 rounded text-xs text-slate-600 border border-slate-200">${catLabels[n.group]}</span>
-<span class="px-2 py-0.5 bg-slate-100 rounded text-xs text-slate-600 border border-slate-200">${beltIcons[n.belt]} ${beltNames[n.belt]}</span>
+<span class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-xs text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600">${catLabels[n.group]}</span>
+<span class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-xs text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600">${beltIcons[n.belt]} ${beltNames[n.belt]}</span>
 ${badges.join('')}
 </div>
-<div class="text-xs text-slate-500 mb-2 space-x-2">${legal.join(' · ')}</div>
-${tags.length ? `<div class="text-xs mb-3 flex flex-wrap gap-1">${tags.map(t => `<span class="px-2 py-0.5 bg-slate-100 rounded text-xs">${t}</span>`).join('')}</div>` : ''}
+<div class="text-xs text-slate-500 dark:text-slate-400 mb-2 space-x-2">${legal.join(' · ')}</div>
+${tags.length ? `<div class="text-xs mb-3 flex flex-wrap gap-1">${tags.map(t => `<span class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 rounded text-xs text-slate-600 dark:text-slate-300">${t}</span>`).join('')}</div>` : ''}
 </div>
-      ${detailsHtml}
-      <div class="mb-4">
-        <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Прогресс</h3>
-        <div class="grid grid-cols-3 gap-2">
-          <button onclick="updateProgress(${nodeId}, 'not_started')" class="progress-btn ${status==='not_started'?'active-not':'bg-slate-50 text-slate-500 border border-slate-200'} py-2 rounded-lg text-xs font-medium">Не начал</button>
-          <button onclick="updateProgress(${nodeId}, 'in_progress')" class="progress-btn ${status==='in_progress'?'active-progress':'bg-slate-50 text-slate-500 border border-slate-200'} py-2 rounded-lg text-xs font-medium">В процессе</button>
-          <button onclick="updateProgress(${nodeId}, 'done')" class="progress-btn ${status==='done'?'active-done':'bg-slate-50 text-slate-500 border border-slate-200'} py-2 rounded-lg text-xs font-medium">Изучено</button>
-        </div>
-      </div>
-    </div>
-  `;
+${detailsHtml}
+<div class="mb-4">
+<h3 class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Прогресс</h3>
+<div class="grid grid-cols-3 gap-2">
+<button onclick="updateProgress(${nodeId}, 'not_started')" class="progress-btn ${status==='not_started'?'active-not':'bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-600'} py-2 rounded-lg text-xs font-medium">Не начал</button>
+<button onclick="updateProgress(${nodeId}, 'in_progress')" class="progress-btn ${status==='in_progress'?'active-progress':'bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-600'} py-2 rounded-lg text-xs font-medium">В процессе</button>
+<button onclick="updateProgress(${nodeId}, 'done')" class="progress-btn ${status==='done'?'active-done':'bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-600'} py-2 rounded-lg text-xs font-medium">Изучено</button>
+</div>
+</div>
+</div>
+`;
   bottomSheet.show();
 }
 
@@ -3322,9 +3323,9 @@ function clearSearchHistory() {
 function showSearchHistory(query) {
   const history = getSearchHistory();
   if (query.length > 0 || history.length === 0) { searchHistory.classList.add('hidden'); return; }
-  let html = '<div class="text-xs font-semibold text-slate-500 px-4 py-2">🕐 Недавние запросы</div>';
+  let html = '<div class="text-xs font-semibold text-slate-500 dark:text-slate-400 px-4 py-2">🕐 Недавние запросы</div>';
   history.forEach(q => {
-    html += `<div class="search-history-item" onclick="applySearch('${q.replace(/'/g, "\\'")}')"><span class="text-sm text-slate-700 dark:text-slate-200">🔍 ${q}</span><span class="text-slate-400 text-xs">›</span></div>`;
+    html += `<div class="search-history-item" onclick="applySearch('${q.replace(/'/g, "\\'")}')"><span class="text-sm text-slate-700 dark:text-slate-200">🔍 ${q}</span><span class="text-slate-400 dark:text-slate-500 text-xs">›</span></div>`;
   });
   html += `<div class="clear-history-btn" onclick="clearSearchHistory()">Очистить историю</div>`;
   searchHistory.innerHTML = html;
@@ -3369,15 +3370,15 @@ function performSearch(query) {
     if (!aLabel && bLabel) return 1;
     return 0;
   });
-  if (matches.length > 0) {
-    searchResults.innerHTML = `<div class="text-xs font-semibold text-slate-500 px-4 py-2 border-b border-slate-100">Найдено: ${matches.length}</div>${matches.slice(0, 20).map(n => {
-      const highlightedLabel = highlightText(n.label, q);
-      const highlightedTitle = highlightText(n.title, q);
-      return `<div onclick="focusNode(${n.id}); searchInput.value=''; searchResults.classList.add('hidden')" class="px-4 py-3 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-0 transition"><div class="flex items-start gap-3"><div class="flex-shrink-0 mt-0.5"><span class="text-lg">${groupIcons[n.group] || ''}</span></div><div class="flex-1 min-w-0"><div class="font-medium text-sm text-slate-800 mb-1">${highlightedLabel}</div><div class="text-xs text-slate-500 mb-1.5">${highlightedTitle}</div><div class="flex gap-1.5 flex-wrap"><span class="search-cat-badge">${catLabels[n.group]}</span><span class="search-belt-badge">${beltIcons[n.belt]} ${n.belt}</span></div></div></div></div>`;
-    }).join('')}`;
-  } else {
-    searchResults.innerHTML = `<div class="px-4 py-6 text-center"><div class="text-3xl mb-2">🔍</div><div class="text-sm text-slate-500">Ничего не найдено</div></div>`;
-  }
+if (matches.length > 0) {
+  searchResults.innerHTML = `<div class="text-xs font-semibold text-slate-500 dark:text-slate-400 px-4 py-2 border-b border-slate-100 dark:border-slate-700">Найдено: ${matches.length}</div>${matches.slice(0, 20).map(n => {
+    const highlightedLabel = highlightText(n.label, q);
+    const highlightedTitle = highlightText(n.title, q);
+    return `<div onclick="focusNode(${n.id}); searchInput.value=''; searchResults.classList.add('hidden')" class="px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer border-b border-slate-100 dark:border-slate-700 last:border-0 transition"><div class="flex items-start gap-3"><div class="flex-shrink-0 mt-0.5"><span class="text-lg">${groupIcons[n.group] || ''}</span></div><div class="flex-1 min-w-0"><div class="font-medium text-sm text-slate-800 dark:text-slate-100 mb-1">${highlightedLabel}</div><div class="text-xs text-slate-500 dark:text-slate-400 mb-1.5">${highlightedTitle}</div><div class="flex gap-1.5 flex-wrap"><span class="search-cat-badge">${catLabels[n.group]}</span><span class="search-belt-badge">${beltIcons[n.belt]} ${n.belt}</span></div></div></div></div>`;
+  }).join('')}`;
+} else {
+  searchResults.innerHTML = `<div class="px-4 py-6 text-center"><div class="text-3xl mb-2">🔍</div><div class="text-sm text-slate-500 dark:text-slate-400">Ничего не найдено</div></div>`;
+}
   searchResults.classList.remove('hidden');
   searchHistory.classList.add('hidden');
 }
