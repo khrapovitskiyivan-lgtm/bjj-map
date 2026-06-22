@@ -2554,9 +2554,6 @@ let selectedHeatmapPosition = null;
 window.renderAGameModal = () => {
 const content = document.getElementById('agameContent');
 
-// 🔵 Сбрасываем выделение позиции при каждом открытии модалки
-selectedHeatmapPosition = null;
-
 // Получаем данные пользователя Telegram
 const telegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
 const userName = telegramUser ? `${telegramUser.first_name || ''} ${telegramUser.last_name || ''}`.trim() : 'Пользователь';
