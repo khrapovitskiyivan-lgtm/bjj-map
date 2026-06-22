@@ -2230,7 +2230,7 @@ content.innerHTML = `
 <button class="filter-chip ${workoutConfig.intensity === 'hard' ? 'active' : ''}" onclick="setWorkoutIntensity('hard')">Тяжёлая</button>
 </div>
 </div>
-<button onclick="generateWorkout()" class="btn-primary flex items-center justify-center gap-2"><span>🏋️</span><span>Сгенерировать тренировку</span></button>
+<button onclick="generateWorkout()" class="btn-primary flex items-center justify-center gap-2"><span></span><span>Сгенерировать тренировку</span></button>
 <div id="workoutResult"></div>
 </div>
 `;
@@ -2246,7 +2246,7 @@ triggerHaptic('light');
 
 window.setWorkoutFocus = (f) => {
 workoutConfig.focus = f;
-const focusLabels = { 'all': 'Всё', 'guard_pass': 'Проходы', 'submission': 'Сабмишены', 'sweep': 'Свипы', 'takedown': 'Тейкдауны', 'escape': 'Защиты' };
+const focusLabels = { 'all': 'Всё', 'guard_pass':'Проходы','submission':'Сабмишены','sweep':'Свипы','takedown':'Тейкдауны','escape':'Защиты' };
 document.querySelectorAll('#workoutContent .modal-section:nth-child(2) .filter-chip').forEach(chip => {
 chip.classList.toggle('active', chip.textContent.trim() === focusLabels[f]);
 });
@@ -2255,7 +2255,7 @@ triggerHaptic('light');
 
 window.setWorkoutIntensity = (i) => {
 workoutConfig.intensity = i;
-const intensityLabels = { 'light': 'Лёгкая', 'medium': 'Средняя', 'hard': 'Тяжёлая' };
+const intensityLabels = { 'light':'Лёгкая', 'medium':'Средняя', 'hard':'Тяжёлая' };
 document.querySelectorAll('#workoutContent .modal-section:nth-child(3) .filter-chip').forEach(chip => {
 chip.classList.toggle('active', chip.textContent.trim() === intensityLabels[i]);
 });
@@ -2785,7 +2785,7 @@ const positions = [
 content.innerHTML = `
 <div class="space-y-4">
 <div class="p-3 rounded-lg" style="background:var(--accent-light);border:1px solid var(--accent-border);">
-<div class="text-sm font-semibold mb-1" style="color:var(--accent);">💡 Выберите текущую ситуацию</div>
+<div class="text-sm font-semibold mb-1" style="color:var(--accent);"> Выберите текущую ситуацию</div>
 <div class="text-xs" style="color:var(--accent);opacity:0.8;">Система покажет, что делать дальше</div>
 </div>
 <div class="modal-section">
