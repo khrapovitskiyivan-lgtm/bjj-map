@@ -17,37 +17,14 @@
 <style>
 /* === MODERN MINIMAL GRAY THEME === */
 :root {
-    /* Светлая тема — перетекающие бело-серые тона */
-    --bg-primary: linear-gradient(135deg, #fafafa 0%, #f0f0f2 100%);
-    --bg-secondary: linear-gradient(180deg, #ffffff 0%, #f8f8fa 100%);
-    --bg-tertiary: linear-gradient(135deg, #f5f5f7 0%, #ebebef 100%);
-    --bg-hover: linear-gradient(135deg, #f0f0f2 0%, #e6e6ea 100%);
-    --bg-solid-primary: #fafafa;
-    --bg-solid-secondary: #ffffff;
-    --bg-solid-tertiary: #f5f5f7;
-    --bg-solid-hover: #f0f0f2;
-    
-    --text-primary: #1a1a1a;
-    --text-secondary: #5a5a62;
-    --text-tertiary: #8a8a92;
-    
-    --border-light: #e5e7eb;
-    --border-medium: #d1d5db;
-    
-    --accent: #3b82f6;
-    --accent-hover: #2563eb;
-    --success: #10b981;
-    --warning: #f59e0b;
-    --danger: #ef4444;
-    
-    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
-    --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
-    --shadow-lg: 0 8px 24px rgba(0,0,0,0.08);
-    
-    --radius-sm: 8px;
-    --radius-md: 12px;
-    --radius-lg: 16px;
-    --nav-height: 68px;
+  /* Светлая тема - полупрозрачные модальные окна */
+  --modal-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 248, 250, 0.92) 100%);
+  --modal-bg-solid: rgba(255, 255, 255, 0.95);
+  --modal-border: rgba(229, 231, 235, 0.5);
+  --modal-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  --modal-text: #1a1a1a;
+  --modal-text-secondary: #5a5a62;
+  --modal-text-tertiary: #8a8a92;
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { height: 100dvh; margin: 0; padding: 0; overflow: hidden; }
@@ -66,22 +43,39 @@ padding-top: env(safe-area-inset-top);
 }
 /* === DARK THEME === */
 body.dark {
-    /* Темная тема — перетекающие серо-черные тона */
-    --bg-primary: linear-gradient(135deg, #0a0a0a 0%, #141418 100%);
-    --bg-secondary: linear-gradient(180deg, #16161a 0%, #1c1c20 100%);
-    --bg-tertiary: linear-gradient(135deg, #1a1a1e 0%, #222228 100%);
-    --bg-hover: linear-gradient(135deg, #24242a 0%, #2a2a30 100%);
-    --bg-solid-primary: #0a0a0a;
-    --bg-solid-secondary: #16161a;
-    --bg-solid-tertiary: #1a1a1e;
-    --bg-solid-hover: #24242a;
-    
-    --text-primary: #f0f0f2;
-    --text-secondary: #a8a8b0;
-    --text-tertiary: #6a6a72;
-    
-    --border-light: #27272d;
-    --border-medium: #3a3a42;
+--bg-primary: linear-gradient(135deg, #0a0a0a 0%, #141418 100%);
+--bg-secondary: linear-gradient(180deg, #16161a 0%, #1c1c20 100%);
+--bg-tertiary: linear-gradient(135deg, #1a1a1e 0%, #222228 100%);
+--bg-hover: linear-gradient(135deg, #24242a 0%, #2a2a30 100%);
+--bg-solid-primary: #0a0a0a;
+--bg-solid-secondary: #16161a;
+--bg-solid-tertiary: #1a1a1e;
+--bg-solid-hover: #24242a;
+--text-primary: #f0f0f2;
+--text-secondary: #a8a8b0;
+--text-tertiary: #6a6a72;
+--border-light: #27272d;
+--border-medium: #3a3a42;
+
+/* Темная тема - полупрозрачные модальные окна */
+--modal-bg: linear-gradient(135deg, rgba(22, 22, 26, 0.95) 0%, rgba(28, 28, 32, 0.92) 100%);
+--modal-bg-solid: rgba(22, 22, 26, 0.95);
+--modal-border: rgba(58, 58, 66, 0.5);
+--modal-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+--modal-text: #f0f0f2;
+--modal-text-secondary: #a8a8b0;
+--modal-text-tertiary: #6a6a72;
+}
+
+/* Светлая тема - полупрозрачные модальные окна */
+:root {
+--modal-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 248, 250, 0.92) 100%);
+--modal-bg-solid: rgba(255, 255, 255, 0.95);
+--modal-border: rgba(229, 231, 235, 0.5);
+--modal-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+--modal-text: #1a1a1a;
+--modal-text-secondary: #5a5a62;
+--modal-text-tertiary: #8a8a92;
 }
 /* === GRAPH === */
 #mynetwork {
@@ -229,8 +223,10 @@ justify-content: center;
 }
 .modal-overlay.active { opacity: 1; pointer-events: auto; }
 .modal-container {
-background: var(--bg-solid-secondary);
-background-image: var(--bg-secondary);
+background: var(--modal-bg-solid);
+background-image: var(--modal-bg);
+backdrop-filter: blur(20px) saturate(180%);
+-webkit-backdrop-filter: blur(20px) saturate(180%);
 border-radius: 20px 20px 0 0;
 width: 100%;
 max-width: 500px;
@@ -240,8 +236,8 @@ transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
 display: flex;
 flex-direction: column;
 overflow: hidden;
-box-shadow: var(--shadow-lg);
-border: 1px solid var(--border-light);
+box-shadow: var(--modal-shadow);
+border: 1px solid var(--modal-border);
 border-bottom: none;
 }
 .modal-overlay.active .modal-container { transform: translateY(0); }
@@ -256,19 +252,19 @@ flex-shrink: 0;
 }
 .modal-header {
 padding: 16px 20px 12px;
-border-bottom: 1px solid var(--border-light);
+border-bottom: 1px solid var(--modal-border);
 display: flex;
 justify-content: space-between;
 align-items: center;
 flex-shrink: 0;
-background: var(--bg-solid-secondary);
-background-image: var(--bg-secondary);
+background: transparent;
+backdrop-filter: blur(10px);
 }
 .modal-header h2 {
 font-size: 17px;
 font-weight: 600;
 margin: 0;
-color: var(--text-primary);
+color: var(--modal-text);
 letter-spacing: -0.2px;
 }
 .modal-close {
@@ -280,14 +276,14 @@ align-items: center;
 justify-content: center;
 background: transparent;
 border: none;
-color: var(--text-tertiary);
+color: var(--modal-text-tertiary);
 cursor: pointer;
 transition: all 0.15s;
 font-size: 20px;
 }
 .modal-close:hover {
-background: var(--bg-hover);
-color: var(--text-primary);
+background: rgba(128, 128, 128, 0.15);
+color: var(--modal-text);
 }
 .modal-body {
 flex: 1;
@@ -296,24 +292,35 @@ overflow-y: auto;
 overscroll-behavior-y: contain;
 padding: 16px 20px 20px;
 touch-action: pan-y;
-color: var(--text-primary);
-background: var(--bg-solid-secondary);
-background-image: var(--bg-secondary);
+color: var(--modal-text);
+background: transparent;
 }
 /* === ЕДИНЫЙ СТИЛЬ ЗАГОЛОВКОВ МОДАЛОК === */
 .settings-modal .modal-header,
 .progress-modal .modal-header,
 .style-modal .modal-header,
-.info-modal .modal-header,
-.workout-modal .modal-header,
-.agame-modal .modal-header,
-.decision-modal .modal-header,
-.scenario-modal .modal-header {
-background: var(--bg-solid-secondary);
-background-image: var(--bg-secondary);
-color: var(--text-primary);
-border: none;
-border-bottom: 1px solid var(--border-light);
+.info-modal .modal-header {
+  background: transparent;
+  color: var(--modal-text);
+  border: none;
+  border-bottom: 1px solid var(--modal-border);
+  backdrop-filter: blur(10px);
+}
+
+.info-modal .modal-header h2 {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+  color: var(--modal-text);
+}
+
+.info-modal .modal-close {
+  color: var(--modal-text-tertiary);
+}
+
+.info-modal .modal-close:hover {
+  background: rgba(128, 128, 128, 0.15);
+  color: var(--modal-text);
 }
 
 .settings-modal .modal-header h2,
@@ -376,10 +383,11 @@ color: #f5f5f5;
 /* === MODAL TABS === */
 .modal-tabs {
 display: flex;
-border-bottom: 1px solid var(--border-light);
-background: var(--bg-secondary);
+border-bottom: 1px solid var(--modal-border);
+background: transparent;
 flex-shrink: 0;
 padding: 0 8px;
+backdrop-filter: blur(10px);
 }
 .modal-tab {
 flex: 1;
@@ -387,15 +395,15 @@ padding: 12px 8px;
 text-align: center;
 font-size: 13px;
 font-weight: 500;
-color: var(--text-tertiary);
+color: var(--modal-text-tertiary);
 cursor: pointer;
 border-bottom: 2px solid transparent;
 transition: all 0.2s;
 margin: 0 4px;
 }
 .modal-tab.active {
-color: var(--text-primary);
-border-bottom-color: var(--text-primary);
+color: var(--modal-text);
+border-bottom-color: var(--modal-text);
 font-weight: 600;
 }
 /* === SECTIONS === */
@@ -2260,19 +2268,57 @@ let currentInfoTab = 'about';
 function renderInfoModal() {
 const content = document.getElementById('infoContent');
 const tabs = {
-about: `<h2 class="text-lg font-bold mb-3"> О карте BJJ Map Pro</h2>
-<p class="text-slate-600 dark:text-slate-300 mb-3">Интерактивная карта техник БЖЖ, построенная в виде графа.</p>
+about: `
+<h2 class="text-lg font-bold mb-3" style="color: var(--modal-text)">🗺️ О карте BJJ Map Pro</h2>
+<p style="color: var(--modal-text-secondary); margin-bottom: 12px;">Интерактивная карта техник БЖЖ, построенная в виде графа.</p>
 <div class="space-y-2 text-sm">
-<div class="flex items-center gap-2"><div class="w-6 h-1 rounded" style="background:#ef4444"></div><span><strong>Красные линии</strong> — атаки и сабмишены</span></div>
-<div class="flex items-center gap-2"><div class="w-6 h-1 rounded" style="background:#f59e0b"></div><span><strong>Оранжевые линии</strong> — свипы</span></div>
-<div class="flex items-center gap-2"><div class="w-6 h-1 rounded" style="background:#8b5cf6"></div><span><strong>Фиолетовые линии</strong> — переходы</span></div>
-<div class="flex items-center gap-2"><div class="w-6 h-1 rounded" style="background:#10b981"></div><span><strong>Зелёные линии</strong> — защиты</span></div>
-<div class="flex items-center gap-2"><div class="w-6 h-1 rounded" style="background:#64748b"></div><span><strong>Серые линии</strong> — сетапы</span></div>
-</div>`,
-howto: `<h2 class="text-lg font-bold mb-3"> Как пользоваться</h2><ol class="list-decimal pl-5 text-slate-600 dark:text-slate-300 space-y-2 text-sm"><li>Нажмите на ⚙️ чтобы открыть настройки фильтров.</li><li>Нажмите на узел, чтобы увидеть детали и реакции соперника.</li><li>Отмечайте прогресс: "Не начал", "В процессе", "Изучено".</li><li>Используйте поиск: начните вводить название.</li></ol>`,
-backup: `<h2 class="text-lg font-bold mb-3"> Резервное копирование</h2><p class="text-slate-600 dark:text-slate-300 mb-4 text-sm">Сохраняй свой прогресс, чтобы не потерять его.</p><div class="space-y-3"><button onclick="exportProgress()" class="btn-primary flex items-center justify-center gap-2"><span>📥</span><span>Скачать бэкап (JSON)</span></button><button onclick="document.getElementById('importFile').click()" class="btn-secondary flex items-center justify-center gap-2"><span>📤</span><span>Загрузить бэкап</span></button></div>`
+<div class="flex items-center gap-2">
+<div class="w-6 h-1 rounded" style="background:#ef4444"></div>
+<span style="color: var(--modal-text-secondary)"><strong style="color: var(--modal-text)">Красные линии</strong> — атаки и сабмишены</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-6 h-1 rounded" style="background:#f59e0b"></div>
+<span style="color: var(--modal-text-secondary)"><strong style="color: var(--modal-text)">Оранжевые линии</strong> — свипы</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-6 h-1 rounded" style="background:#8b5cf6"></div>
+<span style="color: var(--modal-text-secondary)"><strong style="color: var(--modal-text)">Фиолетовые линии</strong> — переходы</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-6 h-1 rounded" style="background:#10b981"></div>
+<span style="color: var(--modal-text-secondary)"><strong style="color: var(--modal-text)">Зелёные линии</strong> — защиты</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-6 h-1 rounded" style="background:#64748b"></div>
+<span style="color: var(--modal-text-secondary)"><strong style="color: var(--modal-text)">Серые линии</strong> — сетапы</span>
+</div>
+</div>
+`,
+howto: `
+<h2 class="text-lg font-bold mb-3" style="color: var(--modal-text)">📖 Как пользоваться</h2>
+<ol class="list-decimal pl-5 space-y-2 text-sm" style="color: var(--modal-text-secondary)">
+<li>Нажмите на ⚙️ чтобы открыть настройки фильтров.</li>
+<li>Нажмите на узел, чтобы увидеть детали и реакции соперника.</li>
+<li>Отмечайте прогресс: "Не начал", "В процессе", "Изучено".</li>
+<li>Используйте поиск: начните вводить название.</li>
+</ol>
+`,
+backup: `
+<h2 class="text-lg font-bold mb-3" style="color: var(--modal-text)">💾 Резервное копирование</h2>
+<p style="color: var(--modal-text-secondary); margin-bottom: 16px; font-size: 14px;">Сохраняй свой прогресс, чтобы не потерять его.</p>
+<div class="space-y-3">
+<button onclick="exportProgress()" class="btn-primary flex items-center justify-center gap-2">
+<span>📥</span>
+<span>Скачать бэкап (JSON)</span>
+</button>
+<button onclick="document.getElementById('importFile').click()" class="btn-secondary flex items-center justify-center gap-2">
+<span>📤</span>
+<span>Загрузить бэкап</span>
+</button>
+</div>
+`
 };
-content.innerHTML = `<div class="pt-4 text-sm text-slate-700 dark:text-slate-200">${tabs[currentInfoTab]}</div>`;
+content.innerHTML = `<div class="pt-4 text-sm">${tabs[currentInfoTab]}</div>`;
 }
 window.switchInfoTab = (tab) => { currentInfoTab = tab; renderInfoModal(); triggerHaptic('light'); };
 
