@@ -1746,32 +1746,25 @@ smooth: { type: 'continuous', roundness: 0.3 }
 };
 });
 
-// 🔵 СНАЧАЛА синхронно грузим настройки
-loadSettingsSync();
-updateBeltAccent(styleProfile.belt);
-
+// === ИНИЦИАЛИЗАЦИЯ ГРАФА ===
 const nodes = new vis.DataSet(bjjNodesData.map(n => ({
-  id: n.id, label: n.label, group: n.group, title: n.title, desc: n.desc,
-  belt: n.belt, gi: n.gi, noGi: n.noGi,
-  legal_ibjjf_gi: n.legal_ibjjf_gi, legal_ibjjf_nogi: n.legal_ibjjf_nogi, legal_adcc: n.legal_adcc,
-  points: n.points, tags: n.tags, difficulty: n.difficulty || 1,
-  setup_from: n.setup_from || [], chain_to: n.chain_to || []
+id: n.id, label: n.label, group: n.group, title: n.title, desc: n.desc,
+belt: n.belt, gi: n.gi, noGi: n.noGi,
+legal_ibjjf_gi: n.legal_ibjjf_gi, legal_ibjjf_nogi: n.legal_ibjjf_nogi, legal_adcc: n.legal_adcc,
+points: n.points, tags: n.tags, difficulty: n.difficulty || 1,
+setup_from: n.setup_from || [], chain_to: n.chain_to || []
 })));
 const edges = new vis.DataSet(edgesWithColors);
-
-// 🔵 ПРИМЕНЯЕМ ФИЛЬТРЫ ДО создания сети — узлы будут скрыты сразу
-applyAllFilters();
-
 const network = new vis.Network(document.getElementById('mynetwork'), { nodes, edges }, {
-  groups,
-  nodes: { size: window.innerWidth < 768 ? 28 : 22, font: { size: window.innerWidth < 768 ? 14 : 12, color: '#ffffff', strokeWidth: 3, strokeColor: '#000000' } },
-  edges: { font: { size: 0 }, selectionWidth: 3, hoverWidth: 2 },
-  physics: {
-    solver: 'forceAtlas2Based',
-    forceAtlas2Based: { gravitationalConstant: -80, centralGravity: 0.005, springLength: 200, springConstant: 0.04, damping: 0.4 },
-    stabilization: { iterations: 200 }
-  },
-  interaction: { hover: true, dragNodes: true, dragView: true, zoomView: true, navigationButtons: false, keyboard: false }
+groups,
+nodes: { size: window.innerWidth < 768 ? 28 : 22, font: { size: window.innerWidth < 768 ? 14 : 12, color: '#ffffff', strokeWidth: 3, strokeColor: '#000000' } },
+edges: { font: { size: 0 }, selectionWidth: 3, hoverWidth: 2 },
+physics: {
+solver: 'forceAtlas2Based',
+forceAtlas2Based: { gravitationalConstant: -80, centralGravity: 0.005, springLength: 200, springConstant: 0.04, damping: 0.4 },
+stabilization: { iterations: 200 }
+},
+interaction: { hover: true, dragNodes: true, dragView: true, zoomView: true, navigationButtons: false, keyboard: false }
 });
 
 // === ПРОГРЕСС ===
@@ -1781,25 +1774,20 @@ let lastOpenedModal = null;
 let nodeHistory = []; // Стек истории навигации по техникам
 
 async function initApp() {
-  // 🔵 Настройки уже загружены синхронно — только облачная синхронизация
-  const serverProgress = await loadProgressFromServer();
-  if (serverProgress) {
-    progress = serverProgress;
-    await saveSetting(STORAGE_KEY, progress);
-  } else {
-    progress = await loadSetting(STORAGE_KEY, {});
-  }
-  
-  // Если в облаке есть более свежие настройки — применяем
-  const cloudStyle = await loadSetting('bjj_style_profile', null);
-  if (cloudStyle && JSON.stringify(cloudStyle) !== JSON.stringify(styleProfile)) {
-    styleProfile = { ...styleProfile, ...cloudStyle };
-    updateBeltAccent(styleProfile.belt);
-    applyAllFilters();
-  }
-  
-  updateGlobalProgress();
-  updateNodeColors();
+const serverProgress = await loadProgressFromServer();
+progress = serverProgress || await loadSetting(STORAGE_KEY, {});
+await loadStyleProfile();
+giFilterState = await loadSetting('bjj_gi_filter', 'gi');
+currentRule = await loadSetting('bjj_rule', 'none');
+currentCategoryFilter = await loadSetting('bjj_category_filter', null);
+await loadDarkMode();
+
+// Применяем акцентный цвет пояса
+updateBeltAccent(styleProfile.belt);
+
+updateGlobalProgress();
+updateNodeColors();
+applyAllFilters();
 }
 
 const setProgress = async (id, status) => {
@@ -1933,24 +1921,6 @@ modalState[id] = false;
 
 // === SETTINGS MODAL ===
 let giFilterState = 'gi', currentCategoryFilter = null, currentRule = 'none';
-// 🔵 СИНХРОННАЯ загрузка настроек из localStorage (до создания графа)
-function loadSettingsSync() {
-  try {
-    const styleRaw = localStorage.getItem('bjj_style_profile');
-    if (styleRaw) {
-      const saved = JSON.parse(styleRaw);
-      styleProfile = { ...styleProfile, ...saved };
-    }
-    const giRaw = localStorage.getItem('bjj_gi_filter');
-    if (giRaw) giFilterState = JSON.parse(giRaw);
-    const ruleRaw = localStorage.getItem('bjj_rule');
-    if (ruleRaw) currentRule = JSON.parse(ruleRaw);
-    const catRaw = localStorage.getItem('bjj_category_filter');
-    if (catRaw) currentCategoryFilter = JSON.parse(catRaw);
-    const darkRaw = localStorage.getItem('bjj_dark_mode');
-    if (darkRaw === 'true') document.body.classList.add('dark');
-  } catch(e) { console.log('Sync load error:', e); }
-}
 
 function renderSettingsModal() {
 const content = document.getElementById('settingsContent');
@@ -3407,6 +3377,13 @@ if (network) network.fit({ animation: { duration: 500, easingFunction: 'easeInOu
 
 // === ЗАПУСК ===
 initApp();
+
+// Гарантированный вызов applyAllFilters через 2 секунды
+setTimeout(() => {
+    applyAllFilters();
+    updateNodeColors();
+    updateGlobalProgress();
+}, 2000);
 
 // Регистрация service worker
 if ('serviceWorker' in navigator) {
