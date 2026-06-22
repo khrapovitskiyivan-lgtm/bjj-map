@@ -1149,7 +1149,7 @@ escape:      { color: { background: '#795548' }, shape: 'dot', size: 18 },
 takedown:    { color: { background: '#607D8B' }, shape: 'square', size: 20 }
 };
 
-const groupIcons = { position: '📍', submission: '🔒', sweep: '🔄', guard_pass: '🚪', transition: '➡️', escape: '🛡️', takedown: '🤼' };
+const groupIcons = { position: '', submission: '', sweep: '', guard_pass: '', transition: '', escape: '', takedown: '' };
 const catLabels = { position:'Позиция', submission:'Сабмишен', sweep:'Свип', guard_pass:'Проход', transition:'Переход', escape:'Защита', takedown:'Тейкдаун' };
 const beltIcons = { white:'⚪', blue:'🔵', purple:'🟣', brown:'🟤', black:'⚫' };
 const beltOrder = ['white', 'blue', 'purple', 'brown', 'black'];
@@ -2401,7 +2401,7 @@ html += `<div class="flex items-center gap-3 mb-4 p-3 rounded-lg" style="backgro
 
 html += `<div class="mb-4">
 <div class="flex items-center gap-2 mb-2">
-<span class="text-xl">🔥</span>
+<span class="text-xl"></span>
 <h3 class="text-sm font-bold uppercase tracking-wider" style="color:var(--warning);">Разминка · ${warmupDuration} мин</h3>
 </div>
 <div class="p-3 rounded-lg" style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2)">
@@ -2421,7 +2421,7 @@ html += `</div></div></div>`;
 
 html += `<div class="mb-4">
 <div class="flex items-center gap-2 mb-2">
-<span class="text-xl">🏋️</span>
+<span class="text-xl"></span>
 <h3 class="text-sm font-bold uppercase tracking-wider" style="color:var(--accent);">Основная часть · ${mainDuration} мин</h3>
 </div>
 <div class="space-y-2">`;
@@ -2443,7 +2443,7 @@ html += `</div></div>`;
 
 html += `<div class="mb-4">
 <div class="flex items-center gap-2 mb-2">
-<span class="text-xl">🧘</span>
+<span class="text-xl"></span>
 <h3 class="text-sm font-bold uppercase tracking-wider" style="color:var(--success);">Заминка · ${cooldownDuration} мин</h3>
 </div>
 <div class="p-3 rounded-lg" style="background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2)">
@@ -2588,15 +2588,15 @@ const keyPositions = [
 const recommendations = [];
 if (categoryStats.escape && categoryStats.escape.percent < 50) {
 const nodes = bjjNodesData.filter(n => n.group === 'escape' && progress[n.id] !== 'done').slice(0, 4);
-if (nodes.length > 0) recommendations.push({ icon: '🛡️', text: `Укрепите защиты: ${nodes.map(n => n.label).join(', ')}` });
+if (nodes.length > 0) recommendations.push({ icon: '', text: `Укрепите защиты: ${nodes.map(n => n.label).join(', ')}` });
 }
 if (categoryStats.guard_pass && categoryStats.guard_pass.percent < 40) {
 const nodes = bjjNodesData.filter(n => n.group === 'guard_pass' && progress[n.id] !== 'done').slice(0, 4);
-if (nodes.length > 0) recommendations.push({ icon: '🚪', text: `Изучите проходы гарда: ${nodes.map(n => n.label).join(', ')}` });
+if (nodes.length > 0) recommendations.push({ icon: '', text: `Изучите проходы гарда: ${nodes.map(n => n.label).join(', ')}` });
 }
 if (categoryStats.submission && categoryStats.submission.percent < 40) {
 const nodes = bjjNodesData.filter(n => n.group === 'submission' && progress[n.id] !== 'done').slice(0, 4);
-if (nodes.length > 0) recommendations.push({ icon: '🔒', text: `Изучите сабмишены: ${nodes.map(n => n.label).join(', ')}` });
+if (nodes.length > 0) recommendations.push({ icon: '', text: `Изучите сабмишены: ${nodes.map(n => n.label).join(', ')}` });
 }
 if (recommendations.length === 0) {
 recommendations.push({ icon: '✨', text: 'Отличный прогресс! Продолжайте развивать свой A-Game.' });
@@ -2830,10 +2830,10 @@ optionsDiv.innerHTML = `
 <div class="text-xs font-semibold uppercase mb-1" style="color:var(--text-secondary);">📍 Вы выбрали:</div>
 <div class="text-sm font-bold" style="color:var(--text-primary);">${position.label}</div>
 </div>
-${renderSection('Атаки и сабмишены', '🔥', attacks, '#ef4444')}
-${renderSection('Свипы', '🔄', sweeps, '#f59e0b')}
-${renderSection('Переходы', '➡️', transitions, '#8b5cf6')}
-${renderSection('Защиты', '🛡️', escapes, '#10b981')}
+${renderSection('Атаки и сабмишены', '', attacks, '#ef4444')}
+${renderSection('Свипы', '', sweeps, '#f59e0b')}
+${renderSection('Переходы', '', transitions, '#8b5cf6')}
+${renderSection('Защиты', '', escapes, '#10b981')}
 ${outgoingEdges.length === 0 ? `<div class="mt-4 p-4 rounded-lg text-center" style="background:var(--bg-tertiary);"><div class="text-3xl mb-2">🤔</div><div class="text-sm" style="color:var(--text-secondary);">Для этой позиции пока нет связей</div></div>` : ''}
 `;
 optionsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -2842,14 +2842,14 @@ triggerHaptic('medium');
 
 // === SCENARIOS ===
 const scenarios = [
-{ id: 'guard_pass', title: 'Проходы гарда', icon: '🚪', description: 'Начните из закрытого гарда сверху. Цель: пройти гард.', startPositions: [2], goalPositions: [14, 16], duration: 180 },
-{ id: 'back_control', title: 'Взятие спины', icon: '🎯', description: 'Начните из сайд-контроля. Цель: взять спину.', startPositions: [14], goalPositions: [17], duration: 180 },
-{ id: 'submission_hunt', title: 'Охота за сабмишеном', icon: '🔒', description: 'Начните из маунта. Цель: завершить сабмишен.', startPositions: [16], goalPositions: [], duration: 180 },
-{ id: 'escape_mount', title: 'Выход из маунта', icon: '🛡️', description: 'Начните из маунта снизу. Цель: восстановить гард.', startPositions: [15], goalPositions: [1, 17], duration: 180 },
-{ id: 'sweep_from_guard', title: 'Свипы из гарда', icon: '🔄', description: 'Начните из закрытого гарда снизу. Цель: сделать свип.', startPositions: [1], goalPositions: [14, 16], duration: 180 },
-{ id: 'takedown', title: 'Тейкдауны', icon: '🤼', description: 'Начните из стойки. Цель: сделать тейкдаун.', startPositions: [21], goalPositions: [14, 16, 17], duration: 180 },
-{ id: 'leg_locks', title: 'Болевые на ноги', icon: '🦵', description: 'Начните из Single Leg X. Цель: атаковать ногу.', startPositions: [300], goalPositions: [], duration: 180 },
-{ id: 'turtle_attack', title: 'Атака черепахи', icon: '🐢', description: 'Начните из позиции сверху в черепахе.', startPositions: [19], goalPositions: [17], duration: 180 }
+{ id: 'guard_pass', title: 'Проходы гарда', icon: '', description: 'Начните из закрытого гарда сверху. Цель: пройти гард.', startPositions: [2], goalPositions: [14, 16], duration: 180 },
+{ id: 'back_control', title: 'Взятие спины', icon: '', description: 'Начните из сайд-контроля. Цель: взять спину.', startPositions: [14], goalPositions: [17], duration: 180 },
+{ id: 'submission_hunt', title: 'Охота за сабмишеном', icon: '', description: 'Начните из маунта. Цель: завершить сабмишен.', startPositions: [16], goalPositions: [], duration: 180 },
+{ id: 'escape_mount', title: 'Выход из маунта', icon: '', description: 'Начните из маунта снизу. Цель: восстановить гард.', startPositions: [15], goalPositions: [1, 17], duration: 180 },
+{ id: 'sweep_from_guard', title: 'Свипы из гарда', icon: '', description: 'Начните из закрытого гарда снизу. Цель: сделать свип.', startPositions: [1], goalPositions: [14, 16], duration: 180 },
+{ id: 'takedown', title: 'Тейкдауны', icon: '', description: 'Начните из стойки. Цель: сделать тейкдаун.', startPositions: [21], goalPositions: [14, 16, 17], duration: 180 },
+{ id: 'leg_locks', title: 'Болевые на ноги', icon: '', description: 'Начните из Single Leg X. Цель: атаковать ногу.', startPositions: [300], goalPositions: [], duration: 180 },
+{ id: 'turtle_attack', title: 'Атака черепахи', icon: '', description: 'Начните из позиции сверху в черепахе.', startPositions: [19], goalPositions: [17], duration: 180 }
 ];
 
 let activeScenario = null, scenarioTimer = null, scenarioTimeLeft = 0, scenarioPaused = false;
@@ -3012,14 +3012,14 @@ if (n.tags.includes('speed')) tags.push('⚡ Скорость');
 
 const details = techniqueDetails[n.id] || {};
 let detailsHtml = '';
-if (details.mechanics) detailsHtml += `<div class="mb-3 p-3 rounded-lg" style="background:var(--bg-tertiary);border:1px solid var(--border-light);"><div class="flex items-center gap-2 mb-1.5"><span class="text-lg">🔧</span><h3 class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-primary);">Механика</h3></div><p class="text-sm leading-relaxed" style="color:var(--text-primary);">${details.mechanics}</p></div>`;
-if (details.keyPoints) detailsHtml += `<div class="mb-3 p-3 rounded-lg" style="background:var(--bg-tertiary);border:1px solid var(--border-light);"><div class="flex items-center gap-2 mb-1.5"><span class="text-lg">🎯</span><h3 class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-primary);">Ключевые детали</h3></div><p class="text-sm leading-relaxed" style="color:var(--text-primary);">${details.keyPoints}</p></div>`;
-if (details.when) detailsHtml += `<div class="mb-3 p-3 rounded-lg" style="background:var(--bg-tertiary);border:1px solid var(--border-light);"><div class="flex items-center gap-2 mb-1.5"><span class="text-lg">⏱</span><h3 class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-primary);">Когда применять</h3></div><p class="text-sm leading-relaxed" style="color:var(--text-primary);">${details.when}</p></div>`;
-if (details.mistakes) detailsHtml += `<div class="mb-3 p-3 rounded-lg" style="background:var(--bg-tertiary);border:1px solid var(--border-light);"><div class="flex items-center gap-2 mb-1.5"><span class="text-lg">⚠️</span><h3 class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-primary);">Типичные ошибки</h3></div><p class="text-sm leading-relaxed" style="color:var(--text-primary);">${details.mistakes}</p></div>`;
+if (details.mechanics) detailsHtml += `<div class="mb-3 p-3 rounded-lg" style="background:var(--bg-tertiary);border:1px solid var(--border-light);"><div class="flex items-center gap-2 mb-1.5"><span class="text-lg"></span><h3 class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-primary);">Механика</h3></div><p class="text-sm leading-relaxed" style="color:var(--text-primary);">${details.mechanics}</p></div>`;
+if (details.keyPoints) detailsHtml += `<div class="mb-3 p-3 rounded-lg" style="background:var(--bg-tertiary);border:1px solid var(--border-light);"><div class="flex items-center gap-2 mb-1.5"><span class="text-lg"></span><h3 class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-primary);">Ключевые детали</h3></div><p class="text-sm leading-relaxed" style="color:var(--text-primary);">${details.keyPoints}</p></div>`;
+if (details.when) detailsHtml += `<div class="mb-3 p-3 rounded-lg" style="background:var(--bg-tertiary);border:1px solid var(--border-light);"><div class="flex items-center gap-2 mb-1.5"><span class="text-lg"></span><h3 class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-primary);">Когда применять</h3></div><p class="text-sm leading-relaxed" style="color:var(--text-primary);">${details.when}</p></div>`;
+if (details.mistakes) detailsHtml += `<div class="mb-3 p-3 rounded-lg" style="background:var(--bg-tertiary);border:1px solid var(--border-light);"><div class="flex items-center gap-2 mb-1.5"><span class="text-lg"></span><h3 class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-primary);">Типичные ошибки</h3></div><p class="text-sm leading-relaxed" style="color:var(--text-primary);">${details.mistakes}</p></div>`;
 
 const setupFromNodes = (n.setup_from || []).map(id => bjjNodesData.find(x => x.id === id)).filter(Boolean);
 if (setupFromNodes.length > 0) {
-detailsHtml += `<div class="mb-3"><div class="flex items-center gap-2 mb-2"><span class="text-lg">📥</span><h3 class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-secondary);">Вход из позиций (${setupFromNodes.length})</h3></div><div class="space-y-1">${setupFromNodes.map(node => `<button onclick="focusNode(${node.id})" class="w-full flex items-center gap-2 p-2 rounded-lg transition text-left text-sm" style="background:var(--bg-tertiary);border:1px solid var(--border-light);"><span style="color:var(--text-tertiary);">←</span><span class="flex-1 font-medium truncate" style="color:var(--text-primary);">${node.label}</span><span class="text-xs" style="color:var(--text-secondary);">${catLabels[node.group] || ''}</span></button>`).join('')}</div></div>`;
+detailsHtml += `<div class="mb-3"><div class="flex items-center gap-2 mb-2"><span class="text-lg"></span><h3 class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-secondary);">Вход из позиций (${setupFromNodes.length})</h3></div><div class="space-y-1">${setupFromNodes.map(node => `<button onclick="focusNode(${node.id})" class="w-full flex items-center gap-2 p-2 rounded-lg transition text-left text-sm" style="background:var(--bg-tertiary);border:1px solid var(--border-light);"><span style="color:var(--text-tertiary);">←</span><span class="flex-1 font-medium truncate" style="color:var(--text-primary);">${node.label}</span><span class="text-xs" style="color:var(--text-secondary);">${catLabels[node.group] || ''}</span></button>`).join('')}</div></div>`;
 }
 
 const chainToNodes = (n.chain_to || []).map(id => bjjNodesData.find(x => x.id === id)).filter(Boolean);
@@ -3029,11 +3029,11 @@ detailsHtml += `<div class="mb-3"><div class="flex items-center gap-2 mb-2"><spa
 
 const difficulty = n.difficulty || 1;
 const difficultyLabels = {
-1: { label: 'Базовый', bg: 'rgba(16,185,129,0.1)', border: 'rgba(16,185,129,0.3)', text: '#10b981', icon: '🌱' },
-2: { label: 'Начинающий', bg: 'var(--accent-light)', border: 'var(--accent-border)', text: 'var(--accent)', icon: '📘' },
-3: { label: 'Продвинутый', bg: 'rgba(245,158,11,0.1)', border: 'rgba(245,158,11,0.3)', text: '#f59e0b', icon: '🔥' },
-4: { label: 'Сложный', bg: 'rgba(249,115,22,0.1)', border: 'rgba(249,115,22,0.3)', text: '#f97316', icon: '⚡' },
-5: { label: 'Мастерский', bg: 'rgba(239,68,68,0.1)', border: 'rgba(239,68,68,0.3)', text: '#ef4444', icon: '💎' }
+1: { label: 'Базовый', bg: 'rgba(16,185,129,0.1)', border: 'rgba(16,185,129,0.3)', text: '#10b981', icon: '' },
+2: { label: 'Начинающий', bg: 'var(--accent-light)', border: 'var(--accent-border)', text: 'var(--accent)', icon: '' },
+3: { label: 'Продвинутый', bg: 'rgba(245,158,11,0.1)', border: 'rgba(245,158,11,0.3)', text: '#f59e0b', icon: '' },
+4: { label: 'Сложный', bg: 'rgba(249,115,22,0.1)', border: 'rgba(249,115,22,0.3)', text: '#f97316', icon: '' },
+5: { label: 'Мастерский', bg: 'rgba(239,68,68,0.1)', border: 'rgba(239,68,68,0.3)', text: '#ef4444', icon: '' }
 };
 const diffInfo = difficultyLabels[difficulty] || difficultyLabels[1];
 detailsHtml = `<div class="mb-3 p-3 rounded-lg" style="background:${diffInfo.bg};border:1px solid ${diffInfo.border}"><div class="flex items-center gap-2 mb-1"><span class="text-lg">${diffInfo.icon}</span><h3 class="text-xs font-bold uppercase tracking-wider" style="color:${diffInfo.text}">Сложность</h3></div><div class="flex items-center gap-2"><span class="text-sm font-semibold" style="color:${diffInfo.text}">${diffInfo.label}</span><div class="flex gap-0.5">${[1,2,3,4,5].map(i => `<span class="text-xs">${i <= difficulty ? '⭐' : '☆'}</span>`).join('')}</div></div></div>` + detailsHtml;
