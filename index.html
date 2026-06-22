@@ -53,19 +53,28 @@
 
 /* === ТЁМНАЯ ТЕМА === */
 body.dark {
---bg-primary: linear-gradient(135deg, #0a0a0c 0%, #15151a 40%, #1c1c22 100%);
---bg-secondary: linear-gradient(180deg, rgba(22,22,26,0.78) 0%, rgba(28,28,34,0.78) 100%);
---bg-tertiary: linear-gradient(135deg, #1a1a1f 0%, #23232a 100%);
---bg-hover: linear-gradient(135deg, #24242a 0%, #2a2a30 100%);
---bg-solid-primary: #0a0a0a;
---bg-solid-secondary: #16161a;
---bg-solid-tertiary: #1a1a1e;
---bg-solid-hover: #24242a;
---text-primary: #f0f0f2;
---text-secondary: #a8a8b0;
---text-tertiary: #6a6a72;
---border-light: #27272d;
---border-medium: #3a3a42;
+  --bg-primary: linear-gradient(135deg, #0a0a0c 0%, #15151a 40%, #1c1c22 100%);
+  --bg-secondary: linear-gradient(180deg, rgba(22,22,26,0.78) 0%, rgba(28,28,34,0.78) 100%);
+  --bg-tertiary: linear-gradient(135deg, #1a1a1f 0%, #23232a 100%);
+  --bg-hover: linear-gradient(135deg, #24242a 0%, #2a2a30 100%);
+  --bg-solid-primary: #0a0a0a;
+  --bg-solid-secondary: #16161a;
+  --bg-solid-tertiary: #1a1a1e;
+  --bg-solid-hover: #24242a;
+  --text-primary: #f0f0f2;
+  --text-secondary: #a8a8b0;
+  --text-tertiary: #6a6a72;
+  --border-light: #27272d;
+  --border-medium: #3a3a42;
+}  /* ← ЗАКРЫВАЕМ body.dark ЗДЕСЬ */
+
+/* ✅ Этот блок — ОТДЕЛЬНЫЙ, после body.dark */
+body.dark .modal-container {
+  background: rgba(20, 20, 24, 0.78);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
 }
 
 /* === ЕДИНАЯ ТИПОГРАФИКА ДЛЯ МОДАЛОК === */
@@ -2541,12 +2550,10 @@ let selectedHeatmapPosition = null;
 
 window.renderAGameModal = () => {
 const content = document.getElementById('agameContent');
-  window.renderAGameModal = () => {
-const content = document.getElementById('agameContent');
+
 // 🔵 Сбрасываем выделение позиции при каждом открытии
 selectedHeatmapPosition = null;
-// ... остальной код
-  // Получаем данные пользователя Telegram
+
 // 🔵 Получаем данные пользователя Telegram
 const telegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
 const userName = telegramUser ? `${telegramUser.first_name || ''} ${telegramUser.last_name || ''}`.trim() : 'Пользователь';
@@ -2560,7 +2567,6 @@ const done = availableForBelt.filter(n => progress[n.id] === 'done');
 const inProgress = availableForBelt.filter(n => progress[n.id] === 'in_progress');
 const total = availableForBelt.length;
 const percent = total > 0 ? Math.round((done.length / total) * 100) : 0;
-// 🔵 УБРАЛИ ДУБЛИ — переменные уже объявлены выше
 
 const categoryStats = {};
 Object.keys(catLabels).forEach(group => {
@@ -2595,6 +2601,7 @@ if (recommendations.length === 0) {
 recommendations.push({ icon: '✨', text: 'Отличный прогресс! Продолжайте развивать свой A-Game.' });
 }
 
+// 🔵 СОДЕРЖИМОЕ РАСКРЫВАЮЩЕГОСЯ БЛОКА ПРОГРЕССА
 let progressExpandedContent = '';
 if (agameProgressExpanded) {
 let progressListHtml = '';
@@ -2657,6 +2664,7 @@ ${agameProgressTab === 'stats' ? statsHtml : ''}
 
 content.innerHTML = `
 <div class="space-y-5">
+<!-- 🔵 БЛОК ПРОФИЛЯ TELEGRAM -->
 <div class="flex items-center gap-3 p-4 rounded-xl" style="background:var(--accent-light);border:1px solid var(--accent-border);">
 ${userPhoto ?
 `<img src="${userPhoto}" alt="${userName}" class="w-14 h-14 rounded-full object-cover" style="border:2px solid white;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
