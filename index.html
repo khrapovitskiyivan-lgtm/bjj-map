@@ -2189,7 +2189,7 @@ byGroup[g] = { total, done: doneCount, percent: total > 0 ? Math.round((doneCoun
 });
 html += `<h3 class="text-xs font-bold uppercase tracking-wider mb-3" style="color:var(--text-primary);">Статистика по категориям</h3>`;
 Object.entries(byGroup).forEach(([group, stats]) => {
-html += `<div class="progress-bar-container"><div class="progress-bar-header"><span class="progress-bar-label">${groupIcons[group] || '🥋'} ${catLabels[group]}</span><span class="progress-bar-value">${stats.done}/${stats.total} (${stats.percent}%)</span></div><div class="progress-bar"><div class="progress-bar-fill" style="width: ${stats.percent}%"></div></div></div>`;
+html += `<div class="progress-bar-container"><div class="progress-bar-header"><span class="progress-bar-label">${groupIcons[group] || ''} ${catLabels[group]}</span><span class="progress-bar-value">${stats.done}/${stats.total} (${stats.percent}%)</span></div><div class="progress-bar"><div class="progress-bar-fill" style="width: ${stats.percent}%"></div></div></div>`;
 });
 }
 content.innerHTML = html;
@@ -2612,7 +2612,7 @@ progressListHtml = `<div class="text-center py-4"><div class="text-3xl mb-2">�
 if (inProgress.length > 0) {
 progressListHtml += `<div class="mb-3"><div class="text-xs font-bold uppercase tracking-wider mb-2" style="color:var(--warning);">📚 В процессе (${inProgress.length})</div>`;
 inProgress.slice(0, 5).forEach(n => {
-progressListHtml += `<div class="technique-card in-progress mb-1" onclick="focusNode(${n.id}); toggleModal('agameModal')"><span class="technique-icon">${groupIcons[n.group] || '🥋'}</span><div class="flex-1 min-w-0"><div class="technique-label truncate text-xs">${n.label}</div><div class="text-xs" style="color:var(--warning);">${catLabels[n.group]} · ${beltIcons[n.belt]} ${beltNames[n.belt]}</div></div></div>`;
+progressListHtml += `<div class="technique-card in-progress mb-1" onclick="focusNode(${n.id}); toggleModal('agameModal')"><span class="technique-icon">${groupIcons[n.group] || ''}</span><div class="flex-1 min-w-0"><div class="technique-label truncate text-xs">${n.label}</div><div class="text-xs" style="color:var(--warning);">${catLabels[n.group]} · ${beltIcons[n.belt]} ${beltNames[n.belt]}</div></div></div>`;
 });
 progressListHtml += `</div>`;
 }
