@@ -2711,7 +2711,7 @@ const status = progress[pos.id];
 const heat = status === 'done' ? 4 : status === 'in_progress' ? 2 : 0;
 const node = bjjNodesData.find(n => n.id === pos.id);
 const isSelected = selectedHeatmapPosition === pos.id;
-return `<div class="position-cell heat-${heat} ${isSelected ? 'ring-2 ring-offset-2' : ''}" style="${isSelected ? `--tw-ring-color:var(--accent);` : ''}" onclick="selectHeatmapPosition(${pos.id})"><div class="text-lg">${groupIcons[node?.group] || '🥋'}</div><div>${pos.label}</div></div>`;
+return `<div class="position-cell heat-${heat} ${isSelected ? 'ring-2 ring-offset-2' : ''}" style="${isSelected ? `--tw-ring-color:var(--accent);` : ''}" onclick="selectHeatmapPosition(${pos.id})"><div class="text-lg">${groupIcons[node?.group] || ''}</div><div>${pos.label}</div></div>`;
 }).join('')}
 </div>
 </div>
