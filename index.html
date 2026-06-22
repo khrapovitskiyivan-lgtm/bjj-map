@@ -2162,13 +2162,13 @@ html += `<div class="text-center py-8"><div class="text-5xl mb-3">🎯</div><p c
 if (inProgress.length > 0) {
 html += `<h3 class="text-xs font-bold uppercase tracking-wider mb-2" style="color:var(--warning);">📚 В процессе (${inProgress.length})</h3>`;
 inProgress.slice(0, 10).forEach(n => {
-html += `<div class="technique-card in-progress" onclick="focusNode(${n.id}); toggleModal('progressModal')"><span class="technique-icon">${groupIcons[n.group] || '🥋'}</span><div class="flex-1 min-w-0"><div class="technique-label truncate">${n.label}</div><div class="text-xs" style="color:var(--warning);">${catLabels[n.group]} · ${beltIcons[n.belt]} ${beltNames[n.belt]}</div></div></div>`;
+html += `<div class="technique-card in-progress" onclick="focusNode(${n.id}); toggleModal('progressModal')"><span class="technique-icon">${groupIcons[n.group] || ''}</span><div class="flex-1 min-w-0"><div class="technique-label truncate">${n.label}</div><div class="text-xs" style="color:var(--warning);">${catLabels[n.group]} · ${beltIcons[n.belt]} ${beltNames[n.belt]}</div></div></div>`;
 });
 }
 if (done.length > 0) {
 html += `<h3 class="text-xs font-bold uppercase tracking-wider mb-2 mt-4" style="color:var(--success);">✅ Изучено (${done.length})</h3>`;
 done.slice(0, 20).forEach(n => {
-html += `<div class="technique-card done" onclick="focusNode(${n.id}); toggleModal('progressModal')"><span class="technique-icon">${groupIcons[n.group] || '🥋'}</span><div class="flex-1 min-w-0"><div class="technique-label truncate">${n.label}</div><div class="text-xs" style="color:var(--success);">${catLabels[n.group]} · ${beltIcons[n.belt]} ${beltNames[n.belt]}</div></div></div>`;
+html += `<div class="technique-card done" onclick="focusNode(${n.id}); toggleModal('progressModal')"><span class="technique-icon">${groupIcons[n.group] || ''}</span><div class="flex-1 min-w-0"><div class="technique-label truncate">${n.label}</div><div class="text-xs" style="color:var(--success);">${catLabels[n.group]} · ${beltIcons[n.belt]} ${beltNames[n.belt]}</div></div></div>`;
 });
 }
 }
@@ -2619,7 +2619,7 @@ progressListHtml += `</div>`;
 if (done.length > 0) {
 progressListHtml += `<div><div class="text-xs font-bold uppercase tracking-wider mb-2" style="color:var(--success);">✅ Изучено (${done.length})</div>`;
 done.slice(0, 10).forEach(n => {
-progressListHtml += `<div class="technique-card done mb-1" onclick="focusNode(${n.id}); toggleModal('agameModal')"><span class="technique-icon">${groupIcons[n.group] || '🥋'}</span><div class="flex-1 min-w-0"><div class="technique-label truncate text-xs">${n.label}</div><div class="text-xs" style="color:var(--success);">${catLabels[n.group]} · ${beltIcons[n.belt]} ${beltNames[n.belt]}</div></div></div>`;
+progressListHtml += `<div class="technique-card done mb-1" onclick="focusNode(${n.id}); toggleModal('agameModal')"><span class="technique-icon">${groupIcons[n.group] || ''}</span><div class="flex-1 min-w-0"><div class="technique-label truncate text-xs">${n.label}</div><div class="text-xs" style="color:var(--success);">${catLabels[n.group]} · ${beltIcons[n.belt]} ${beltNames[n.belt]}</div></div></div>`;
 });
 progressListHtml += `</div>`;
 }
@@ -2643,7 +2643,7 @@ byGroup[g] = { total, done: doneCount, percent: total > 0 ? Math.round((doneCoun
 });
 let statsHtml = '<div class="space-y-2">';
 Object.entries(byGroup).forEach(([group, stats]) => {
-statsHtml += `<div class="progress-bar-container"><div class="progress-bar-header"><span class="progress-bar-label text-xs">${groupIcons[group] || '🥋'} ${catLabels[group]}</span><span class="progress-bar-value text-xs">${stats.done}/${stats.total} (${stats.percent}%)</span></div><div class="progress-bar"><div class="progress-bar-fill" style="width: ${stats.percent}%"></div></div></div>`;
+statsHtml += `<div class="progress-bar-container"><div class="progress-bar-header"><span class="progress-bar-label text-xs">${groupIcons[group] || ''} ${catLabels[group]}</span><span class="progress-bar-value text-xs">${stats.done}/${stats.total} (${stats.percent}%)</span></div><div class="progress-bar"><div class="progress-bar-fill" style="width: ${stats.percent}%"></div></div></div>`;
 });
 statsHtml += '</div>';
 
