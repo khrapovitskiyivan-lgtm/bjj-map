@@ -934,10 +934,10 @@ to { opacity: 1; transform: translateY(0); }
 <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeOnboarding()"></div>
 <div class="w-full max-w-sm rounded-2xl p-6 shadow-2xl relative z-10 transform scale-90 opacity-0 transition-all duration-300" id="onboarding-card" style="background:var(--bg-solid-secondary);background-image:var(--bg-secondary);color:var(--text-primary);">
 <div id="onboarding-content" class="text-center"></div>
-<div class="flex justify-between items-center mt-6 pt-4" style="border-top:1px solid var(--border-light);">
-<button onclick="closeOnboarding(true)" class="text-sm transition" style="color:var(--text-tertiary);">Пропустить</button>
+<div class="flex justify-between items-center mt-6 pt-4 border-t border-slate-100 dark:border-slate-700">
+<button onclick="closeOnboarding(true)" class="text-sm text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition">Пропустить</button>
 <div id="onboarding-dots" class="flex gap-1.5"></div>
-<button id="btn-next-onboarding" onclick="nextOnboardingStep()" class="px-4 py-1.5 text-sm font-medium rounded-lg transition shadow-lg" style="background:var(--accent);color:white;">Далее</button>
+<button id="btn-next-onboarding" onclick="nextOnboardingStep()" class="px-4 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition shadow-lg shadow-blue-500/30">Далее</button>
 </div>
 </div>
 </div>
@@ -2031,9 +2031,10 @@ content.innerHTML = `
 
 window.selectBelt = (belt) => {
 styleProfile.belt = belt;
-updateBeltAccent(belt); // ← Обновляем акцент по поясу
+updateBeltAccent(belt); // Визуальное превью
 renderStyleModal();
 triggerHaptic('light');
+// НЕ сохраняем здесь — только при нажатии "Сохранить"
 };
 
 window.updateStyleProfile = () => {
@@ -2041,6 +2042,7 @@ styleProfile.flexibility = document.getElementById('styleFlex').checked;
 styleProfile.pressure = document.getElementById('stylePressure').checked;
 styleProfile.long_limbs = document.getElementById('styleLong').checked;
 styleProfile.speed = document.getElementById('styleSpeed').checked;
+// НЕ сохраняем здесь — только при нажатии "Сохранить"
 };
 
 window.saveStyleProfile = async () => {
@@ -2538,6 +2540,11 @@ let selectedHeatmapPosition = null;
 
 window.renderAGameModal = () => {
 const content = document.getElementById('agameContent');
+  // Получаем данные пользователя Telegram
+const telegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+const userName = telegramUser ? `${telegramUser.first_name || ''} ${telegramUser.last_name || ''}`.trim() : 'Пользователь';
+const userPhoto = telegramUser?.photo_url || null;
+const userInitials = userName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || '?';
 const userBelt = styleProfile.belt || 'white';
 const maxBeltIndex = beltOrder.indexOf(userBelt);
 const availableForBelt = bjjNodesData.filter(n => beltOrder.indexOf(n.belt) <= maxBeltIndex);
@@ -2545,11 +2552,6 @@ const done = availableForBelt.filter(n => progress[n.id] === 'done');
 const inProgress = availableForBelt.filter(n => progress[n.id] === 'in_progress');
 const total = availableForBelt.length;
 const percent = total > 0 ? Math.round((done.length / total) * 100) : 0;
-
-const telegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
-const userName = telegramUser ? `${telegramUser.first_name || ''} ${telegramUser.last_name || ''}`.trim() : 'Пользователь';
-const userPhoto = telegramUser?.photo_url || null;
-const userInitials = userName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || '?';
 
 const categoryStats = {};
 Object.keys(catLabels).forEach(group => {
@@ -3260,6 +3262,7 @@ renderOnboardingStep();
 function renderOnboardingStep() {
 const step = onboardingSteps[currentStep];
 const contentEl = document.getElementById('onboarding-content');
+
 if (step.type === 'belt') {
 const currentBelt = styleProfile.belt || 'white';
 const belts = [
@@ -3269,13 +3272,14 @@ const belts = [
 { id: 'brown', icon: '🟤', name: 'Коричневый', desc: 'Мастерские детали' },
 { id: 'black', icon: '⚫', name: 'Чёрный', desc: 'Полный арсенал' }
 ];
+
 contentEl.innerHTML = `
 <div class="text-4xl mb-3">${step.icon}</div>
 <h3 class="text-lg font-bold mb-2" style="color:var(--text-primary);">${step.title}</h3>
 <p class="text-sm leading-relaxed mb-4" style="color:var(--text-secondary);">${step.text}</p>
 <div class="space-y-2">
 ${belts.map(b => `
-<button onclick="selectOnboardingBelt('${b.id}')" class="w-full p-3 rounded-xl border transition text-left flex items-center gap-3" style="background:${currentBelt === b.id ? 'var(--accent-light)' : 'var(--bg-tertiary)'};border-color:${currentBelt === b.id ? 'var(--accent)' : 'var(--border-light)'};">
+<button onclick="selectOnboardingBelt('${b.id}')" class="w-full p-3 rounded-xl border transition text-left flex items-center gap-3 ${currentBelt === b.id ? 'ring-2' : ''}" style="background:${currentBelt === b.id ? 'var(--accent-light)' : 'var(--bg-tertiary)'};border-color:${currentBelt === b.id ? 'var(--accent)' : 'var(--border-light)'};">
 <div class="text-2xl flex-shrink-0">${b.icon}</div>
 <div class="flex-1 min-w-0">
 <div class="text-sm font-semibold" style="color:var(--text-primary);">${b.name} пояс</div>
@@ -3287,7 +3291,11 @@ ${currentBelt === b.id ? `<div style="color:var(--accent);" class="text-lg">✓<
 </div>
 `;
 } else {
-contentEl.innerHTML = `<div class="text-4xl mb-3">${step.icon}</div><h3 class="text-lg font-bold mb-2" style="color:var(--text-primary);">${step.title}</h3><p class="text-sm leading-relaxed" style="color:var(--text-secondary);">${step.text}</p>`;
+contentEl.innerHTML = `
+<div class="text-4xl mb-3">${step.icon}</div>
+<h3 class="text-lg font-bold mb-2" style="color:var(--text-primary);">${step.title}</h3>
+<p class="text-sm leading-relaxed" style="color:var(--text-secondary);">${step.text}</p>
+`;
 }
 
 const dotsContainer = document.getElementById('onboarding-dots');
