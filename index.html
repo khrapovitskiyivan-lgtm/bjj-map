@@ -3361,35 +3361,25 @@ if (network) network.fit({ animation: { duration: 500, easingFunction: 'easeInOu
 // === ЗАПУСК ===
 initApp();
 
+// Гарантированный вызов applyAllFilters через 2 секунды
 setTimeout(() => {
     applyAllFilters();
     updateNodeColors();
     updateGlobalProgress();
 }, 2000);
 
+// Регистрация service worker
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('service-worker.js').catch(console.error);
 }
 
-// 🔵 Показываем onboarding при первом запуске
+// 🔵 Показываем onboarding при первом запуске (через 1.5 сек)
 setTimeout(async () => {
     const onboardingSeen = await loadSetting('bjj_onboarding_seen', false);
     if (!onboardingSeen) {
         showOnboarding();
     }
 }, 1500);
-
-// 🔵 Показываем onboarding, если его ещё не видели
-loadSetting('bjj_onboarding_seen', false).then(seen => {
-if (!seen) {
-setTimeout(showOnboarding, 800);
-}
-});
-});
-
-if ('serviceWorker' in navigator) {
-navigator.serviceWorker.register('service-worker.js').catch(console.error);
-}
 </script>
 </body>
 </html>
