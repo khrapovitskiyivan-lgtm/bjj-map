@@ -3359,82 +3359,21 @@ if (network) network.fit({ animation: { duration: 500, easingFunction: 'easeInOu
 }
 
 // === ЗАПУСК ===
-
-// 🔵 СИНХРОННАЯ загрузка настроек из localStorage (мгновенно!)
-function loadSettingsSync() {
-    try {
-        // Загружаем профиль пояса
-        const styleProfileStr = localStorage.getItem('bjj_style_profile');
-        if (styleProfileStr) {
-            const saved = JSON.parse(styleProfileStr);
-            if (saved && saved.belt) {
-                styleProfile.belt = saved.belt;
-                if (saved.flexibility !== undefined) styleProfile.flexibility = saved.flexibility;
-                if (saved.pressure !== undefined) styleProfile.pressure = saved.pressure;
-                if (saved.long_limbs !== undefined) styleProfile.long_limbs = saved.long_limbs;
-                if (saved.speed !== undefined) styleProfile.speed = saved.speed;
-            }
-        }
-        
-        // Загружаем тёмную тему
-        const darkModeStr = localStorage.getItem('bjj_dark_mode');
-        if (darkModeStr === 'true') {
-            document.body.classList.add('dark');
-        }
-        
-        // Загружаем фильтры
-        const giFilterStr = localStorage.getItem('bjj_gi_filter');
-        if (giFilterStr) giFilterState = JSON.parse(giFilterStr);
-        
-        const ruleStr = localStorage.getItem('bjj_rule');
-        if (ruleStr) currentRule = JSON.parse(ruleStr);
-        
-        const categoryStr = localStorage.getItem('bjj_category_filter');
-        if (categoryStr) currentCategoryFilter = JSON.parse(categoryStr);
-        
-        // 🔵 СРАЗУ применяем акцентный цвет пояса
-        updateBeltAccent(styleProfile.belt);
-        
-    } catch(e) {
-        console.log('Sync load error:', e);
-    }
-}
-
-// 🔵 Применяем настройки СРАЗУ (до инициализации графа)
-loadSettingsSync();
-
-// 🔵 Асинхронная инициализация (загрузка из Supabase + применение фильтров)
-async function initApp() {
-    // Загружаем прогресс из Supabase (если есть)
-    const serverProgress = await loadProgressFromServer();
-    if (serverProgress) {
-        progress = serverProgress;
-        await saveSetting(STORAGE_KEY, progress);
-    } else {
-        // Если нет на сервере — загружаем из localStorage
-        progress = await loadSetting(STORAGE_KEY, {});
-    }
-    
-    // Применяем фильтры
-    updateGlobalProgress();
-    updateNodeColors();
-    applyAllFilters();
-}
-
 initApp();
 
-// 🔵 Fallback: гарантированный вызов applyAllFilters через 2 секунды
+// Гарантированный вызов applyAllFilters через 2 секунды
 setTimeout(() => {
     applyAllFilters();
     updateNodeColors();
     updateGlobalProgress();
 }, 2000);
 
+// Регистрация service worker
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('service-worker.js').catch(console.error);
 }
 
-// 🔵 Показываем onboarding при первом запуске
+// 🔵 Показываем onboarding при первом запуске (через 1.5 сек)
 setTimeout(async () => {
     const onboardingSeen = await loadSetting('bjj_onboarding_seen', false);
     if (!onboardingSeen) {
