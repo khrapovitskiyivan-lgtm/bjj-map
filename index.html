@@ -1877,7 +1877,10 @@ lastOpenedModal = modalId;
 triggerHaptic('medium');
 if (modalId === 'progressModal') renderProgressModal();
 if (modalId === 'workoutModal') renderWorkoutModal();
-if (modalId === 'agameModal') renderAGameModal();
+if (modalId === 'agameModal') {
+  selectedHeatmapPosition = null; // ← сброс перед отрисовкой
+  renderAGameModal();
+}
 if (modalId === 'decisionModal') renderDecisionModal();
 if (modalId === 'scenarioModal') renderScenarioModal();
 if (modalId === 'settingsModal') renderSettingsModal();
