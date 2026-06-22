@@ -2031,10 +2031,9 @@ content.innerHTML = `
 
 window.selectBelt = (belt) => {
 styleProfile.belt = belt;
-updateBeltAccent(belt); // Визуальное превью
+// НЕ вызываем updateBeltAccent здесь — только превью через renderStyleModal
 renderStyleModal();
 triggerHaptic('light');
-// НЕ сохраняем здесь — только при нажатии "Сохранить"
 };
 
 window.updateStyleProfile = () => {
@@ -2047,6 +2046,8 @@ styleProfile.speed = document.getElementById('styleSpeed').checked;
 
 window.saveStyleProfile = async () => {
 await saveSetting('bjj_style_profile', styleProfile);
+// 🔵 ТЕПЕРЬ применяем акцент ТОЛЬКО после сохранения
+updateBeltAccent(styleProfile.belt);
 toggleModal('styleModal');
 applyAllFilters();
 showToast('✅ Профиль сохранён');
@@ -2540,11 +2541,18 @@ let selectedHeatmapPosition = null;
 
 window.renderAGameModal = () => {
 const content = document.getElementById('agameContent');
+  window.renderAGameModal = () => {
+const content = document.getElementById('agameContent');
+// 🔵 Сбрасываем выделение позиции при каждом открытии
+selectedHeatmapPosition = null;
+// ... остальной код
   // Получаем данные пользователя Telegram
+// 🔵 Получаем данные пользователя Telegram
 const telegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
 const userName = telegramUser ? `${telegramUser.first_name || ''} ${telegramUser.last_name || ''}`.trim() : 'Пользователь';
 const userPhoto = telegramUser?.photo_url || null;
 const userInitials = userName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || '?';
+
 const userBelt = styleProfile.belt || 'white';
 const maxBeltIndex = beltOrder.indexOf(userBelt);
 const availableForBelt = bjjNodesData.filter(n => beltOrder.indexOf(n.belt) <= maxBeltIndex);
@@ -2552,6 +2560,7 @@ const done = availableForBelt.filter(n => progress[n.id] === 'done');
 const inProgress = availableForBelt.filter(n => progress[n.id] === 'in_progress');
 const total = availableForBelt.length;
 const percent = total > 0 ? Math.round((done.length / total) * 100) : 0;
+// 🔵 УБРАЛИ ДУБЛИ — переменные уже объявлены выше
 
 const categoryStats = {};
 Object.keys(catLabels).forEach(group => {
@@ -3341,20 +3350,25 @@ if (network) network.fit({ animation: { duration: 500, easingFunction: 'easeInOu
 }
 
 // === ЗАПУСК ===
-initApp();
-
+initApp().then(() => {
+// 🔵 Гарантированный вызов applyAllFilters
 setTimeout(() => {
 applyAllFilters();
 updateNodeColors();
 updateGlobalProgress();
-}, 2000);
+}, 1500);
 
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('service-worker.js').catch(console.error);
-
-window.addEventListener('DOMContentLoaded', async () => {
-const onboardingSeen = await loadSetting('bjj_onboarding_seen', false);
-if (!onboardingSeen) setTimeout(showOnboarding, 500);
+// 🔵 Показываем onboarding, если его ещё не видели
+loadSetting('bjj_onboarding_seen', false).then(seen => {
+if (!seen) {
+setTimeout(showOnboarding, 800);
+}
 });
+});
+
+if ('serviceWorker' in navigator) {
+navigator.serviceWorker.register('service-worker.js').catch(console.error);
+}
 </script>
 </body>
 </html>
