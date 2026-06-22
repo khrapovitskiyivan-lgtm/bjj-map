@@ -5,7 +5,7 @@
 <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content, height=device-height">
 <title>BJJ Map Pro</title>
-<meta name="theme-color" content="#3b82f6">
+<meta name="theme-color" content="#4b5563">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -38,12 +38,12 @@
 --radius-lg: 16px;
 --nav-height: 68px;
 
-/* Акцент — динамический, зависит от пояса */
---accent: #3b82f6;
---accent-hover: #2563eb;
---accent-light: rgba(59,130,246,0.1);
---accent-border: rgba(59,130,246,0.3);
---accent-rgb: 59,130,246;
+/* Акцент — динамический, зависит от пояса (дефолт — чёрный) */
+--accent: #4b5563;
+--accent-hover: #374151;
+--accent-light: rgba(75,85,99,0.15);
+--accent-border: rgba(75,85,99,0.4);
+--accent-rgb: 75,85,99;
 
 /* Статусные цвета */
 --success: #10b981;
@@ -946,7 +946,7 @@ to { opacity: 1; transform: translateY(0); }
 <div class="flex justify-between items-center mt-6 pt-4 border-t border-slate-100 dark:border-slate-700">
 <button onclick="closeOnboarding(true)" class="text-sm text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition">Пропустить</button>
 <div id="onboarding-dots" class="flex gap-1.5"></div>
-<button id="btn-next-onboarding" onclick="nextOnboardingStep()" class="px-4 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition shadow-lg shadow-blue-500/30">Далее</button>
+<button id="btn-next-onboarding" onclick="nextOnboardingStep()" class="px-4 py-1.5 text-white text-sm font-medium rounded-lg transition shadow-lg" style="background:var(--accent);box-shadow:0 4px 14px rgba(75,85,99,0.3);">Далее</button>
 </div>
 </div>
 </div>
@@ -982,7 +982,7 @@ window.Telegram.WebApp.ready();
 window.Telegram.WebApp.expand();
 if (window.Telegram.WebApp.requestFullscreen) window.Telegram.WebApp.requestFullscreen().catch(() => {});
 if (window.Telegram.WebApp.setHeaderColor) {
-try { window.Telegram.WebApp.setHeaderColor('#3b82f6'); } catch(e) {}
+try { window.Telegram.WebApp.setHeaderColor('#4b5563'); } catch(e) {}
 }
 if (window.Telegram.WebApp.disableVerticalSwipes) {
 try { window.Telegram.WebApp.disableVerticalSwipes(); } catch(e) {}
