@@ -6763,6 +6763,11 @@ function renderNodeDetails(nodeId, addToHistory = true) {
     }
     
     metricsHtml += `
+    // Бейдж сложности
+const diffLabels = { 1:'🟢 Базовый', 2:'🔵 Нач.', 3:'🟡 Прод.', 4:'🟠 Сложный', 5:'🔴 Мастер' };
+const diffColors = { 1:'#10b981', 2:'var(--accent)', 3:'#f59e0b', 4:'#f97316', 5:'#ef4444' };
+const d = n.difficulty || 1;
+metricsHtml += `<span class="px-2.5 py-1 rounded-full text-xs font-semibold" style="background:${diffColors[d]}15;color:${diffColors[d]};border:1px solid ${diffColors[d]}40;">⭐ ${diffLabels[d]}</span>`;
     </div>`;
   }
 
