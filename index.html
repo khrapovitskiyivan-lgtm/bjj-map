@@ -6833,29 +6833,6 @@ function renderNodeDetails(nodeId, addToHistory = true) {
     'var(--accent-light)', 'var(--accent-border)', 'var(--text-primary)', 'var(--accent)'
   );
 
-  // === БЛОК СЛОЖНОСТИ ===
-  const difficulty = n.difficulty || 1;
-  const difficultyLabels = {
-    1: { label: 'Базовый', bg: 'rgba(16,185,129,0.1)', border: 'rgba(16,185,129,0.3)', text: '#10b981', icon: '🟢' },
-    2: { label: 'Начинающий', bg: 'var(--accent-light)', border: 'var(--accent-border)', text: 'var(--accent)', icon: '🔵' },
-    3: { label: 'Продвинутый', bg: 'rgba(245,158,11,0.1)', border: 'rgba(245,158,11,0.3)', text: '#f59e0b', icon: '🟡' },
-    4: { label: 'Сложный', bg: 'rgba(249,115,22,0.1)', border: 'rgba(249,115,22,0.3)', text: '#f97316', icon: '🟠' },
-    5: { label: 'Мастерский', bg: 'rgba(239,68,68,0.1)', border: 'rgba(239,68,68,0.3)', text: '#ef4444', icon: '🔴' }
-  };
-  const diffInfo = difficultyLabels[difficulty] || difficultyLabels[1];
-  const difficultyHtml = `
-    <div class="mb-3 p-3 rounded-lg" style="background:${diffInfo.bg};border:1px solid ${diffInfo.border}">
-      <div class="flex items-center gap-2 mb-1">
-        <span class="text-base">${diffInfo.icon}</span>
-        <h3 class="text-xs font-bold uppercase tracking-wider" style="color:${diffInfo.text}">Сложность</h3>
-      </div>
-      <div class="flex items-center gap-2">
-        <span class="text-sm font-semibold" style="color:${diffInfo.text}">${diffInfo.label}</span>
-        <div class="flex gap-0.5">${[1,2,3,4,5].map(i => `<span class="text-xs">${i <= difficulty ? '⭐' : '☆'}</span>`).join('')}</div>
-      </div>
-    </div>
-  `;
-
   // === СТАНДАРТНЫЕ БЛОКИ ИЗ techniqueDetails ===
   const standardBlocks = [
     { key: 'mechanics', icon: '⚙️', title: 'Механика' },
@@ -6935,9 +6912,6 @@ function renderNodeDetails(nodeId, addToHistory = true) {
 
       <!-- ЦЕПОЧКИ АТАК -->
       ${chainToHtml}
-
-      <!-- СЛОЖНОСТЬ -->
-      ${difficultyHtml}
 
       <!-- ПРОГРЕСС -->
       <div class="mb-4">
