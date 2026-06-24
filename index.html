@@ -67,6 +67,16 @@ body.dark {
   --border-light: #27272d;
   --border-medium: #3a3a42;
 }  /* ← ЗАКРЫВАЕМ body.dark ЗДЕСЬ */
+  /* Тёмная тема — фон татами */
+body.dark {
+  background: var(--bg-solid-primary);
+  background-image: 
+    var(--bg-primary),
+    repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,0.03) 39px, rgba(255,255,255,0.03) 40px),
+    repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,0.03) 39px, rgba(255,255,255,0.03) 40px);
+  background-attachment: fixed;
+  background-size: 100% 100%, 40px 40px, 40px 40px;
+}
 
 /* ✅ Этот блок — ОТДЕЛЬНЫЙ, после body.dark */
 body.dark .modal-container {
@@ -96,8 +106,12 @@ html, body { height: 100dvh; margin: 0; padding: 0; overflow: hidden; }
 body {
 font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
 background: var(--bg-solid-primary);
-background-image: var(--bg-primary);
+background-image: 
+  var(--bg-primary),
+  repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(128,128,128,0.03) 39px, rgba(128,128,128,0.03) 40px),
+  repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(128,128,128,0.03) 39px, rgba(128,128,128,0.03) 40px);
 background-attachment: fixed;
+background-size: 100% 100%, 40px 40px, 40px 40px;
 color: var(--text-primary);
 overscroll-behavior: none;
 -webkit-overflow-scrolling: touch;
