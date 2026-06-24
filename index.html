@@ -1282,6 +1282,7 @@ const systemPyramids = {
 
 // === БАЗА ТЕХНИК (полная) ===
 const bjjNodesRaw = [
+  // === ESCAPES (15) ===
   [id, label, title, group, belt, gi, noGi, legal_ibjjf_gi, legal_ibjjf_nogi, legal_adcc, points_ibjjf, points_adcc, tags, prerequisites, setup_from, common_setups, chain_to, difficulty]
   [130,"Подъем из закрытого гарда","Подъем из закрытого гарда (Stand up from Closed Guard)","escape","white",true,true,true,true,true,0,0,"fundamental,base,posture","1","2","1,376","90,91,92,93,99",1],
   [131,"Мост из маунта","Мост из маунта (Upa Escape from Mount)","escape","white",true,true,true,true,true,0,0,"fundamental,leverage,bridge","15","16,37","150,151","132,71,3",1],
@@ -1558,7 +1559,7 @@ const bjjNodesRaw = [
   [505,"Система удушений со спины","Система удушений с контроля спины (Back Control Submission System)","system","blue",true,true,true,true,true,0,0,"dominant,submission_setup","42,55,202,41,43,203,318,17","42,55,202,41,43,203,318,17","114,115,116,118,353","42,55,202,41,43,203,318,452",3],
   [506,"Система X-гарда","Система X-гарда (X-Guard System)","system","purple",true,true,true,true,true,0,0,"advanced,flexibility,sweep_setup","10,3,4,12,300,74,77,325,326,119","10,3,4,12,300,74,77,325,326,119","3,4,12,110","74,77,325,326,119,50,52,320",4],
   [507,"Система выходов из маунта","Система выходов из маунта (Mount Escape System)","system","white",true,true,true,true,true,0,0,"fundamental,defense,escape","15,131,132,134,452","15,131,132,134,452","16,37","131,132,3,1,452",2],
-  [508,"Система проходов через Toreando","Система проходов через Toreando (Toreando Pass System)","system","white",true,true,true,true,true,0,0,"speed,open_guard,fundamental","93,377,417,130,2","93,377,417,130,2","2,130,5,7,8","93,377,417,90,94,14,113",3],
+  [508,"Система проходов через Toreando","Система проходов через Toreando (Toreando Pass System)","system","white",true,true,true,true,true,0,0,"speed,open_guard,fundamental","93,377,417,130,2","93,377,417,130,2","2,130,5,7,8","93,377,417,90,94,14,113",3]
 ];
 
 const bjjNodesData = bjjNodesRaw.map(n => ({
@@ -1584,6 +1585,7 @@ const bjjNodesData = bjjNodesRaw.map(n => ({
 
 // === ДЕТАЛИ ТЕХНИК (полный объект) ===
 const techniqueDetails = {
+  // === ESCAPES (15) ===
   130: {
     concept: "Разрыв осанки (Posture breaking) обязательна перед созданием дистанции.",
     mechanics: "Фрейм на бицепсах/бедрах, выпрямление спины (posture up) за счет тяги за штаны/рукава. Вставка руки на бедро, подъем через одно колено.",
@@ -3606,6 +3608,8 @@ const techniqueDetails = {
     success_rate: "45%",
     energy_cost: "Med"
   },
+
+  // === SWEEPS (31) ===
   70: {
     concept: "Разрыв баланса через скрестное движение ног: одна блокирует бедро, другая толкает корпус. Классический рычаг из закрытого гарда.",
     mechanics: "Скрестное движение ног: одна блокирует бедро соперника (создание точки опоры), другая толкает корпус (создание импульса). Синхронное движение рук (тяга рукава) и ног. Ваше бедро блокирует его бедро, ваша маховая нога режет поперек.",
