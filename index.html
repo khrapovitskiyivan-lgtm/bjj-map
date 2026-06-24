@@ -1282,7 +1282,6 @@ const systemPyramids = {
 
 // === БАЗА ТЕХНИК (полная) ===
 const bjjNodesRaw = [
-  // === ESCAPES (15) ===
   [id, label, title, group, belt, gi, noGi, legal_ibjjf_gi, legal_ibjjf_nogi, legal_adcc, points_ibjjf, points_adcc, tags, prerequisites, setup_from, common_setups, chain_to, difficulty]
   [130,"Подъем из закрытого гарда","Подъем из закрытого гарда (Stand up from Closed Guard)","escape","white",true,true,true,true,true,0,0,"fundamental,base,posture","1","2","1,376","90,91,92,93,99",1],
   [131,"Мост из маунта","Мост из маунта (Upa Escape from Mount)","escape","white",true,true,true,true,true,0,0,"fundamental,leverage,bridge","15","16,37","150,151","132,71,3",1],
@@ -1328,8 +1327,6 @@ const bjjNodesRaw = [
   [458,"Черепаха → Маунт","Черепаха → Маунт (Turtle to Mount)","transition","blue",true,true,true,true,true,0,0,"dominant,chain,turtle","19,20","19,20","19,20","16,37,113",2],
   [459,"Север-юг → Маунт","Север-юг → Маунт (North-South to Mount)","transition","purple",true,true,true,true,true,0,0,"dominant,chain,advanced","22,23","22,23","22,23","16,37,113",3],
   [460,"Север-юг → Сайд","Север-юг → Сайд (North-South to Side)","transition","purple",true,true,true,true,true,0,0,"dominant,chain,advanced","22,23","22,23","22,23","14,90,44",3],
-
-  // === POSITIONS (51) ===
   [1,"Закрытый гард снизу","Закрытый гард снизу (Closed Guard bottom)","position","white",true,true,true,true,true,0,0,"fundamental,control","370,133,450","370,133,450","370,133,450","30,31,32,70,71,72,110,111,130",1],
   [2,"Закрытый гард сверху","Закрытый гард сверху (Closed Guard top)","position","white",true,true,true,true,true,0,0,"fundamental,base","150,151,370","150,151,370","150,151,370","130,90,91,92,93,376",1],
   [3,"Халф-гард снизу","Халф-гард снизу (Half Guard bottom)","position","white",true,true,true,true,true,0,0,"fundamental,recovery","132,133,450","132,133,450","132,133,450","78,80,118,386,454",1],
@@ -1381,8 +1378,6 @@ const bjjNodesRaw = [
   [444,"Спайдер-гард сверху","Спайдер-гард сверху (Spider Guard top)","position","blue",true,false,true,false,true,0,0,"gi_only,guard_pass_setup,control","7","7","7","93,410",2],
   [445,"Де-ла-Рива сверху","Де-ла-Рива сверху (De La Riva top)","position","blue",true,true,true,true,true,0,0,"guard_pass_setup,control,advanced","8","8","8","320,321,423",2],
   [446,"Ворм-гард сверху","Ворм-гард сверху (Worm Guard top)","position","brown",true,false,true,false,true,0,0,"gi_only,guard_pass_setup,advanced","302","302","302","410,426",4],
-
-  // === SUBMISSIONS (75) ===
   [30,"Рычаг локтя из гарда","Рычаг локтя из гарда (Armbar from Guard)","submission","white",true,true,true,true,true,0,0,"fundamental,joint_lock","1,130,131","1,15,37","31,32","31,33,117,351,408,409",2],
   [31,"Треугольник из гарда","Треугольник из гарда (Triangle from Guard)","submission","blue",true,true,true,true,true,0,0,"fundamental,blood_choke,long_limbs","1,130,30","1,3","30,32","30,33,351,408",2],
   [32,"Кимура из гарда","Кимура из гарда (Kimura from Guard)","submission","white",true,true,true,true,true,0,0,"fundamental,joint_lock","1,3,4,130","1,3,4,368","1,3,4,368","33,401,400",1],
@@ -1458,8 +1453,6 @@ const bjjNodesRaw = [
   [407,"Солья чок","Солья чок (Solja Choke)","submission","brown",true,false,true,false,true,0,0,"gi_only,blood_choke,spider_guard","90,93,94","7,364","7,364","35,56",4],
   [408,"Летающий армбар","Летающий армбар (Flying Armbar)","submission","purple",true,true,true,true,true,0,0,"dynamic,advanced,speed","7,364","30,21,150","30,21,150","30,409",4],
   [409,"Роллинг армбар","Роллинг армбар (Rolling Armbar)","submission","purple",true,true,true,true,true,0,0,"dynamic,advanced,flexibility","30,21,150","30,37","30,37","30,408",4],
-
-  // === SWEEPS (31) ===
   [70,"Свип ножницы","Свип ножницы (Scissors Sweep)","sweep","white",true,true,true,true,true,2,2,"fundamental,leverage","30,37","1","2,13","16,14,418",1],
   [71,"Свип цветок","Свип цветок (Flower Sweep)","sweep","white",true,true,true,true,true,2,2,"fundamental,leverage","1","1","2,13","16,14,418",1],
   [72,"Свип хип-бамп","Свип хип-бамп (Hip Bump Sweep)","sweep","white",true,true,true,true,true,2,2,"fundamental,speed","1,2","1,2","2,13","14,16",1],
@@ -1491,8 +1484,6 @@ const bjjNodesRaw = [
   [423,"Де ла Рива свип","Де ла Рива свип (De La Riva Sweep)","sweep","blue",true,true,true,true,true,2,2,"fundamental,de_la_riva,leverage","8","8","8","16,14,320",2],
   [426,"Ворм гард свип","Ворм гард свип (Worm Guard Sweep)","sweep","brown",true,false,true,false,true,2,2,"gi_only,worm_guard,flexibility","302","302","302","16,14,320",4],
   [462,"Маятниковый свип","Маятниковый свип (Pendulum Sweep)","sweep","blue",true,true,true,true,true,2,2,"fundamental,sweep,open_guard,leverage","1,2","1,2","1,2","16,14,70",2],
-
-  // === GUARD PASSES (29) ===
   [90,"Проход коленом","Проход коленом (Knee Slice Pass)","guard_pass","white",true,true,true,true,true,3,2,"fundamental,pressure,half_guard","4,381","4,3,96,381","2,13","14,113,354,44,322",2],
   [91,"Проход двойным андерхуком","Проход двойным андерхуком (Double Under Pass)","guard_pass","white",true,true,true,true,true,3,2,"fundamental,pressure,lifting","2,5,6,329","2,5,6,329","130,37","14,16,99",2],
   [92,"Проход овер-андер","Проход овер-андер (Over-Under Pass)","guard_pass","white",true,true,true,true,true,3,2,"fundamental,pressure,control","2,5,2006","2,5,2006","130,37","14,16",2],
@@ -1522,8 +1513,6 @@ const bjjNodesRaw = [
   [415,"Проход с давлением плеча","Проход с давлением плеча (Shoulder Drive Pass)","guard_pass","purple",true,true,true,true,true,3,2,"pressure,control,advanced","1,4","1,4","1,4","14,113",3],
   [416,"Сдавливающий проход","Сдавливающий проход (Squeeze Pass)","guard_pass","brown",true,true,true,true,true,3,2,"pressure,control,advanced","1,2","1,2","1,2","14,113",3],
   [417,"Обратный тореадор","Обратный тореадор (Reverse Toreando)","guard_pass","blue",true,true,true,true,true,3,2,"speed,variation,open_guard","93","93","93","14,113",2],
-
-  // === TAKEDOWNS (25) ===
   [150,"Проход в обе ноги","Проход в обе ноги (Double Leg Takedown)","takedown","white",true,true,true,true,true,2,0,"fundamental,wrestling,speed","21,337,335,339","21,337,335,339","21,337,335,339","14,16,22,151,430",2],
   [151,"Проход в одну ногу","Проход в одну ногу (Single Leg Takedown)","takedown","white",true,true,true,true,true,2,0,"fundamental,wrestling","21,150,338,339","21,150,338,339","21,150,338,339","14,150,338,430",2],
   [152,"Бросок через бедро","Бросок через бедро (Hip Throw / O Goshi)","takedown","blue",true,true,true,true,true,2,0,"judo,leverage","21,155","21,155","21,155","14,16,22",2],
@@ -1549,8 +1538,6 @@ const bjjNodesRaw = [
   [433,"Из высокого захвата бедра в захват лодыжки","Из высокого захвата бедра в захват лодыжки (High Crotch to Ankle Pick)","takedown","blue",true,true,true,true,true,2,0,"wrestling,chain,speed","339,154","339,154","339,154","338,151",2],
   [434,"Подножка из захвата корпуса","Подножка из захвата корпуса (Body Lock Trip)","takedown","blue",true,true,true,true,true,2,0,"wrestling,leverage,pressure","155,21","155,21","155,21","14,16,152",2],
   [435,"Летающий армбар тейкдаун","Летающий армбар тейкдаун (Flying Armbar Takedown)","takedown","purple",true,true,true,true,true,2,0,"dynamic,advanced,speed","21,150","21,150","21,150","30,408",4],
-
-  // === SYSTEMS (9) ===
   [500,"Система лег-локов","Система лег-локов (Leg Lock System)","system","brown",true,true,true,true,true,0,0,"leg_locks,no_gi_specialist,system","49,50,51,52,300,305,306,307,308,309,310,311,367,440","49,50,51,52,300,305,306,307,308,309,310,311,367,440","355,119,300","51,52,307,308,310",5],
   [501,"Система Беримболо","Система Беримболо (Berimbolo System)","system","purple",true,true,true,true,true,0,0,"advanced,flexibility,back_take,inversion","8,9,320,321,423","8,9,320,321,423","110,8,9","320,321,17,452",5],
   [502,"Система Kimura Trap","Система ловушек кимуры (Kimura Trap System)","system","purple",true,true,true,true,true,0,0,"pressure,control,submission_setup","32,46,368,4,3","32,46,368,4,3","4,3,336","32,401,414,17,16",4],
