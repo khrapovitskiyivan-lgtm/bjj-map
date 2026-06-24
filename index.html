@@ -15,108 +15,6 @@
 <script src="https://telegram.org/js/telegram-web-app.js" onerror="console.log('Telegram Web App недоступен')"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-/* === LEGEND BUTTON (кликабельная) === */
-button.legend-container {
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-align: left;
-  font-family: inherit;
-}
-button.legend-container:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-  border-color: var(--accent-border);
-}
-button.legend-container:active {
-  transform: scale(0.97);
-}
-
-/* === EDGE FILTER CHIPS === */
-.edge-filter-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: all 0.15s;
-  background: var(--bg-solid-tertiary);
-  background-image: var(--bg-tertiary);
-  border: 1px solid var(--border-light);
-  margin-bottom: 8px;
-  user-select: none;
-}
-.edge-filter-item:hover {
-  background: var(--bg-hover);
-  border-color: var(--border-medium);
-}
-.edge-filter-item.active {
-  border-color: var(--accent-border);
-  background: var(--accent-light);
-}
-.edge-filter-item input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  accent-color: var(--accent);
-  flex-shrink: 0;
-  cursor: pointer;
-}
-.edge-filter-line {
-  width: 28px;
-  height: 3px;
-  border-radius: 2px;
-  flex-shrink: 0;
-}
-.edge-filter-label {
-  flex: 1;
-  min-width: 0;
-}
-.edge-filter-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 2px;
-}
-.edge-filter-desc {
-  font-size: 11px;
-  color: var(--text-secondary);
-}
-.edge-filter-count {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 10px;
-  background: var(--bg-secondary);
-  color: var(--text-tertiary);
-  flex-shrink: 0;
-}
-.edge-filter-item.active .edge-filter-count {
-  background: var(--accent);
-  color: white;
-}
-
-/* === QUICK ACTIONS === */
-.quick-actions {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
-}
-.quick-action-btn {
-  flex: 1;
-  padding: 8px 12px;
-  border-radius: var(--radius-sm);
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s;
-  background: var(--bg-solid-tertiary);
-  color: var(--text-primary);
-  border: 1px solid var(--border-light);
-}
-.quick-action-btn:hover {
-  background: var(--bg-hover);
-  border-color: var(--border-medium);
-}
 /* === ЕДИНАЯ БЕЛО-СЕРАЯ СИСТЕМА С ДИНАМИЧЕСКИМ АКЦЕНТОМ ПО ПОЯСУ === */
 :root {
 --bg-primary: linear-gradient(135deg, #ffffff 0%, #f5f5f7 40%, #ececf0 100%);
@@ -489,20 +387,19 @@ text-overflow: ellipsis; max-width: 100%;
 }
 
 /* === LEGEND === */
-<button class="legend-container" onclick="toggleModal('edgeFilterModal')" title="Фильтр связей">
-  <div class="flex items-center justify-between mb-1.5">
-    <div class="text-[9px] font-bold uppercase tracking-wider flex items-center gap-1">
-      <span>Типы связей</span>
-      <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg>
-    </div>
-    <span class="text-[8px] px-1 py-0.5 rounded" style="background:var(--accent-light);color:var(--accent);">Настроить</span>
-  </div>
-  <div class="legend-item"><div class="legend-line attack"></div><span>Атака / Сабмишен</span></div>
-  <div class="legend-item"><div class="legend-line sweep"></div><span>Свип</span></div>
-  <div class="legend-item"><div class="legend-line transition"></div><span>Переход</span></div>
-  <div class="legend-item"><div class="legend-line escape"></div><span>Защита / Исход</span></div>
-  <div class="legend-item"><div class="legend-line setup"></div><span>Сетап / Контратака</span></div>
-</button>
+.legend-container {
+position: absolute; bottom: 95px; left: 12px;
+background: var(--bg-solid-secondary);
+background-image: var(--bg-secondary);
+opacity: 0.95;
+backdrop-filter: blur(10px);
+-webkit-backdrop-filter: blur(10px);
+border-radius: 10px; padding: 7px 10px;
+box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+font-size: 8px; z-index: 10; max-width: 140px;
+color: var(--text-secondary);
+border: 1px solid var(--border-light);
+}
 .legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
 .legend-item:last-child { margin-bottom: 0; }
 .legend-line { width: 20px; height: 2px; border-radius: 1px; }
@@ -1042,17 +939,6 @@ to { opacity: 1; transform: translateY(0); }
 <div class="toast" id="toast"></div>
 <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importProgress(this)">
 
-<div class="modal-overlay edge-filter-modal" id="edgeFilterModal">
-  <div class="modal-container">
-    <div class="modal-handle"></div>
-    <div class="modal-header">
-      <h2>🎛️ ФИЛЬТР СВЯЗЕЙ</h2>
-      <button class="modal-close" onclick="toggleModal('edgeFilterModal')">×</button>
-    </div>
-    <div class="modal-body" id="edgeFilterContent"></div>
-  </div>
-</div>
-  
 <!-- ONBOARDING -->
 <div id="onboarding-modal" class="fixed inset-0 z-[2000] flex items-center justify-center p-4 hidden">
 <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeOnboarding()"></div>
@@ -1104,26 +990,7 @@ try { window.Telegram.WebApp.disableVerticalSwipes(); } catch(e) {}
 }
 } catch (e) { console.log('Telegram init error:', e); }
 }
-// === 🎛️ ФИЛЬТР СВЯЗЕЙ И СИСТЕМ ===
-let activeEdgeTypes = {
-  attack: true,
-  sweep: true,
-  transition: true,
-  escape: true,
-  setup: true
-};
-let activeSystems = {};
-if (typeof systemPyramids !== 'undefined') {
-  Object.keys(systemPyramids).forEach(id => { activeSystems[id] = true; });
-}
 
-const edgeTypeLabels = {
-  attack:     { title: 'Атака / Сабмишен', desc: 'Сабмишены, проходы, тейкдауны', color: '#ef4444' },
-  sweep:      { title: 'Свип',             desc: 'Перевороты из гарда',           color: '#f59e0b' },
-  transition: { title: 'Переход',          desc: 'Смена позиций',                 color: '#8b5cf6' },
-  escape:     { title: 'Защита / Исход',   desc: 'Выходы и защиты',               color: '#10b981' },
-  setup:      { title: 'Сетап / Контратака', desc: 'Подготовка атак',             color: '#64748b' }
-};
 const triggerHaptic = (type = 'light') => {
 if (typeof window.Telegram !== 'undefined' && window.Telegram?.WebApp?.HapticFeedback) window.Telegram.WebApp.HapticFeedback.impactOccurred(type);
 else if (navigator.vibrate) navigator.vibrate(type === 'light' ? 10 : 30);
@@ -5062,7 +4929,6 @@ if (modalId === 'agameModal') {
 if (modalId === 'decisionModal') renderDecisionModal();
 if (modalId === 'scenarioModal') renderScenarioModal();
 if (modalId === 'settingsModal') renderSettingsModal();
-if (modalId === 'edgeFilterModal') renderEdgeFilterModal();
 if (modalId === 'styleModal') renderStyleModal();
 if (modalId === 'infoModal') renderInfoModal();
 }
@@ -7344,156 +7210,9 @@ setTimeout(() => {
 if (network) network.fit({ animation: { duration: 500, easingFunction: 'easeInOutQuad' } });
 }, 400);
 }
-// === ПРИМЕНЕНИЕ ФИЛЬТРА СВЯЗЕЙ И СИСТЕМ ===
-async function applyEdgeFilters() {
-  // Сохраняем в localStorage
-  await saveSetting('bjj_edge_filter', activeEdgeTypes);
-  await saveSetting('bjj_system_filter', activeSystems);
 
-  // Определяем, какие system-узлы активны
-  const activeSystemNodeIds = new Set();
-  Object.entries(systemPyramids).forEach(([sysId, sys]) => {
-    if (activeSystems[sysId]) {
-      sys.levels.forEach(level => level.ids.forEach(id => activeSystemNodeIds.add(id)));
-      activeSystemNodeIds.add(parseInt(sysId));
-    }
-  });
-
-  // Фильтруем edges
-  edges.forEach(e => {
-    const typeOk = activeEdgeTypes[e.type] !== false;
-    const fromNode = nodes.get(e.from);
-    const toNode = nodes.get(e.to);
-
-    // Если узел — часть системы, и система выключена → скрываем
-    let systemOk = true;
-    if (fromNode && fromNode.group === 'system' && !activeSystems[fromNode.id]) systemOk = false;
-    if (toNode && toNode.group === 'system' && !activeSystems[toNode.id]) systemOk = false;
-
-    edges.update({ id: e.id, hidden: !typeOk || !systemOk });
-  });
-
-  // Фильтруем system-узлы
-  nodes.forEach(n => {
-    if (n.group === 'system') {
-      const visible = activeSystems[n.id] !== false;
-      nodes.update({ id: n.id, hidden: !visible });
-    }
-  });
-
-  triggerHaptic('light');
-}
-
-// === РЕНДЕР МОДАЛКИ ФИЛЬТРА ===
-function renderEdgeFilterModal() {
-  const content = document.getElementById('edgeFilterContent');
-
-  // Считаем количество edges каждого типа
-  const edgeCounts = { attack: 0, sweep: 0, transition: 0, escape: 0, setup: 0 };
-  edges.forEach(e => { if (edgeCounts[e.type] !== undefined) edgeCounts[e.type]++; });
-
-  // === СЕКЦИЯ ТИПОВ СВЯЗЕЙ ===
-  let typesHtml = `
-    <div class="modal-section">
-      <div class="modal-section-title"> Типы связей</div>
-      <div class="quick-actions">
-        <button class="quick-action-btn" onclick="setAllEdgeTypes(true)">✓ Включить все</button>
-        <button class="quick-action-btn" onclick="setAllEdgeTypes(false)">✕ Выключить все</button>
-      </div>
-  `;
-
-  Object.entries(edgeTypeLabels).forEach(([type, info]) => {
-    const active = activeEdgeTypes[type] !== false;
-    typesHtml += `
-      <label class="edge-filter-item ${active ? 'active' : ''}" onclick="toggleEdgeType('${type}')">
-        <input type="checkbox" ${active ? 'checked' : ''} onclick="event.stopPropagation(); toggleEdgeType('${type}')">
-        <div class="edge-filter-line" style="background:${info.color}"></div>
-        <div class="edge-filter-label">
-          <div class="edge-filter-title">${info.title}</div>
-          <div class="edge-filter-desc">${info.desc}</div>
-        </div>
-        <div class="edge-filter-count">${edgeCounts[type] || 0}</div>
-      </label>
-    `;
-  });
-  typesHtml += `</div>`;
-
-  // === СЕКЦИЯ СИСТЕМ ===
-  let systemsHtml = `
-    <div class="modal-section">
-      <div class="modal-section-title"> Системы BJJ</div>
-      <div class="quick-actions">
-        <button class="quick-action-btn" onclick="setAllSystems(true)">✓ Включить все</button>
-        <button class="quick-action-btn" onclick="setAllSystems(false)">✕ Выключить все</button>
-      </div>
-  `;
-
-  Object.entries(systemPyramids).forEach(([sysId, sys]) => {
-    const active = activeSystems[sysId] !== false;
-    const sysBeltIndex = beltOrder.indexOf(sys.belt);
-    const userBeltIndex = beltOrder.indexOf(styleProfile.belt || 'white');
-    const available = sysBeltIndex <= userBeltIndex;
-    const totalTechs = sys.levels.reduce((s, l) => s + l.ids.length, 0);
-
-    systemsHtml += `
-      <label class="edge-filter-item ${active ? 'active' : ''}" 
-             onclick="${available ? `toggleSystem('${sysId}')` : ''}"
-             style="${!available ? 'opacity:0.4;cursor:not-allowed;' : ''}">
-        <input type="checkbox" ${active ? 'checked' : ''} ${!available ? 'disabled' : ''}
-               onclick="event.stopPropagation(); ${available ? `toggleSystem('${sysId}')` : ''}">
-        <div class="text-xl flex-shrink-0">${sys.icon}</div>
-        <div class="edge-filter-label">
-          <div class="edge-filter-title flex items-center gap-1.5">
-            <span>${sys.name}</span>
-            <span class="text-xs">${beltIcons[sys.belt]}</span>
-          </div>
-          <div class="edge-filter-desc">${sys.description}</div>
-        </div>
-        <div class="edge-filter-count">${totalTechs}</div>
-      </label>
-    `;
-  });
-  systemsHtml += `</div>`;
-
-  content.innerHTML = typesHtml + systemsHtml;
-}
-
-// === ПЕРЕКЛЮЧАТЕЛИ ===
-window.toggleEdgeType = (type) => {
-  activeEdgeTypes[type] = !activeEdgeTypes[type];
-  applyEdgeFilters();
-  renderEdgeFilterModal();
-};
-
-window.setAllEdgeTypes = (value) => {
-  Object.keys(activeEdgeTypes).forEach(k => activeEdgeTypes[k] = value);
-  applyEdgeFilters();
-  renderEdgeFilterModal();
-  triggerHaptic('medium');
-};
-
-window.toggleSystem = (sysId) => {
-  activeSystems[sysId] = !activeSystems[sysId];
-  applyEdgeFilters();
-  renderEdgeFilterModal();
-};
-
-window.setAllSystems = (value) => {
-  Object.keys(activeSystems).forEach(k => activeSystems[k] = value);
-  applyEdgeFilters();
-  renderEdgeFilterModal();
-  triggerHaptic('medium');
-};
 // === ЗАПУСК ===
 initApp();
-  // Загружаем фильтры связей и систем
-const savedEdgeFilter = await loadSetting('bjj_edge_filter', null);
-if (savedEdgeFilter) activeEdgeTypes = { ...activeEdgeTypes, ...savedEdgeFilter };
-const savedSystemFilter = await loadSetting('bjj_system_filter', null);
-if (savedSystemFilter) activeSystems = { ...activeSystems, ...savedSystemFilter };
-
-// Применяем после инициализации графа
-setTimeout(() => applyEdgeFilters(), 500);
 
 // Гарантированный вызов applyAllFilters через 2 секунды
 setTimeout(() => {
