@@ -6794,7 +6794,7 @@ function renderNodeDetails(nodeId, addToHistory = true) {
         <div class="space-y-1 max-h-60 overflow-y-auto">
           ${nodes.map(node => `
             <button onclick="focusNode(${node.id})" class="w-full flex items-center gap-2 p-2 rounded-lg transition text-left text-sm" style="background:${bgColor};border:1px solid ${borderColor};">
-              <span style="color:${emptyIcon};">${emptyIcon === '→' ? arrowColor : emptyIcon}</span>
+              <span style="color:${arrowColor};">${emptyIcon}</span>
               <span class="flex-1 font-medium truncate" style="color:var(--text-primary);">${node.label}</span>
               <span class="text-xs flex-shrink-0" style="color:var(--text-secondary);">${catLabels[node.group] || ''}</span>
             </button>
