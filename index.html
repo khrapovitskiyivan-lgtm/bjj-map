@@ -6762,7 +6762,13 @@ function renderNodeDetails(nodeId, addToHistory = true) {
       metricsHtml += `<span class="px-2.5 py-1 rounded-full text-xs font-semibold" style="background:var(--accent-light);color:var(--accent);border:1px solid var(--accent-border);">🏆 IBJJF: ${pointsIbjjf} · ADCC: ${pointsAdcc}</span>`;
     }
     
-    metricsHtml += `</div>`;
+    metricsHtml += `
+    // Бейдж сложности
+const diffLabels = { 1:'🟢 Базовый', 2:'🔵 Нач.', 3:'🟡 Прод.', 4:'🟠 Сложный', 5:'🔴 Мастер' };
+const diffColors = { 1:'#10b981', 2:'var(--accent)', 3:'#f59e0b', 4:'#f97316', 5:'#ef4444' };
+const d = n.difficulty || 1;
+metricsHtml += `<span class="px-2.5 py-1 rounded-full text-xs font-semibold" style="background:${diffColors[d]}15;color:${diffColors[d]};border:1px solid ${diffColors[d]}40;">⭐ ${diffLabels[d]}</span>`;
+    </div>`;
   }
 
   // === 🆕 КОНЦЕПЦИЯ ===
@@ -6807,7 +6813,7 @@ function renderNodeDetails(nodeId, addToHistory = true) {
         <div class="space-y-1 max-h-60 overflow-y-auto">
           ${nodes.map(node => `
             <button onclick="focusNode(${node.id})" class="w-full flex items-center gap-2 p-2 rounded-lg transition text-left text-sm" style="background:${bgColor};border:1px solid ${borderColor};">
-              <span style="color:${emptyIcon};">${emptyIcon === '→' ? arrowColor : emptyIcon}</span>
+              <span style="color:${arrowColor};">${emptyIcon}</span>
               <span class="flex-1 font-medium truncate" style="color:var(--text-primary);">${node.label}</span>
               <span class="text-xs flex-shrink-0" style="color:var(--text-secondary);">${catLabels[node.group] || ''}</span>
             </button>
@@ -6845,29 +6851,6 @@ function renderNodeDetails(nodeId, addToHistory = true) {
     '🔗', '→', 
     'var(--accent-light)', 'var(--accent-border)', 'var(--text-primary)', 'var(--accent)'
   );
-
-  // === БЛОК СЛОЖНОСТИ ===
-  const difficulty = n.difficulty || 1;
-  const difficultyLabels = {
-    1: { label: 'Базовый', bg: 'rgba(16,185,129,0.1)', border: 'rgba(16,185,129,0.3)', text: '#10b981', icon: '🟢' },
-    2: { label: 'Начинающий', bg: 'var(--accent-light)', border: 'var(--accent-border)', text: 'var(--accent)', icon: '🔵' },
-    3: { label: 'Продвинутый', bg: 'rgba(245,158,11,0.1)', border: 'rgba(245,158,11,0.3)', text: '#f59e0b', icon: '🟡' },
-    4: { label: 'Сложный', bg: 'rgba(249,115,22,0.1)', border: 'rgba(249,115,22,0.3)', text: '#f97316', icon: '🟠' },
-    5: { label: 'Мастерский', bg: 'rgba(239,68,68,0.1)', border: 'rgba(239,68,68,0.3)', text: '#ef4444', icon: '🔴' }
-  };
-  const diffInfo = difficultyLabels[difficulty] || difficultyLabels[1];
-  const difficultyHtml = `
-    <div class="mb-3 p-3 rounded-lg" style="background:${diffInfo.bg};border:1px solid ${diffInfo.border}">
-      <div class="flex items-center gap-2 mb-1">
-        <span class="text-base">${diffInfo.icon}</span>
-        <h3 class="text-xs font-bold uppercase tracking-wider" style="color:${diffInfo.text}">Сложность</h3>
-      </div>
-      <div class="flex items-center gap-2">
-        <span class="text-sm font-semibold" style="color:${diffInfo.text}">${diffInfo.label}</span>
-        <div class="flex gap-0.5">${[1,2,3,4,5].map(i => `<span class="text-xs">${i <= difficulty ? '⭐' : '☆'}</span>`).join('')}</div>
-      </div>
-    </div>
-  `;
 
   // === СТАНДАРТНЫЕ БЛОКИ ИЗ techniqueDetails ===
   const standardBlocks = [
@@ -6948,9 +6931,6 @@ function renderNodeDetails(nodeId, addToHistory = true) {
 
       <!-- ЦЕПОЧКИ АТАК -->
       ${chainToHtml}
-
-      <!-- СЛОЖНОСТЬ -->
-      ${difficultyHtml}
 
       <!-- ПРОГРЕСС -->
       <div class="mb-4">
