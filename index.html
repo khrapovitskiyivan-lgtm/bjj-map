@@ -423,32 +423,40 @@ display: flex; flex-direction: column;
 gap: 10px; z-index: 10;
 }
 .fab-btn {
-width: 48px; height: 48px;
-border-radius: 50%;
-background: var(--bg-solid-secondary);
-background-image: var(--bg-secondary);
-backdrop-filter: blur(10px);
--webkit-backdrop-filter: blur(10px);
-border: 1px solid var(--border-light);
-box-shadow: var(--shadow-md);
-display: flex; align-items: center; justify-content: center;
-cursor: pointer; transition: all 0.2s ease;
-color: var(--text-secondary);
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  background: var(--bg-solid-secondary);
+  background-image: var(--bg-secondary);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-md);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.2s ease;
+  color: var(--text-secondary);
 }
 .fab-btn:hover {
-transform: translateY(-2px);
-box-shadow: var(--shadow-lg);
-color: var(--text-primary);
-border-color: var(--border-medium);
-background-image: var(--bg-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  color: var(--text-primary);
+  border-color: var(--border-medium);
+  background-image: var(--bg-hover);
 }
 .fab-btn:active { transform: scale(0.95); }
 .fab-btn.primary {
-background: var(--accent);
-color: white;
-border-color: var(--accent);
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
 }
 .fab-btn.primary:hover { background: var(--accent-hover); }
+
+/* 🆕 Кнопка слева внизу */
+.fab-btn-left {
+  position: absolute;
+  bottom: 95px;
+  left: 25px;
+  z-index: 10;
+}
 
 /* === BOTTOM NAVIGATION === */
 .bottom-nav {
@@ -994,7 +1002,7 @@ to { opacity: 1; transform: translateY(0); }
 <!-- MAIN -->
 <main class="flex-1 flex flex-col relative" style="min-height: 0;">
 <div id="mynetwork"></div>
-<!-- FAB-кнопки: центрирование + фильтр связей -->
+<!-- Кнопка центрования (справа внизу) -->
 <div class="fab-container">
   <button class="fab-btn" onclick="fitGraph()" title="Центрировать граф">
     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1002,12 +1010,14 @@ to { opacity: 1; transform: translateY(0); }
       <path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>
     </svg>
   </button>
-  <button class="fab-btn" onclick="toggleModal('edgeFilterModal')" title="Фильтр связей">
-    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
-    </svg>
-  </button>
 </div>
+
+<!-- Кнопка фильтров связей (слева внизу) -->
+<button class="fab-btn fab-btn-left" onclick="toggleModal('edgeFilterModal')" title="Фильтр связей">
+  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+  </svg>
+</button>
 </main>
 
 <!-- BOTTOM SHEET -->
