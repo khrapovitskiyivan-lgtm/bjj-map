@@ -957,10 +957,11 @@ to { opacity: 1; transform: translateY(0); }
 
 /* === RESPONSIVE === */
 @media (max-width: 640px) {
-.modal-container { max-height: 92vh; }
-.fab-container { bottom: 90px; right: 16px; gap: 8px; }
-.fab-btn { width: 44px; height: 44px; }
-.legend-container { bottom: 80px; left: 10px; font-size: 7px; padding: 6px 8px; max-width: 120px; }
+  .modal-container { max-height: 92vh; }
+  .fab-container { bottom: 90px; right: 16px; gap: 8px; }
+  .fab-btn { width: 44px; height: 44px; }
+  .fab-btn-left { bottom: 90px; left: 16px; }   /* ← ДОБАВИТЬ ЭТУ СТРОКУ */
+  .legend-container { bottom: 80px; left: 10px; font-size: 7px; padding: 6px 8px; max-width: 120px; }
 }
 </style>
 </head>
@@ -1004,19 +1005,18 @@ to { opacity: 1; transform: translateY(0); }
 <div id="mynetwork"></div>
 <!-- Кнопка центрования (справа внизу) -->
 <div class="fab-container">
-  <button class="fab-btn" onclick="fitGraph()" title="Центрировать граф">
-    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="12" cy="12" r="3"/>
-      <path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>
-    </svg>
-  </button>
+<button class="fab-btn" onclick="fitGraph()" title="Центрировать граф">
+<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<circle cx="12" cy="12" r="3"/>
+<path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>
+</svg>
+</button>
 </div>
-
-<!-- Кнопка фильтров связей (слева внизу) -->
+<!-- Кнопка фильтра связей (слева внизу, симметрично центрированию) -->
 <button class="fab-btn fab-btn-left" onclick="toggleModal('edgeFilterModal')" title="Фильтр связей">
-  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
-  </svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+</svg>
 </button>
 </main>
 
