@@ -146,6 +146,7 @@ button.legend-container:active {
 --accent-light: rgba(75,85,99,0.15);
 --accent-border: rgba(75,85,99,0.4);
 --accent-rgb: 75,85,99;
+--belt-text: #1f2937;   /* 🆕 Контрастный цвет пояса для текста */
 
 /* Статусные цвета */
 --success: #10b981;
@@ -225,11 +226,12 @@ backdrop-filter: blur(20px) saturate(180%);
 }
 header h1 { font-size: 18px; font-weight: 600; letter-spacing: -0.3px; color: var(--text-primary); }
 header h1 .belt-accent {
-color: var(--accent);
-font-weight: 700;
-font-size: 11px;
-margin-left: 4px;
-transition: color 0.3s ease;
+  color: var(--belt-text);   /* было: var(--accent) */
+  font-weight: 800;          /* было: 700 — усилили жирность */
+  font-size: 11px;
+  margin-left: 4px;
+  transition: color 0.3s ease;
+  letter-spacing: 0.3px;     /* 🆕 лёгкий трекинг для читаемости */
 }
 
 /* === ICON BUTTONS === */
@@ -1265,44 +1267,49 @@ return data ? data.progress : null;
 // === 🎨 МЯГКИЕ ПАСТЕЛЬНЫЕ ЦВЕТА ПОЯСОВ ===
 const beltAccentColors = {
   white: {
-    accent: '#9ca3af',           // Серый (белый на белом не виден)
+    accent: '#9ca3af',
     accentHover: '#6b7280',
     accentLight: 'rgba(156,163,175,0.15)',
     accentBorder: 'rgba(156,163,175,0.4)',
     accentRgb: '156,163,175',
-    themeColor: '#9ca3af'
+    themeColor: '#9ca3af',
+    text: '#4b5563'   /* 🆕 Тёмно-серый для текста */
   },
   blue: {
-    accent: '#8ab4f8',           // 🆕 мягкий пастельный синий (было #3b82f6)
+    accent: '#8ab4f8',
     accentHover: '#6b9cf0',
     accentLight: 'rgba(138,180,248,0.15)',
     accentBorder: 'rgba(138,180,248,0.4)',
     accentRgb: '138,180,248',
-    themeColor: '#8ab4f8'
+    themeColor: '#8ab4f8',
+    text: '#1d4ed8'   /* 🆕 Насыщенный синий */
   },
   purple: {
-    accent: '#c4a7e7',           // 🆕 мягкий лавандовый (было #a855f7)
+    accent: '#c4a7e7',
     accentHover: '#b39ddb',
     accentLight: 'rgba(196,167,231,0.15)',
     accentBorder: 'rgba(196,167,231,0.4)',
     accentRgb: '196,167,231',
-    themeColor: '#c4a7e7'
+    themeColor: '#c4a7e7',
+    text: '#6d28d9'   /* 🆕 Насыщенный фиолетовый */
   },
   brown: {
-    accent: '#d4a574',           // 🆕 мягкий карамельный (было #d97706)
+    accent: '#d4a574',
     accentHover: '#c9955f',
     accentLight: 'rgba(212,165,116,0.15)',
     accentBorder: 'rgba(212,165,116,0.4)',
     accentRgb: '212,165,116',
-    themeColor: '#d4a574'
+    themeColor: '#d4a574',
+    text: '#92400e'   /* 🆕 Тёмно-коричневый */
   },
   black: {
-    accent: '#6b7280',           // 🆕 мягкий тёмно-серый (было #4b5563)
+    accent: '#6b7280',
     accentHover: '#4b5563',
     accentLight: 'rgba(107,114,128,0.15)',
     accentBorder: 'rgba(107,114,128,0.4)',
     accentRgb: '107,114,128',
-    themeColor: '#6b7280'
+    themeColor: '#6b7280',
+    text: '#111827'   /* 🆕 Почти чёрный */
   }
 };
 
@@ -1314,6 +1321,7 @@ root.style.setProperty('--accent-hover', colors.accentHover);
 root.style.setProperty('--accent-light', colors.accentLight);
 root.style.setProperty('--accent-border', colors.accentBorder);
 root.style.setProperty('--accent-rgb', colors.accentRgb);
+root.style.setProperty('--belt-text', colors.text);   /* 🆕 */
 
 // Обновляем theme-color для мобильных браузеров
 const metaTheme = document.querySelector('meta[name="theme-color"]');
@@ -6086,7 +6094,7 @@ window.generateWorkout = () => {
   html += `<div class="flex items-center gap-3 mb-4 p-3 rounded-lg" style="background:var(--accent-light);border:1px solid var(--accent-border)">
     <div class="text-3xl">${beltIcons[userBelt]}</div>
     <div class="flex-1">
-      <div class="text-sm font-bold" style="color:var(--accent);">Тренировка: ${beltNames[userBelt]} пояс</div>
+      <div class="text-sm font-bold" style="color:var(--belt-text);">Тренировка: ${beltNames[userBelt]} пояс</div>
       <div class="text-xs" style="color:var(--text-secondary);">Адаптирована под ваш уровень</div>
     </div>
     <div class="text-right">
@@ -7074,7 +7082,7 @@ function renderNodeDetails(nodeId, addToHistory = true) {
       <div>
         <div class="flex gap-2 flex-wrap mb-2">
           <span class="px-2 py-0.5 rounded text-xs" style="background:var(--bg-tertiary);color:var(--text-secondary);border:1px solid var(--border-light);">${catLabels[n.group]}</span>
-          <span class="px-2 py-0.5 rounded text-xs" style="background:var(--bg-tertiary);color:var(--text-secondary);border:1px solid var(--border-light);">${beltIcons[n.belt]} ${beltNames[n.belt]}</span>
+          <span class="px-2 py-0.5 rounded text-xs font-semibold" style="background:var(--accent-light);color:var(--belt-text);border:1px solid var(--accent-border);">${beltIcons[n.belt]} ${beltNames[n.belt]}</span>
           ${badges.join('')}
         </div>
         <div class="text-xs mb-2 space-x-2" style="color:var(--text-tertiary);">${legal.join(' · ')}</div>
