@@ -6653,23 +6653,33 @@ console.log('🖼️ User Photo:', userPhoto);
 
   content.innerHTML = `
     <div class="space-y-5">
-      <!-- БЛОК ПРОФИЛЯ -->
-<div class="relative" style="width:56px;height:56px;flex-shrink:0;">
-  ${userPhoto ? `
-    <img src="${userPhoto}" alt="${userName}" 
-         class="w-14 h-14 rounded-full object-cover absolute inset-0" 
-         style="border:2px solid white;z-index:2;" 
-         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-    <div class="w-14 h-14 rounded-full items-center justify-center text-lg font-bold absolute inset-0" 
-         style="display:none;background:var(--accent);color:white;border:2px solid white;z-index:1;">
-      ${userInitials}
+     <!-- БЛОК ПРОФИЛЯ -->
+<div class="p-4 rounded-xl flex items-center gap-4" style="background:var(--bg-tertiary);border:1px solid var(--border-light);">
+    <div class="relative" style="width:56px;height:56px;flex-shrink:0;">
+        ${userPhoto ? `
+        <img src="${userPhoto}" alt="${userName}"
+            class="w-14 h-14 rounded-full object-cover absolute inset-0"
+            style="border:2px solid white;z-index:2;"
+            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <div class="w-14 h-14 rounded-full items-center justify-center text-lg font-bold absolute inset-0"
+            style="display:none;background:var(--accent);color:white;border:2px solid white;z-index:1;">
+            ${userInitials}
+        </div>
+        ` : `
+        <div class="w-14 h-14 rounded-full flex items-center justify-center text-lg font-bold"
+            style="background:var(--accent);color:white;border:2px solid white;">
+            ${userInitials}
+        </div>
+        `}
     </div>
-  ` : `
-    <div class="w-14 h-14 rounded-full flex items-center justify-center text-lg font-bold" 
-         style="background:var(--accent);color:white;border:2px solid white;">
-      ${userInitials}
+    <div class="flex-1 min-w-0">
+        <div class="text-lg font-bold truncate" style="color:var(--text-primary);">${userName}</div>
+        <div class="text-sm flex items-center gap-1.5 mt-0.5" style="color:var(--text-secondary);">
+            <span>${beltIcons[userBelt]}</span>
+            <span>${beltNames[userBelt]} пояс</span>
+            ${telegramUser?.username ? `<span class="text-xs px-1.5 py-0.5 rounded" style="background:var(--accent-light);color:var(--accent);border:1px solid var(--accent-border);">@${telegramUser.username}</span>` : ''}
+        </div>
     </div>
-  `}
 </div>
 
       <!-- ОБЩИЙ ПРОГРЕСС -->
@@ -7307,12 +7317,12 @@ triggerHaptic('light');
 };
 
 window.shareNode = (nodeId) => {
-const n = bjjNodesData.find(x => x.id === nodeId);
-const text = `🥋 ${n.title}\n${n.desc}`;
-const url = `${window.location.origin}${window.location.pathname}?node=${nodeId}`;
-if (navigator.share) navigator.share({ title: n.title, text: text, url: url }).catch(console.error);
-else navigator.clipboard.writeText(`${text}\n${url}`).then(() => alert('Ссылка скопирована!'));
-triggerHaptic('medium');
+    const n = bjjNodesData.find(x => x.id === nodeId);
+    const text = `🥋 ${n.title}`;  // ✅ используем только title
+    const url = `${window.location.origin}${window.location.pathname}?node=${nodeId}`;
+    if (navigator.share) navigator.share({ title: n.title, text: text, url: url }).catch(console.error);
+    else navigator.clipboard.writeText(`${text}\n${url}`).then(() => alert('Ссылка скопирована!'));
+    triggerHaptic('medium');
 };
 
 // === ПОИСК ===
