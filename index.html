@@ -6452,10 +6452,18 @@ let agameSystemsExpanded = false;
 
 window.renderAGameModal = () => {
   const content = document.getElementById('agameContent');
-  const telegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
-  const userName = telegramUser ? `${telegramUser.first_name || ''} ${telegramUser.last_name || ''}`.trim() : 'Пользователь';
-  const userPhoto = telegramUser?.photo_url || null;
-  const userInitials = userName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || '?';
+// 🆕 Более надёжное получение данных пользователя
+const telegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+const userName = telegramUser?.first_name 
+  ? `${telegramUser.first_name || ''} ${telegramUser.last_name || ''}`.trim()
+  : 'Пользователь';
+const userPhoto = telegramUser?.photo_url || telegramUser?.photoUrl || null;
+const userInitials = userName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || '?';
+
+  // Отладка: проверяем, какие данные доступны
+console.log('Telegram User Data:', telegramUser);
+console.log('User Name:', userName);
+console.log('User Photo:', userPhoto);
 
   const userBelt = styleProfile.belt || 'white';
   const maxBeltIndex = beltOrder.indexOf(userBelt);
@@ -6641,7 +6649,7 @@ window.renderAGameModal = () => {
               <span class="text-lg"></span>
               <div class="text-sm font-semibold" style="color:var(--text-primary);">Системы BJJ</div>
             </div>
-            <div class="text-xs mt-1" style="color:var(--text-secondary);">9 пирамид техник для развития A-Game</div>
+            <div class="text-xs mt-1" style="color:var(--text-secondary);">9 пирамид техник для развития Твоей Игры</div>
           </div>
           <div style="color:var(--text-tertiary);transition:transform 0.3s;${agameSystemsExpanded ? 'transform:rotate(180deg);' : ''}">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
