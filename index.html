@@ -4999,30 +4999,15 @@ setup_from: n.setup_from || [], chain_to: n.chain_to || []
 })));
 const edges = new vis.DataSet(edgesWithColors);
 const network = new vis.Network(document.getElementById('mynetwork'), { nodes, edges }, {
-    groups,
-    nodes: { size: window.innerWidth < 768 ? 28 : 22, font: { size: window.innerWidth < 768 ? 14 : 12, color: '#ffffff', strokeWidth: 3, strokeColor: '#000000' } },
-    edges: { font: { size: 0 }, selectionWidth: 3, hoverWidth: 2 },
-    physics: {
-        solver: 'forceAtlas2Based',
-        forceAtlas2Based: { 
-            gravitationalConstant: -80, 
-            centralGravity: 0.005, 
-            springLength: 200, 
-            springConstant: 0.04, 
-            damping: 0.4,
-            avoidOverlap: 0.1
-        },
-        stabilization: { iterations: 150, updateInterval: 25 },
-        maxVelocity: 30,
-        minVelocity: 0.5
-    },
-    interaction: { hover: false, dragNodes: true, dragView: true, zoomView: true, navigationButtons: false, keyboard: false }
-});
-
-// 🆕 Отключаем физику после стабилизации — экономит CPU
-network.once('stabilizationIterationsDone', () => {
-    network.setOptions({ physics: false });
-    console.log('✅ Физика отключена после стабилизации');
+groups,
+nodes: { size: window.innerWidth < 768 ? 28 : 22, font: { size: window.innerWidth < 768 ? 14 : 12, color: '#ffffff', strokeWidth: 3, strokeColor: '#000000' } },
+edges: { font: { size: 0 }, selectionWidth: 3, hoverWidth: 2 },
+physics: {
+solver: 'forceAtlas2Based',
+forceAtlas2Based: { gravitationalConstant: -80, centralGravity: 0.005, springLength: 200, springConstant: 0.04, damping: 0.4 },
+stabilization: { iterations: 200 }
+},
+interaction: { hover: true, dragNodes: true, dragView: true, zoomView: true, navigationButtons: false, keyboard: false }
 });
 
 // === ПРОГРЕСС ===
@@ -7744,8 +7729,14 @@ triggerHaptic('medium');
 
 // === ЗАПУСК ===
 (async () => {
-    await initApp();
-    // ✅ Фильтры уже загружены в initApp() — дубль удалён
+  await initApp();
+  // Загружаем фильтры связей и систем
+  const savedEdgeFilter = await loadSetting('bjj_edge_filter', null);
+  if (savedEdgeFilter) activeEdgeTypes = { ...activeEdgeTypes, ...savedEdgeFilter };
+  const savedSystemFilter = await loadSetting('bjj_system_filter', null);
+  if (savedSystemFilter) activeSystems = { ...activeSystems, ...savedSystemFilter };
+  // Применяем после инициализации графа
+  setTimeout(() => applyEdgeFilters(), 500);
 })();
 
 // Гарантированный вызов applyAllFilters через 2 секунды
