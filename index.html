@@ -7451,19 +7451,10 @@ searchResults.classList.remove('hidden');
 searchHistory.classList.add('hidden');
 }
 
-let searchDebounceTimer = null;
 searchInput.addEventListener('input', (e) => {
-    const q = e.target.value.trim();
-    clearTimeout(searchDebounceTimer);
-    
-    if (q.length === 0) {
-        searchResults.classList.add('hidden');
-        if (getSearchHistory().length > 0) showSearchHistory('');
-        return;
-    }
-    
-    searchHistory.classList.add('hidden');
-    searchDebounceTimer = setTimeout(() => performSearch(q), 250);
+const q = e.target.value.trim();
+if (q.length === 0 && getSearchHistory().length > 0) { showSearchHistory(''); searchResults.classList.add('hidden'); }
+else { searchHistory.classList.add('hidden'); performSearch(q); }
 });
 searchInput.addEventListener('focus', () => { if (searchInput.value.trim().length === 0) showSearchHistory(''); });
 document.addEventListener('click', (e) => {
