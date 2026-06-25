@@ -1157,9 +1157,8 @@ let activeEdgeTypes = {
 attack: true, sweep: true, transition: true, escape: true, setup: true
 };
 let activeSystems = {};
-if (typeof systemPyramids !== 'undefined') {
-Object.keys(systemPyramids).forEach(id => { activeSystems[id] = true; });
-}
+// Инициализация activeSystems будет выполнена после объявления systemPyramids
+  
 const edgeTypeLabels = {
 attack:     { title: 'Атака / Сабмишен', desc: 'Сабмишены, проходы, тейкдауны', color: '#ef4444' },
 sweep:      { title: 'Свип',             desc: 'Перевороты из гарда',           color: '#f59e0b' },
@@ -1456,6 +1455,9 @@ const systemPyramids = {
     ]
   }
 };
+
+// Инициализируем activeSystems после объявления systemPyramids
+Object.keys(systemPyramids).forEach(id => { activeSystems[id] = true; });
 
 // === БАЗА ТЕХНИК (полная) ===
 const bjjNodesRaw = [
