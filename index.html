@@ -1157,22 +1157,24 @@ to { opacity: 1; transform: translateY(0); }
 <script>
 // === TELEGRAM + SUPABASE ===
 if (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp) {
-try {
-  window.Telegram.WebApp.ready();
-  window.Telegram.WebApp.expand();
-  
-  // 🆕 Задержка перед fullscreen
-  setTimeout(() => {
-    if (window.Telegram.WebApp.requestFullscreen) {
-      window.Telegram.WebApp.requestFullscreen()
-        .then(() => console.log('✅ Fullscreen enabled'))
-        .catch(err => console.log('⚠️ Fullscreen error:', err));
+    try {
+        window.Telegram.WebApp.ready();
+        window.Telegram.WebApp.expand();
+        setTimeout(() => {
+            if (window.Telegram.WebApp.requestFullscreen) {
+                window.Telegram.WebApp.requestFullscreen()
+                    .then(() => console.log('✅ Fullscreen enabled'))
+                    .catch(err => console.log('⚠️ Fullscreen error:', err));
+            }
+        }, 100);
+    } catch(e) {
+        console.log('Telegram WebApp error:', e);
     }
-  }, 100);
+} // ← ДОБАВИТЬ ЭТУ СКОБКУ
 
-// ===  ФИЛЬТР СВЯЗЕЙ И СИСТЕМ ===
+// === ФИЛЬТР СВЯЗЕЙ И СИСТЕМ ===
 let activeEdgeTypes = {
-attack: true, sweep: true, transition: true, escape: true, setup: true
+    attack: true, sweep: true, transition: true, escape: true, setup: true
 };
 let activeSystems = {};
 // Инициализация activeSystems будет выполнена после объявления systemPyramids
