@@ -1362,118 +1362,118 @@ const beltOrder = ['white', 'blue', 'purple', 'brown', 'black'];
 const beltNames = { white:'Белый', blue:'Синий', purple:'Пурпурный', brown:'Коричневый', black:'Чёрный' };
 // === 🆕 ПИРАМИДЫ СИСТЕМ ===
 const systemPyramids = {
-  500: {
-    name: 'Система лег-локов',
-    icon: '',
-    description: 'Пирамида контроля ног: от базового захвата до ротационных болевых',
-    belt: 'brown',
-    levels: [
-      { label: 'Straight Ankle Lock', ids: [49] },
-      { label: 'Ashi Garami', ids: [305, 300] },
-      { label: '50/50 + Ashi Ankle Lock', ids: [11, 306] },
-      { label: 'Saddle / Ushiro Ashi', ids: [440, 367] },
-      { label: 'Heel Hooks (Inside/Outside)', ids: [52, 307, 308] }
-    ]
-  },
-  501: {
-    name: 'Система Беримболо',
-    icon: '',
-    description: 'Система взятия спины из De La Riva через инверсию',
-    belt: 'purple',
-    levels: [
-      { label: 'De La Riva Guard', ids: [8] },
-      { label: 'Reverse De La Riva', ids: [9] },
-      { label: 'Berimbolo / Rolling Back Take', ids: [320, 321] },
-      { label: 'Back Control', ids: [17] }
-    ]
-  },
-  502: {
-    name: 'Система Kimura Trap',
-    icon: '',
-    description: 'Система контроля через захват кимуры для доминирования',
-    belt: 'purple',
-    levels: [
-      { label: 'Kimura из гарда', ids: [32] },
-      { label: 'Kimura Trap позиция', ids: [368] },
-      { label: 'Rolling Kimura', ids: [401] },
-      { label: 'Back / Mount', ids: [17, 16] }
-    ]
-  },
-  503: {
-    name: 'Система давления в проходе',
-    icon: '',
-    description: 'Старая школа Carlson Gracie: проход через непрерывное давление',
-    belt: 'white',
-    levels: [
-      { label: 'Закрытый гард сверху', ids: [2] },
-      { label: 'Knee Slice / Smash Pass', ids: [90, 96] },
-      { label: 'Side Control', ids: [14] },
-      { label: 'Mount', ids: [16] }
-    ]
-  },
-  504: {
-    name: 'Система свипов из баттерфляя',
-    icon: '',
-    description: 'Баттерфляй — платформа для 4+ свипов через активные хуки',
-    belt: 'blue',
-    levels: [
-      { label: 'Butterfly Guard', ids: [5] },
-      { label: 'Butterfly Sweep', ids: [73] },
-      { label: 'Sickle Sweep', ids: [391] },
-      { label: 'Elevator Sweep', ids: [418] },
-      { label: 'Rocking Horse Sweep', ids: [420] }
-    ]
-  },
-  505: {
-    name: 'Система удушений со спины',
-    icon: '',
-    description: 'Спина — платформа для 5+ удушений через seatbelt',
-    belt: 'blue',
-    levels: [
-      { label: 'Back Control', ids: [17] },
-      { label: 'Rear Naked Choke', ids: [42] },
-      { label: 'Bow & Arrow', ids: [55] },
-      { label: 'Baseball Bat', ids: [202] },
-      { label: 'Clock Choke', ids: [203] }
-    ]
-  },
-  506: {
-    name: 'Система X-гарда',
-    icon: '',
-    description: 'X-гард — платформа для свипов, лег-локов и взятия спины',
-    belt: 'purple',
-    levels: [
-      { label: 'Half Guard', ids: [3, 4] },
-      { label: 'X-Guard', ids: [10] },
-      { label: 'Single Leg X', ids: [300] },
-      { label: 'X-Guard Sweeps', ids: [74, 77, 325, 326] },
-      { label: 'Leg Locks / Berimbolo', ids: [50, 52, 320] }
-    ]
-  },
-  507: {
-    name: 'Система выходов из маунта',
-    icon: '',
-    description: 'Маунт — худшая позиция. Выход — это система, а не один приём',
-    belt: 'white',
-    levels: [
-      { label: 'Mount снизу', ids: [15] },
-      { label: 'Upa (мост)', ids: [131] },
-      { label: 'Elbow Escape (креветка)', ids: [132] },
-      { label: 'Гард / Халф-гард', ids: [1, 3] }
-    ]
-  },
-  508: {
-    name: 'Система проходов через Toreando',
-    icon: '',
-    description: 'Toreando — система скоростных проходов через контроль ног',
-    belt: 'white',
-    levels: [
-      { label: 'Toreando Pass', ids: [93] },
-      { label: 'Вариации', ids: [377, 417] },
-      { label: 'Side Control', ids: [14] },
-      { label: 'Knee Slice / Leg Drag', ids: [90, 94] }
-    ]
-  }
+    500: {
+        name: 'Система лег-локов',
+        icon: '',
+        description: 'Пирамида контроля ног: от базового захвата до ротационных болевых',
+        belt: 'brown',
+        levels: [
+            { label: 'Прямой рычаг голеностопа', ids: [49] },
+            { label: 'Аши-гарами + Сингл Лег Икс', ids: [305, 300] },
+            { label: 'Гард 50/50 + Аши энкл лок', ids: [11, 306] },
+            { label: 'Седло + Задний аши-гарами', ids: [440, 367] },
+            { label: 'Скручивание пятки (инсайд/аутсайд)', ids: [52, 307, 308] }
+        ]
+    },
+    501: {
+        name: 'Система Беримболо',
+        icon: '',
+        description: 'Система взятия спины из Де-ла-Рива через инверсию',
+        belt: 'purple',
+        levels: [
+            { label: 'Де-ла-Рива снизу', ids: [8] },
+            { label: 'Обратный де-ла-Рива снизу', ids: [9] },
+            { label: 'Беримболо + Роллинг бэк тейк', ids: [320, 321] },
+            { label: 'Контроль спины', ids: [17] }
+        ]
+    },
+    502: {
+        name: 'Система ловушек кимуры',
+        icon: '',
+        description: 'Система контроля через захват кимуры для доминирования',
+        belt: 'purple',
+        levels: [
+            { label: 'Кимура из гарда', ids: [32] },
+            { label: 'Система ловушек кимуры', ids: [368] },
+            { label: 'Роллинг кимура', ids: [401] },
+            { label: 'Контроль спины + Маунт сверху', ids: [17, 16] }
+        ]
+    },
+    503: {
+        name: 'Система давления в проходе',
+        icon: '',
+        description: 'Старая школа Carlson Gracie: проход через непрерывное давление',
+        belt: 'white',
+        levels: [
+            { label: 'Закрытый гард сверху', ids: [2] },
+            { label: 'Проход коленом + Раздавливающий проход', ids: [90, 96] },
+            { label: 'Сайд-контроль сверху', ids: [14] },
+            { label: 'Маунт сверху', ids: [16] }
+        ]
+    },
+    504: {
+        name: 'Система свипов из баттерфляя',
+        icon: '',
+        description: 'Баттерфляй — платформа для 4+ свипов через активные хуки',
+        belt: 'blue',
+        levels: [
+            { label: 'Баттерфляй-гард снизу', ids: [5] },
+            { label: 'Свип из баттерфляя', ids: [73] },
+            { label: 'Серп свип', ids: [391] },
+            { label: 'Элевейтор свип', ids: [418] },
+            { label: 'Рокинг хорс свип', ids: [420] }
+        ]
+    },
+    505: {
+        name: 'Система удушений со спины',
+        icon: '',
+        description: 'Спина — платформа для 5+ удушений через seatbelt',
+        belt: 'blue',
+        levels: [
+            { label: 'Контроль спины атака', ids: [17] },
+            { label: 'Удушение сзади', ids: [42] },
+            { label: 'Лук и стрела', ids: [55] },
+            { label: 'Удушение бейсбольной битой', ids: [202] },
+            { label: 'Часовое удушение', ids: [203] }
+        ]
+    },
+    506: {
+        name: 'Система X-гарда',
+        icon: '',
+        description: 'X-гард — платформа для свипов, лег-локов и взятия спины',
+        belt: 'purple',
+        levels: [
+            { label: 'Халф-гард (снизу/сверху)', ids: [3, 4] },
+            { label: 'Икс-гард снизу', ids: [10] },
+            { label: 'Сингл Лег Икс', ids: [300] },
+            { label: 'Свипы из X-гарда', ids: [74, 77, 325, 326] },
+            { label: 'Рычаг колена + Скручивание пятки + Беримболо', ids: [50, 52, 320] }
+        ]
+    },
+    507: {
+        name: 'Система выходов из маунта',
+        icon: '',
+        description: 'Маунт — худшая позиция. Выход — это система, а не один приём',
+        belt: 'white',
+        levels: [
+            { label: 'Маунт снизу', ids: [15] },
+            { label: 'Мост из маунта', ids: [131] },
+            { label: 'Локтевой выход из маунта', ids: [132] },
+            { label: 'Закрытый гард + Халф-гард', ids: [1, 3] }
+        ]
+    },
+    508: {
+        name: 'Система проходов через тореадор',
+        icon: '',
+        description: 'Тореадор — система скоростных проходов через контроль ног',
+        belt: 'white',
+        levels: [
+            { label: 'Проход тореадор', ids: [93] },
+            { label: 'Вариация + Обратный тореадор', ids: [377, 417] },
+            { label: 'Сайд-контроль сверху', ids: [14] },
+            { label: 'Проход коленом + Протаскивание ноги', ids: [90, 94] }
+        ]
+    }
 };
 
 // Инициализируем activeSystems после объявления systemPyramids
