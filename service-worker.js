@@ -1,74 +1,49 @@
-const CACHE_NAME = 'bjj-map-v5';
-
-// Определяем базовый путь динамически
-const BASE_URL = self.registration.scope;
-
-// Список файлов для кэширования (относительные пути)
-const urlsToCache = [
-  'index.html',
-  'manifest.json'
+// service-worker.js
+const CACHE_NAME = 'bjj-map-pro-v2.0';
+const ASSETS_TO_CACHE = [
+    '/',
+    '/index.html',
+    'https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css',
+    'https://visjs.github.io/vis-network/standalone/umd/vis-network.min.js',
+    'https://telegram.org/js/telegram-web-app.js',
+    'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'
 ];
 
-// Установка: кэшируем файлы
+// Установка — кэшируем все ресурсы
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => {
-        console.log('✅ Кэш открыт, базовый URL:', BASE_URL);
-        return Promise.all(
-          urlsToCache.map(url => 
-            cache.add(url)
-              .then(() => console.log('✅ Закэшировано:', url))
-              .catch(err => console.log('⚠️ Не удалось закэшировать:', url, err))
-          )
-        );
-      })
-  );
-  self.skipWaiting();
+    event.waitUntil(
+        caches.open(CACHE_NAME)
+            .then(cache => cache.addAll(ASSETS_TO_CACHE))
+            .then(() => self.skipWaiting())
+    );
 });
 
-// Активация: удаляем старые кэши
+// Активация — удаляем старые кэши
 self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
-            console.log('🗑️ Удаляем старый кэш:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
-  );
-  self.clients.claim();
+    event.waitUntil(
+        caches.keys().then(keys => 
+            Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+        ).then(() => self.clients.claim())
+    );
 });
 
-// Обработка запросов: сначала кэш, потом сеть
+// Обработка запросов — стратегия "Cache First, Network Fallback"
 self.addEventListener('fetch', (event) => {
-  // Игнорируем запросы не к нашему домену
-  if (!event.request.url.startsWith(BASE_URL)) {
-    return;
-  }
-  
-  event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        if (response) {
-          return response; // Нашли в кэше
-        }
-        return fetch(event.request).then((networkResponse) => {
-          // Если запрос успешен и это GET — сохраняем в кэш
-          if (networkResponse && networkResponse.status === 200 && event.request.method === 'GET') {
-            const responseToCache = networkResponse.clone();
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(event.request, responseToCache);
-            });
-          }
-          return networkResponse;
-        }).catch(() => {
-          return new Response('Offline', { status: 503, statusText: 'Offline' });
-        });
-      })
-  );
+    // Пропускаем API Supabase — всегда идём в сеть
+    if (event.request.url.includes('supabase.co')) return;
+    
+    event.respondWith(
+        caches.match(event.request).then(cached => {
+            // Возвращаем из кэша + обновляем в фоне
+            const fetchPromise = fetch(event.request).then(response => {
+                if (response && response.status === 200) {
+                    const clone = response.clone();
+                    caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+                }
+                return response;
+            }).catch(() => cached);
+            
+            return cached || fetchPromise;
+        })
+    );
 });
