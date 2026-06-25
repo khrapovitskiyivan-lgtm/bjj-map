@@ -6653,7 +6653,7 @@ console.log('🖼️ User Photo:', userPhoto);
 
   content.innerHTML = `
     <div class="space-y-5">
-     <!-- БЛОК ПРОФИЛЯ -->
+    <!-- БЛОК ПРОФИЛЯ -->
 <div class="p-4 rounded-xl flex items-center gap-4" style="background:var(--bg-tertiary);border:1px solid var(--border-light);">
     <div class="relative" style="width:56px;height:56px;flex-shrink:0;">
         ${userPhoto ? `
@@ -6674,9 +6674,9 @@ console.log('🖼️ User Photo:', userPhoto);
     </div>
     <div class="flex-1 min-w-0">
         <div class="text-lg font-bold truncate" style="color:var(--text-primary);">${userName}</div>
-        <div class="text-sm flex items-center gap-1.5 mt-0.5" style="color:var(--text-secondary);">
-            <span>${beltIcons[userBelt]}</span>
-            <span>${beltNames[userBelt]} пояс</span>
+        <div class="text-sm flex items-center gap-1.5 mt-0.5 flex-wrap" style="color:var(--text-secondary);">
+            <span class="text-base">${beltIcons[userBelt]}</span>
+            <span class="font-semibold" style="color:var(--accent);">${beltNames[userBelt]} пояс</span>
             ${telegramUser?.username ? `<span class="text-xs px-1.5 py-0.5 rounded" style="background:var(--accent-light);color:var(--accent);border:1px solid var(--accent-border);">@${telegramUser.username}</span>` : ''}
         </div>
     </div>
