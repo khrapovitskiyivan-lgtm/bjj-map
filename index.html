@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content, height=device-height">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>BJJ Map Pro</title>
 <meta name="theme-color" content="#4b5563">
 <meta name="mobile-web-app-capable" content="yes">
@@ -194,7 +194,14 @@ body.dark .modal-body .text-slate-100, body.dark .modal-body .text-slate-600,
 body.dark .modal-body .text-slate-700, body.dark .modal-body .text-slate-800 { color: var(--text-primary) !important; }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-html, body { height: 100dvh; margin: 0; padding: 0; overflow: hidden; }
+html, body {
+  height: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
 body {
 font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
 background: var(--bg-solid-primary);
@@ -1149,20 +1156,19 @@ to { opacity: 1; transform: translateY(0); }
 
 <script>
 // === TELEGRAM + SUPABASE ===
-  // Telegram
-  try {
-    if (window.Telegram && window.Telegram.WebApp) {
-      if (window.Telegram.WebApp.ready) window.Telegram.WebApp.ready();
-      if (window.Telegram.WebApp.expand) window.Telegram.WebApp.expand();
-      if (window.Telegram.WebApp.setHeaderColor) {
-        window.Telegram.WebApp.setHeaderColor('#4b5563');
-      }
-      if (window.Telegram.WebApp.disableVerticalSwipes) {
-        window.Telegram.WebApp.disableVerticalSwipes();
-      }
+if (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp) {
+try {
+  window.Telegram.WebApp.ready();
+  window.Telegram.WebApp.expand();
+  
+  // 🆕 Задержка перед fullscreen
+  setTimeout(() => {
+    if (window.Telegram.WebApp.requestFullscreen) {
+      window.Telegram.WebApp.requestFullscreen()
+        .then(() => console.log('✅ Fullscreen enabled'))
+        .catch(err => console.log('⚠️ Fullscreen error:', err));
     }
-  } catch (e) { console.log('Telegram init error:', e); }
-  // ↑ ЗАКРЫЛИ try-catch
+  }, 100);
 
 // ===  ФИЛЬТР СВЯЗЕЙ И СИСТЕМ ===
 let activeEdgeTypes = {
@@ -6454,7 +6460,7 @@ let agameSystemsExpanded = false;
 
 window.renderAGameModal = () => {
   const content = document.getElementById('agameContent');
-// 🆕 Надёжное получение Telegram данных с кэшированием
+// 🆕 Надёжное получение данных пользователя с кэшированием
 let telegramUser = null;
 let userName = 'Пользователь';
 let userPhoto = null;
@@ -6463,16 +6469,16 @@ try {
   // Способ 1: initDataUnsafe (основной)
   telegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
   
-  // Способ 2: парсинг initData (если первый способ не сработал)
+  // Способ 2: парсинг initData (если первый не сработал)
   if (!telegramUser && window.Telegram?.WebApp?.initData) {
     try {
       const params = new URLSearchParams(window.Telegram.WebApp.initData);
       const userStr = params.get('user');
-      if (userStr) telegramUser = JSON.parse(userStr);
-    } catch(e) { console.log('initData parse error:', e); }
+      if (userStr) telegramUser = JSON.parse(decodeURIComponent(userStr));
+    } catch(e) {}
   }
   
-  // Способ 3: загрузка из кэша (если оба способа не сработали)
+  // Способ 3: кэш из localStorage
   if (!telegramUser) {
     try {
       const cached = localStorage.getItem('bjj_telegram_user');
@@ -6482,19 +6488,22 @@ try {
   
   // Извлекаем данные
   if (telegramUser) {
-    userName = `${telegramUser.first_name || ''} ${telegramUser.last_name || ''}`.trim() || 'Пользователь';
-    userPhoto = telegramUser.photo_url || null;
+    const firstName = telegramUser.first_name || '';
+    const lastName = telegramUser.last_name || '';
+    const username = telegramUser.username || '';
+    const fullName = `${firstName} ${lastName}`.trim();
+    userName = fullName || username || 'Пользователь';
+    userPhoto = telegramUser.photo_url || telegramUser.photoUrl || null;
     
-    // 💾 Сохраняем в кэш для будущих запусков
-    try {
-      localStorage.setItem('bjj_telegram_user', JSON.stringify(telegramUser));
-    } catch(e) {}
+    // 💾 Сохраняем в кэш
+    try { localStorage.setItem('bjj_telegram_user', JSON.stringify(telegramUser)); } catch(e) {}
   }
 } catch(e) {
   console.log('Telegram user fetch error:', e);
 }
 
 const userInitials = userName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || '?';
+console.log('📱 Telegram User:', telegramUser, 'Name:', userName, 'Photo:', userPhoto);
 
 // Отладка
 console.log('📱 Telegram User:', telegramUser);
@@ -7702,6 +7711,21 @@ setTimeout(async () => {
         showOnboarding();
     }
 }, 1500);
+// 🆕 Коррекция высоты для Telegram WebApp
+function adjustViewportHeight() {
+  const vh = window.innerHeight * 0.01;
+  document.documentElement.style.setProperty('--vh', `${vh}px`);
+  document.body.style.height = `${window.innerHeight}px`;
+  document.documentElement.style.height = `${window.innerHeight}px`;
+}
+
+adjustViewportHeight();
+window.addEventListener('resize', adjustViewportHeight);
+window.addEventListener('orientationchange', adjustViewportHeight);
+
+if (window.Telegram?.WebApp) {
+  window.Telegram.WebApp.onEvent('viewportChanged', adjustViewportHeight);
+}
 </script>
 </body>
 </html>
