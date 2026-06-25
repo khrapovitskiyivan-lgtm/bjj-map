@@ -5356,77 +5356,104 @@ let infoAboutView = 'stats';   // 🆕 'stats' | 'list:position' | 'list:system'
 
 // 🆕 Рендер списка техник по категории в модалке "О карте"
 function renderInfoAboutList(viewKey) {
-  const groupKey = viewKey.replace('list:', '');
-  const userBelt = styleProfile.belt || 'white';
-  const maxBeltIndex = beltOrder.indexOf(userBelt);
-
-  // Фильтруем по категории и доступности для пояса
-  let items = bjjNodesData.filter(n => {
-    if (groupKey !== 'all' && n.group !== groupKey) return false;
-    return beltOrder.indexOf(n.belt) <= maxBeltIndex;
-  });
-
-  // Сортировка: по поясу, потом по названию
-  items.sort((a, b) => {
-    const beltDiff = beltOrder.indexOf(a.belt) - beltOrder.indexOf(b.belt);
-    if (beltDiff !== 0) return beltDiff;
-    return a.label.localeCompare(b.label, 'ru');
-  });
-
-  const titles = {
-    all: 'Все техники',
-    position: 'Позиции',
-    submission: 'Сабмишены',
-    sweep: 'Свипы',
-    guard_pass: 'Проходы гарда',
-    takedown: 'Тейкдауны',
-    escape: 'Защиты',
-    transition: 'Переходы',
-    system: 'Системы'
-  };
-  const icons = {
-    all: '📋', position: '', submission: '', sweep: '',
-    guard_pass: '', takedown: '', escape: '', transition: '', system: ''
-  };
-  const title = titles[groupKey] || 'Техники';
-  const icon = icons[groupKey] || '';
-
-  let html = `
+    const groupKey = viewKey.replace('list:', '');
+    const userBelt = styleProfile.belt || 'white';
+    const maxBeltIndex = beltOrder.indexOf(userBelt);
+    
+    let items = bjjNodesData.filter(n => {
+        if (groupKey !== 'all' && n.group !== groupKey) return false;
+        return beltOrder.indexOf(n.belt) <= maxBeltIndex;
+    });
+    
+    items.sort((a, b) => {
+        const beltDiff = beltOrder.indexOf(a.belt) - beltOrder.indexOf(b.belt);
+        if (beltDiff !== 0) return beltDiff;
+        return a.label.localeCompare(b.label, 'ru');
+    });
+    
+    const titles = {
+        all: 'Все техники', position: 'Позиции', submission: 'Сабмишены',
+        sweep: 'Свипы', guard_pass: 'Проходы гарда', takedown: 'Тейкдауны',
+        escape: 'Защиты', transition: 'Переходы', system: 'Системы'
+    };
+    const icons = {
+        all: '📋', position: '', submission: '', sweep: '',
+        guard_pass: '', takedown: '', escape: '', transition: '', system: ''
+    };
+    
+    const title = titles[groupKey] || 'Техники';
+    const icon = icons[groupKey] || '';
+    
+    // 🆕 ПАГИНАЦИЯ
+    const PAGE_SIZE = 40;
+    if (!window._infoListState) window._infoListState = {};
+    const state = window._infoListState[viewKey] || { page: 0 };
+    window._infoListState[viewKey] = state;
+    
+    const visibleItems = items.slice(0, (state.page + 1) * PAGE_SIZE);
+    const hasMore = visibleItems.length < items.length;
+    const remaining = items.length - visibleItems.length;
+    
+    let html = `
     <div class="flex items-center gap-2 mb-3">
-      <button onclick="setInfoAboutView('stats')" class="p-2 rounded-lg transition" style="background:var(--bg-tertiary);border:1px solid var(--border-light);" title="Назад к статистике">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
-      </button>
-      <div class="flex-1">
-        <div class="text-sm font-bold" style="color:var(--text-primary);">${icon} ${title}</div>
-        <div class="text-xs" style="color:var(--text-tertiary);">${items.length} техник · ${beltNames[userBelt]} пояс</div>
-      </div>
-    </div>
-  `;
-
-  if (items.length === 0) {
-    html += `<div class="text-center py-6"><div class="text-3xl mb-2">🔍</div><p class="text-sm" style="color:var(--text-secondary);">Нет доступных техник для вашего пояса</p></div>`;
-    return html;
-  }
-
-  html += `<div class="space-y-1 max-h-[60vh] overflow-y-auto">`;
-  items.forEach(n => {
-    const status = progress[n.id];
-    const statusColor = status === 'done' ? 'var(--success)' : status === 'in_progress' ? 'var(--warning)' : 'var(--border-medium)';
-    const statusIcon = status === 'done' ? '✓' : status === 'in_progress' ? '◐' : '○';
-    html += `
-      <button onclick="openTechniqueFromInfo(${n.id})" class="w-full flex items-center gap-2 p-2 rounded-lg transition text-left" style="background:var(--bg-secondary);border:1px solid var(--border-light);">
-        <div class="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs" style="background:${statusColor}20;color:${statusColor};border:1px solid ${statusColor}50;">${statusIcon}</div>
-        <div class="flex-1 min-w-0">
-          <div class="text-sm font-medium truncate" style="color:var(--text-primary);">${n.label}</div>
-          <div class="text-xs" style="color:var(--text-tertiary);">${beltIcons[n.belt]} ${beltNames[n.belt]} · ${catLabels[n.group]}</div>
+        <button onclick="setInfoAboutView('stats')" class="p-2 rounded-lg transition" 
+            style="background:var(--bg-tertiary);border:1px solid var(--border-light);" title="Назад">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        </button>
+        <div class="flex-1">
+            <div class="text-sm font-bold" style="color:var(--text-primary);">${icon} ${title}</div>
+            <div class="text-xs" style="color:var(--text-tertiary);">${items.length} техник · ${beltNames[userBelt]} пояс</div>
         </div>
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-tertiary);flex-shrink:0;"><polyline points="9 18 15 12 9 6"></polyline></svg>
-      </button>
+    </div>
     `;
-  });
-  html += `</div>`;
-  return html;
+    
+    if (items.length === 0) {
+        html += `<div class="text-center py-6"><div class="text-3xl mb-2">🔍</div><p class="text-sm" style="color:var(--text-secondary);">Нет доступных техник</p></div>`;
+        return html;
+    }
+    
+    html += `<div class="space-y-1" id="infoListContainer">`;
+    visibleItems.forEach(n => {
+        const status = progress[n.id];
+        const statusColor = status === 'done' ? 'var(--success)' : status === 'in_progress' ? 'var(--warning)' : 'var(--border-medium)';
+        const statusIcon = status === 'done' ? '✓' : status === 'in_progress' ? '◐' : '○';
+        html += `
+        <button onclick="openTechniqueFromInfo(${n.id})" class="w-full flex items-center gap-2 p-2 rounded-lg transition text-left" 
+            style="background:var(--bg-secondary);border:1px solid var(--border-light);">
+            <div class="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs" 
+                style="background:${statusColor}20;color:${statusColor};border:1px solid ${statusColor}50;">${statusIcon}</div>
+            <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium truncate" style="color:var(--text-primary);">${n.label}</div>
+                <div class="text-xs" style="color:var(--text-tertiary);">${beltIcons[n.belt]} ${beltNames[n.belt]} · ${catLabels[n.group]}</div>
+            </div>
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-tertiary);flex-shrink:0;"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
+        `;
+    });
+    
+    // 🆕 КНОПКА "ПОКАЗАТЬ ЕЩЁ"
+    if (hasMore) {
+        html += `
+        <button onclick="loadMoreInfoList('${viewKey}')" class="w-full py-3 mt-2 rounded-lg text-sm font-semibold transition"
+            style="background:var(--accent-light);color:var(--accent);border:1px solid var(--accent-border);">
+            Показать ещё (${remaining})
+        </button>
+        `;
+    } else if (items.length > PAGE_SIZE) {
+        html += `<div class="text-center py-2 text-xs" style="color:var(--text-tertiary);">✓ Все техники загружены</div>`;
+    }
+    
+    html += `</div>`;
+    return html;
 }
+
+// 🆕 Функция подгрузки следующей страницы
+window.loadMoreInfoList = (viewKey) => {
+    if (!window._infoListState[viewKey]) window._infoListState[viewKey] = { page: 0 };
+    window._infoListState[viewKey].page++;
+    renderInfoModal();
+    triggerHaptic('light');
+};
 
 // 🆕 Переключение вида вкладки "О карте"
 window.setInfoAboutView = (view) => {
