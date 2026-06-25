@@ -6494,6 +6494,8 @@ let telegramUser = null;
 let userName = 'Пользователь';
 let userPhoto = null;
 
+
+
 try {
   // Способ 1: initDataUnsafe (основной)
   telegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
@@ -6547,38 +6549,51 @@ console.log('🖼️ User Photo:', userPhoto);
   const total = availableForBelt.length;
   const percent = total > 0 ? Math.round((done.length / total) * 100) : 0;
 
-  const categoryStats = {};
-  Object.keys(catLabels).forEach(group => {
-    const groupTotal = availableForBelt.filter(n => n.group === group).length;
-    const doneCount = done.filter(n => n.group === group).length;
-    categoryStats[group] = { total: groupTotal, done: doneCount, percent: groupTotal > 0 ? Math.round((doneCount / groupTotal) * 100) : 0 };
-  });
+  // 🆕 Мемоизация статистики A-Game
+if (!window._agameCache) window._agameCache = {};
+const cacheKey = `${userBelt}_${Object.keys(progress).length}_${Object.values(progress).filter(v => v === 'done').length}`;
 
-  const topCategories = Object.entries(categoryStats).filter(([_, s]) => s.done > 0).sort((a, b) => b[1].percent - a[1].percent).slice(0, 3);
-  const weakCategories = Object.entries(categoryStats).filter(([_, s]) => s.total > 0).sort((a, b) => a[1].percent - b[1].percent).slice(0, 3);
-
-  const keyPositions = [
-    { id: 1, label: 'Закрытый гард' }, { id: 14, label: 'Сайд-контроль' }, { id: 16, label: 'Маунт' },
-    { id: 17, label: 'Контроль спины' }, { id: 3, label: 'Халф-гард' }, { id: 5, label: 'Баттерфляй' },
-    { id: 10, label: 'X-гард' }, { id: 11, label: '50/50' }, { id: 21, label: 'Стойка' }
-  ];
-
-  const recommendations = [];
-  if (categoryStats.escape && categoryStats.escape.percent < 50) {
-    const nodes = bjjNodesData.filter(n => n.group === 'escape' && progress[n.id] !== 'done').slice(0, 4);
-    if (nodes.length > 0) recommendations.push({ icon: '', text: `Укрепите защиты: ${nodes.map(n => n.label).join(', ')}` });
-  }
-  if (categoryStats.guard_pass && categoryStats.guard_pass.percent < 40) {
-    const nodes = bjjNodesData.filter(n => n.group === 'guard_pass' && progress[n.id] !== 'done').slice(0, 4);
-    if (nodes.length > 0) recommendations.push({ icon: '', text: `Изучите проходы гарда: ${nodes.map(n => n.label).join(', ')}` });
-  }
-  if (categoryStats.submission && categoryStats.submission.percent < 40) {
-    const nodes = bjjNodesData.filter(n => n.group === 'submission' && progress[n.id] !== 'done').slice(0, 4);
-    if (nodes.length > 0) recommendations.push({ icon: '', text: `Изучите сабмишены: ${nodes.map(n => n.label).join(', ')}` });
-  }
-  if (recommendations.length === 0) {
-    recommendations.push({ icon: '✨', text: 'Отличный прогресс! Продолжайте развивать свой A-Game.' });
-  }
+if (window._agameCache[cacheKey]) {
+    // Используем кэш
+    var { categoryStats, topCategories, weakCategories, recommendations } = window._agameCache[cacheKey];
+} else {
+    // Вычисляем и кэшируем
+    const categoryStats = {};
+    Object.keys(catLabels).forEach(group => {
+        const groupTotal = availableForBelt.filter(n => n.group === group).length;
+        const doneCount = done.filter(n => n.group === group).length;
+        categoryStats[group] = { total: groupTotal, done: doneCount, percent: groupTotal > 0 ? Math.round((doneCount / groupTotal) * 100) : 0 };
+    });
+    
+    const topCategories = Object.entries(categoryStats).filter(([_, s]) => s.done > 0).sort((a, b) => b[1].percent - a[1].percent).slice(0, 3);
+    const weakCategories = Object.entries(categoryStats).filter(([_, s]) => s.total > 0).sort((a, b) => a[1].percent - b[1].percent).slice(0, 3);
+    
+    const recommendations = [];
+    if (categoryStats.escape && categoryStats.escape.percent < 50) {
+        const nodes = bjjNodesData.filter(n => n.group === 'escape' && progress[n.id] !== 'done').slice(0, 4);
+        if (nodes.length > 0) recommendations.push({ icon: '', text: `Укрепите защиты: ${nodes.map(n => n.label).join(', ')}` });
+    }
+    if (categoryStats.guard_pass && categoryStats.guard_pass.percent < 40) {
+        const nodes = bjjNodesData.filter(n => n.group === 'guard_pass' && progress[n.id] !== 'done').slice(0, 4);
+        if (nodes.length > 0) recommendations.push({ icon: '', text: `Изучите проходы гарда: ${nodes.map(n => n.label).join(', ')}` });
+    }
+    if (categoryStats.submission && categoryStats.submission.percent < 40) {
+        const nodes = bjjNodesData.filter(n => n.group === 'submission' && progress[n.id] !== 'done').slice(0, 4);
+        if (nodes.length > 0) recommendations.push({ icon: '', text: `Изучите сабмишены: ${nodes.map(n => n.label).join(', ')}` });
+    }
+    if (recommendations.length === 0) {
+        recommendations.push({ icon: '✨', text: 'Отличный прогресс! Продолжайте развивать свой A-Game.' });
+    }
+    
+    // Сохраняем в кэш
+    window._agameCache[cacheKey] = { categoryStats, topCategories, weakCategories, recommendations };
+    
+    // Ограничиваем размер кэша
+    const cacheKeys = Object.keys(window._agameCache);
+    if (cacheKeys.length > 5) {
+        delete window._agameCache[cacheKeys[0]];
+    }
+}
 
   // === РАЗДЕЛ СИСТЕМ ===
   let systemsHtml = '';
