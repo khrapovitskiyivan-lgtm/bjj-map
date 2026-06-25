@@ -6454,18 +6454,52 @@ let agameSystemsExpanded = false;
 
 window.renderAGameModal = () => {
   const content = document.getElementById('agameContent');
-// 🆕 Более надёжное получение данных пользователя
-const telegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
-const userName = telegramUser?.first_name 
-  ? `${telegramUser.first_name || ''} ${telegramUser.last_name || ''}`.trim()
-  : 'Пользователь';
-const userPhoto = telegramUser?.photo_url || telegramUser?.photoUrl || null;
+// 🆕 Надёжное получение Telegram данных с кэшированием
+let telegramUser = null;
+let userName = 'Пользователь';
+let userPhoto = null;
+
+try {
+  // Способ 1: initDataUnsafe (основной)
+  telegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+  
+  // Способ 2: парсинг initData (если первый способ не сработал)
+  if (!telegramUser && window.Telegram?.WebApp?.initData) {
+    try {
+      const params = new URLSearchParams(window.Telegram.WebApp.initData);
+      const userStr = params.get('user');
+      if (userStr) telegramUser = JSON.parse(userStr);
+    } catch(e) { console.log('initData parse error:', e); }
+  }
+  
+  // Способ 3: загрузка из кэша (если оба способа не сработали)
+  if (!telegramUser) {
+    try {
+      const cached = localStorage.getItem('bjj_telegram_user');
+      if (cached) telegramUser = JSON.parse(cached);
+    } catch(e) {}
+  }
+  
+  // Извлекаем данные
+  if (telegramUser) {
+    userName = `${telegramUser.first_name || ''} ${telegramUser.last_name || ''}`.trim() || 'Пользователь';
+    userPhoto = telegramUser.photo_url || null;
+    
+    // 💾 Сохраняем в кэш для будущих запусков
+    try {
+      localStorage.setItem('bjj_telegram_user', JSON.stringify(telegramUser));
+    } catch(e) {}
+  }
+} catch(e) {
+  console.log('Telegram user fetch error:', e);
+}
+
 const userInitials = userName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || '?';
 
-  // Отладка: проверяем, какие данные доступны
-console.log('Telegram User Data:', telegramUser);
-console.log('User Name:', userName);
-console.log('User Photo:', userPhoto);
+// Отладка
+console.log('📱 Telegram User:', telegramUser);
+console.log('👤 User Name:', userName);
+console.log('🖼️ User Photo:', userPhoto);
 
   const userBelt = styleProfile.belt || 'white';
   const maxBeltIndex = beltOrder.indexOf(userBelt);
@@ -6609,17 +6643,23 @@ console.log('User Photo:', userPhoto);
   content.innerHTML = `
     <div class="space-y-5">
       <!-- БЛОК ПРОФИЛЯ -->
-      <div class="flex items-center gap-3 p-4 rounded-xl" style="background:var(--accent-light);border:1px solid var(--accent-border);">
-        ${userPhoto ? 
-          `<img src="${userPhoto}" alt="${userName}" class="w-14 h-14 rounded-full object-cover" style="border:2px solid white;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-           <div class="w-14 h-14 rounded-full flex items-center justify-center text-lg font-bold" style="display:none;background:var(--accent);color:white;border:2px solid white;">${userInitials}</div>` :
-          `<div class="w-14 h-14 rounded-full flex items-center justify-center text-lg font-bold" style="background:var(--accent);color:white;border:2px solid white;">${userInitials}</div>`
-        }
-        <div class="flex-1 min-w-0">
-          <div class="text-sm font-bold truncate" style="color:var(--text-primary);">${userName}</div>
-          <div class="text-xs mt-0.5" style="color:var(--text-secondary);">${beltIcons[userBelt]} ${beltNames[userBelt]} пояс</div>
-        </div>
-      </div>
+<div class="relative" style="width:56px;height:56px;flex-shrink:0;">
+  ${userPhoto ? `
+    <img src="${userPhoto}" alt="${userName}" 
+         class="w-14 h-14 rounded-full object-cover absolute inset-0" 
+         style="border:2px solid white;z-index:2;" 
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+    <div class="w-14 h-14 rounded-full items-center justify-center text-lg font-bold absolute inset-0" 
+         style="display:none;background:var(--accent);color:white;border:2px solid white;z-index:1;">
+      ${userInitials}
+    </div>
+  ` : `
+    <div class="w-14 h-14 rounded-full flex items-center justify-center text-lg font-bold" 
+         style="background:var(--accent);color:white;border:2px solid white;">
+      ${userInitials}
+    </div>
+  `}
+</div>
 
       <!-- ОБЩИЙ ПРОГРЕСС -->
       <div class="p-4 rounded-xl" style="background:var(--bg-tertiary);border:1px solid var(--border-light);">
