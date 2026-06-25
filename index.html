@@ -1149,20 +1149,22 @@ to { opacity: 1; transform: translateY(0); }
 
 <script>
 // === TELEGRAM + SUPABASE ===
-if (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp) {
-try {
-window.Telegram.WebApp.ready();
-window.Telegram.WebApp.expand();
-if (window.Telegram.WebApp.requestFullscreen) window.Telegram.WebApp.requestFullscreen().catch(() => {});
-if (window.Telegram.WebApp.setHeaderColor) {
-try { window.Telegram.WebApp.setHeaderColor('#4b5563'); } catch(e) {}
-}
-if (window.Telegram.WebApp.disableVerticalSwipes) {
-try { window.Telegram.WebApp.disableVerticalSwipes(); } catch(e) {}
-}
-} catch (e) { console.log('Telegram init error:', e); }
-}
-// === 🎛️ ФИЛЬТР СВЯЗЕЙ И СИСТЕМ ===
+  // Telegram
+  try {
+    if (window.Telegram && window.Telegram.WebApp) {
+      if (window.Telegram.WebApp.ready) window.Telegram.WebApp.ready();
+      if (window.Telegram.WebApp.expand) window.Telegram.WebApp.expand();
+      if (window.Telegram.WebApp.setHeaderColor) {
+        window.Telegram.WebApp.setHeaderColor('#4b5563');
+      }
+      if (window.Telegram.WebApp.disableVerticalSwipes) {
+        window.Telegram.WebApp.disableVerticalSwipes();
+      }
+    }
+  } catch (e) { console.log('Telegram init error:', e); }
+  // ↑ ЗАКРЫЛИ try-catch
+
+// ===  ФИЛЬТР СВЯЗЕЙ И СИСТЕМ ===
 let activeEdgeTypes = {
 attack: true, sweep: true, transition: true, escape: true, setup: true
 };
