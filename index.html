@@ -7434,6 +7434,66 @@ const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'g
 return text.replace(regex, '<span class="search-highlight">$1</span>');
 }
 
+// 🆕 ПОИСКОВЫЙ ИНДЕКС (строится один раз)
+const searchIndex = new Map(); // слово → Set(id)
+let searchIndexBuilt = false;
+
+function buildSearchIndex() {
+    if (searchIndexBuilt) return;
+    
+    bjjNodesData.forEach(n => {
+        const details = techniqueDetails[n.id] || {};
+        const texts = [
+            n.label, n.title,
+            ...(n.tags || []),
+            n.belt,
+            details.concept || '',
+            details.mechanics || '',
+            details.keyPoints || '',
+            details.when || '',
+            details.mistakes || '',
+            details.drills || ''
+        ].join(' ').toLowerCase();
+        
+        // Разбиваем на слова и добавляем в индекс
+        const words = texts.match(/[а-яёa-z0-9]{2,}/g) || [];
+        words.forEach(word => {
+            if (!searchIndex.has(word)) searchIndex.set(word, new Set());
+            searchIndex.get(word).add(n.id);
+        });
+    });
+    
+    searchIndexBuilt = true;
+    console.log(`✅ Поисковый индекс построен: ${searchIndex.size} слов`);
+}
+
+// 🆕 БЫСТРЫЙ ПОИСК ЧЕРЕЗ ИНДЕКС
+function fastSearch(query) {
+    const q = query.toLowerCase().trim();
+    if (q.length < 2) return [];
+    
+    const words = q.match(/[а-яёa-z0-9]{2,}/g) || [];
+    if (words.length === 0) return [];
+    
+    // Находим ID, которые содержат ВСЕ слова запроса
+    let resultIds = null;
+    for (const word of words) {
+        const matchingIds = new Set();
+        for (const [indexWord, ids] of searchIndex) {
+            if (indexWord.includes(word)) {
+                ids.forEach(id => matchingIds.add(id));
+            }
+        }
+        resultIds = resultIds 
+            ? new Set([...resultIds].filter(id => matchingIds.has(id)))
+            : matchingIds;
+        if (resultIds.size === 0) break;
+    }
+    
+    if (!resultIds || resultIds.size === 0) return [];
+    return [...resultIds].map(id => bjjNodesData.find(n => n.id === id)).filter(Boolean);
+}
+  
 function performSearch(query) {
 const q = query.toLowerCase().trim();
 if (q.length < 1) { searchResults.classList.add('hidden'); if (getSearchHistory().length > 0) showSearchHistory(q); return; }
