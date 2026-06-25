@@ -1349,7 +1349,7 @@ const catLabels = {
 };
 const beltIcons = { white:'⚪', blue:'🔵', purple:'🟣', brown:'🟤', black:'⚫' };
 const beltOrder = ['white', 'blue', 'purple', 'brown', 'black'];
-const beltNames = { white:'Белый', blue:'Синий', purple:'Фиолетовый', brown:'Коричневый', black:'Чёрный' };
+const beltNames = { white:'Белый', blue:'Синий', purple:'Пурпурный', brown:'Коричневый', black:'Чёрный' };
 // === 🆕 ПИРАМИДЫ СИСТЕМ ===
 const systemPyramids = {
   500: {
@@ -5293,7 +5293,7 @@ content.innerHTML = `
 <div class="belt-chips">
 <button class="belt-chip ${styleProfile.belt === 'white' ? 'active' : ''}" onclick="selectBelt('white')">⚪ Белый</button>
 <button class="belt-chip ${styleProfile.belt === 'blue' ? 'active' : ''}" onclick="selectBelt('blue')">🔵 Синий</button>
-<button class="belt-chip ${styleProfile.belt === 'purple' ? 'active' : ''}" onclick="selectBelt('purple')">🟣 Фиолетовый</button>
+<button class="belt-chip ${styleProfile.belt === 'purple' ? 'active' : ''}" onclick="selectBelt('purple')">🟣 Пурпурный</button>
 <button class="belt-chip ${styleProfile.belt === 'brown' ? 'active' : ''}" onclick="selectBelt('brown')">🟤 Коричневый</button>
 <button class="belt-chip ${styleProfile.belt === 'black' ? 'active' : ''}" onclick="selectBelt('black')">⚫ Чёрный</button>
 </div>
@@ -7222,7 +7222,7 @@ const inTags = n.tags && n.tags.some(t => {
 const tagMap = { 'flexibility': 'гибкость', 'pressure': 'давление', 'speed': 'скорость', 'long_limbs': 'длинные' };
 return t.includes(q) || (tagMap[t] && tagMap[t].includes(q));
 });
-const beltMap = { 'white': 'белый', 'blue': 'синий', 'purple': 'фиолетовый', 'brown': 'коричневый', 'black': 'чёрный' };
+const beltMap = { 'white': 'белый', 'blue': 'синий', 'purple': 'пурпурный', 'brown': 'коричневый', 'black': 'чёрный' };
 const inBelt = beltMap[n.belt] && beltMap[n.belt].includes(q);
 return inLabel || inTitle || inConcept || inMechanics || inKeyPoints || inWhen || inMistakes || inDrills || inTags || inBelt;
 });
@@ -7342,7 +7342,7 @@ const currentBelt = styleProfile.belt || 'white';
 const belts = [
 { id: 'white', icon: '⚪', name: 'Белый', desc: 'Фундамент и база' },
 { id: 'blue', icon: '🔵', name: 'Синий', desc: 'Базовые техники' },
-{ id: 'purple', icon: '🟣', name: 'Фиолетовый', desc: 'Продвинутый уровень' },
+{ id: 'purple', icon: '🟣', name: 'Пурпурный', desc: 'Продвинутый уровень' },
 { id: 'brown', icon: '🟤', name: 'Коричневый', desc: 'Мастерские детали' },
 { id: 'black', icon: '⚫', name: 'Чёрный', desc: 'Полный арсенал' }
 ];
