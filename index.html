@@ -6569,24 +6569,37 @@ console.log('🖼️ User Photo:', userPhoto);
       const sysPercent = totalTechs > 0 ? Math.round((doneTechs / totalTechs) * 100) : 0;
       
       systemsHtml += `
-        <div class="p-3 rounded-lg" style="background:${isAvailable ? 'var(--bg-secondary)' : 'var(--bg-tertiary)'};border:1px solid var(--border-light);${!isAvailable ? 'opacity:0.5;' : ''}">
-          <div class="flex items-start gap-3 mb-2">
-            <div class="text-2xl flex-shrink-0">${sys.icon}</div>
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-2 mb-1">
-                <div class="text-sm font-bold" style="color:var(--text-primary);">${sys.name}</div>
-                <div class="text-xs px-1.5 py-0.5 rounded" style="background:var(--accent-light);color:var(--accent);">${beltIcons[sys.belt]}</div>
-              </div>
-              <div class="text-xs mb-2" style="color:var(--text-secondary);">${sys.description}</div>
-              <div class="flex items-center gap-2">
-                <div class="flex-1 progress-bar" style="height:4px;">
-                  <div class="progress-bar-fill" style="width:${sysPercent}%;"></div>
-                </div>
-                <div class="text-xs font-semibold" style="color:var(--accent);">${sysPercent}%</div>
-              </div>
-            </div>
-          </div>
-          <div class="space-y-1.5 ml-10">`;
+<div class="p-3 rounded-lg" style="background:${isAvailable ? 'var(--bg-secondary)' : 'var(--bg-tertiary)'};border:1px solid var(--border-light);${!isAvailable ? 'opacity:0.5;' : ''}">
+<div class="flex items-start gap-3 mb-2">
+<div class="text-2xl flex-shrink-0">${sys.icon}</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-2 mb-1 flex-wrap">
+<button onclick="openSystemCard(${sysId})" class="text-sm font-bold text-left hover:underline" style="color:var(--text-primary);background:none;border:none;padding:0;cursor:pointer;">${sys.name}</button>
+<div class="text-xs px-1.5 py-0.5 rounded" style="background:var(--accent-light);color:var(--accent);">${beltIcons[sys.belt]}</div>
+</div>
+<div class="text-xs mb-2" style="color:var(--text-secondary);">${sys.description}</div>
+<div class="flex items-center gap-2 mb-2">
+<div class="flex-1 progress-bar" style="height:4px;">
+<div class="progress-bar-fill" style="width:${sysPercent}%;"></div>
+</div>
+<div class="text-xs font-semibold" style="color:var(--accent);">${sysPercent}%</div>
+</div>
+<!-- 🆕 КНОПКА ОТКРЫТИЯ КАРТОЧКИ СИСТЕМЫ -->
+<button onclick="openSystemCard(${sysId})" 
+class="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-semibold transition"
+style="background:var(--accent-light);color:var(--accent);border:1px solid var(--accent-border);">
+<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+<polyline points="14 2 14 8 20 8"/>
+<line x1="16" y1="13" x2="8" y2="13"/>
+<line x1="16" y1="17" x2="8" y2="17"/>
+<polyline points="10 9 9 9 8 9"/>
+</svg>
+<span>Открыть карточку системы</span>
+</button>
+</div>
+</div>
+<div class="space-y-1.5 ml-10">`;
       
       sys.levels.forEach((level, idx) => {
         const levelDone = level.ids.filter(id => progress[id] === 'done').length;
@@ -6752,6 +6765,28 @@ console.log('🖼️ User Photo:', userPhoto);
   `;
 };
 
+window.openSystemCard = (sysId) => {
+    // Закрываем модалку "Моя Игра"
+    toggleModal('agameModal');
+    
+    // Небольшая задержка для плавности анимации
+    setTimeout(() => {
+        // Центрируем граф на узле системы
+        network.focus(sysId, { 
+            scale: 1.5, 
+            animation: { duration: 500, easingFunction: 'easeInOutQuad' } 
+        });
+        
+        // Выделяем узел и открываем карточку
+        setTimeout(() => {
+            network.selectNodes([sysId]);
+            renderNodeDetails(sysId);
+        }, 500);
+    }, 350);
+    
+    triggerHaptic('medium');
+};
+  
 window.toggleAGameSystems = () => {
   agameSystemsExpanded = !agameSystemsExpanded;
   renderAGameModal();
