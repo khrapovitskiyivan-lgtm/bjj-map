@@ -7495,47 +7495,41 @@ function fastSearch(query) {
 }
   
 function performSearch(query) {
-const q = query.toLowerCase().trim();
-if (q.length < 1) { searchResults.classList.add('hidden'); if (getSearchHistory().length > 0) showSearchHistory(q); return; }
-saveSearchHistory(query);
-const matches = bjjNodesData.filter(n => {
-const inLabel = n.label.toLowerCase().includes(q);
-const inTitle = n.title.toLowerCase().includes(q);
-const details = techniqueDetails[n.id] || {};
-const inConcept = details.concept && details.concept.toLowerCase().includes(q);
-const inDrills = details.drills && details.drills.toLowerCase().includes(q);
-const inMechanics = details.mechanics && details.mechanics.toLowerCase().includes(q);
-const inKeyPoints = details.keyPoints && details.keyPoints.toLowerCase().includes(q);
-const inWhen = details.when && details.when.toLowerCase().includes(q);
-const inMistakes = details.mistakes && details.mistakes.toLowerCase().includes(q);
-const inTags = n.tags && n.tags.some(t => {
-const tagMap = { 'flexibility': 'гибкость', 'pressure': 'давление', 'speed': 'скорость', 'long_limbs': 'длинные' };
-return t.includes(q) || (tagMap[t] && tagMap[t].includes(q));
-});
-const beltMap = { 'white': 'белый', 'blue': 'синий', 'purple': 'пурпурный', 'brown': 'коричневый', 'black': 'чёрный' };
-const inBelt = beltMap[n.belt] && beltMap[n.belt].includes(q);
-return inLabel || inTitle || inConcept || inMechanics || inKeyPoints || inWhen || inMistakes || inDrills || inTags || inBelt;
-});
-
-matches.sort((a, b) => {
-const aLabel = a.label.toLowerCase().includes(q);
-const bLabel = b.label.toLowerCase().includes(q);
-if (aLabel && !bLabel) return -1;
-if (!aLabel && bLabel) return 1;
-return 0;
-});
-
-if (matches.length > 0) {
-searchResults.innerHTML = `<div class="text-xs font-semibold px-4 py-2" style="color:var(--text-secondary);border-bottom:1px solid var(--border-light);">Найдено: ${matches.length}</div>${matches.slice(0, 20).map(n => {
-const highlightedLabel = highlightText(n.label, q);
-const highlightedTitle = highlightText(n.title, q);
-return `<div onclick="focusNode(${n.id}); searchInput.value=''; searchResults.classList.add('hidden')" class="px-4 py-3 cursor-pointer transition" style="border-bottom:1px solid var(--border-light);"><div class="flex items-start gap-3"><div class="flex-shrink-0 mt-0.5"><span class="text-lg">${groupIcons[n.group] || ''}</span></div><div class="flex-1 min-w-0"><div class="font-medium text-sm mb-1" style="color:var(--text-primary);">${highlightedLabel}</div><div class="text-xs mb-1.5" style="color:var(--text-secondary);">${highlightedTitle}</div><div class="flex gap-1.5 flex-wrap"><span class="search-cat-badge">${catLabels[n.group]}</span><span class="search-belt-badge">${beltIcons[n.belt]} ${n.belt}</span></div></div></div></div>`;
-}).join('')}`;
-} else {
-searchResults.innerHTML = `<div class="px-4 py-6 text-center"><div class="text-3xl mb-2">🔍</div><div class="text-sm" style="color:var(--text-secondary);">Ничего не найдено</div></div>`;
-}
-searchResults.classList.remove('hidden');
-searchHistory.classList.add('hidden');
+    const q = query.toLowerCase().trim();
+    if (q.length < 1) { 
+        searchResults.classList.add('hidden'); 
+        if (getSearchHistory().length > 0) showSearchHistory(q); 
+        return; 
+    }
+    saveSearchHistory(query);
+    
+    // 🆕 Строим индекс при первом поиске
+    if (!searchIndexBuilt) buildSearchIndex();
+    
+    // 🆕 Быстрый поиск через индекс
+    let matches = fastSearch(q);
+    
+    // Сортировка: сначала точные совпадения в label
+    matches.sort((a, b) => {
+        const aLabel = a.label.toLowerCase().includes(q);
+        const bLabel = b.label.toLowerCase().includes(q);
+        if (aLabel && !bLabel) return -1;
+        if (!aLabel && bLabel) return 1;
+        return 0;
+    });
+    
+    // ... (остальной код рендера результатов НЕ МЕНЯЕТСЯ)
+    if (matches.length > 0) {
+        searchResults.innerHTML = `<div class="text-xs font-semibold px-4 py-2" style="color:var(--text-secondary);border-bottom:1px solid var(--border-light);">Найдено: ${matches.length}</div>${matches.slice(0, 20).map(n => {
+            const highlightedLabel = highlightText(n.label, q);
+            const highlightedTitle = highlightText(n.title, q);
+            return `<div onclick="focusNode(${n.id}); searchInput.value=''; searchResults.classList.add('hidden')" class="px-4 py-3 cursor-pointer transition" style="border-bottom:1px solid var(--border-light);"><div class="flex items-start gap-3"><div class="flex-shrink-0 mt-0.5"><span class="text-lg">${groupIcons[n.group] || ''}</span></div><div class="flex-1 min-w-0"><div class="font-medium text-sm mb-1" style="color:var(--text-primary);">${highlightedLabel}</div><div class="text-xs mb-1.5" style="color:var(--text-secondary);">${highlightedTitle}</div><div class="flex gap-1.5 flex-wrap"><span class="search-cat-badge">${catLabels[n.group]}</span><span class="search-belt-badge">${beltIcons[n.belt]} ${n.belt}</span></div></div></div></div>`;
+        }).join('')}`;
+    } else {
+        searchResults.innerHTML = `<div class="px-4 py-6 text-center"><div class="text-3xl mb-2">🔍</div><div class="text-sm" style="color:var(--text-secondary);">Ничего не найдено</div></div>`;
+    }
+    searchResults.classList.remove('hidden');
+    searchHistory.classList.add('hidden');
 }
 
 searchInput.addEventListener('input', (e) => {
