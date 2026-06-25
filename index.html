@@ -5342,7 +5342,102 @@ triggerHaptic('medium');
 
 // === INFO MODAL ===
 let currentInfoTab = 'about';
+let infoAboutView = 'stats';   // 🆕 'stats' | 'list:position' | 'list:system' | ...
 
+// 🆕 Рендер списка техник по категории в модалке "О карте"
+function renderInfoAboutList(viewKey) {
+  const groupKey = viewKey.replace('list:', '');
+  const userBelt = styleProfile.belt || 'white';
+  const maxBeltIndex = beltOrder.indexOf(userBelt);
+
+  // Фильтруем по категории и доступности для пояса
+  let items = bjjNodesData.filter(n => {
+    if (groupKey !== 'all' && n.group !== groupKey) return false;
+    return beltOrder.indexOf(n.belt) <= maxBeltIndex;
+  });
+
+  // Сортировка: по поясу, потом по названию
+  items.sort((a, b) => {
+    const beltDiff = beltOrder.indexOf(a.belt) - beltOrder.indexOf(b.belt);
+    if (beltDiff !== 0) return beltDiff;
+    return a.label.localeCompare(b.label, 'ru');
+  });
+
+  const titles = {
+    all: 'Все техники',
+    position: 'Позиции',
+    submission: 'Сабмишены',
+    sweep: 'Свипы',
+    guard_pass: 'Проходы гарда',
+    takedown: 'Тейкдауны',
+    escape: 'Защиты',
+    transition: 'Переходы',
+    system: 'Системы'
+  };
+  const icons = {
+    all: '📋', position: '', submission: '', sweep: '',
+    guard_pass: '', takedown: '', escape: '', transition: '', system: ''
+  };
+  const title = titles[groupKey] || 'Техники';
+  const icon = icons[groupKey] || '';
+
+  let html = `
+    <div class="flex items-center gap-2 mb-3">
+      <button onclick="setInfoAboutView('stats')" class="p-2 rounded-lg transition" style="background:var(--bg-tertiary);border:1px solid var(--border-light);" title="Назад к статистике">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+      </button>
+      <div class="flex-1">
+        <div class="text-sm font-bold" style="color:var(--text-primary);">${icon} ${title}</div>
+        <div class="text-xs" style="color:var(--text-tertiary);">${items.length} техник · ${beltNames[userBelt]} пояс</div>
+      </div>
+    </div>
+  `;
+
+  if (items.length === 0) {
+    html += `<div class="text-center py-6"><div class="text-3xl mb-2">🔍</div><p class="text-sm" style="color:var(--text-secondary);">Нет доступных техник для вашего пояса</p></div>`;
+    return html;
+  }
+
+  html += `<div class="space-y-1 max-h-[60vh] overflow-y-auto">`;
+  items.forEach(n => {
+    const status = progress[n.id];
+    const statusColor = status === 'done' ? 'var(--success)' : status === 'in_progress' ? 'var(--warning)' : 'var(--border-medium)';
+    const statusIcon = status === 'done' ? '✓' : status === 'in_progress' ? '◐' : '○';
+    html += `
+      <button onclick="openTechniqueFromInfo(${n.id})" class="w-full flex items-center gap-2 p-2 rounded-lg transition text-left" style="background:var(--bg-secondary);border:1px solid var(--border-light);">
+        <div class="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs" style="background:${statusColor}20;color:${statusColor};border:1px solid ${statusColor}50;">${statusIcon}</div>
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-medium truncate" style="color:var(--text-primary);">${n.label}</div>
+          <div class="text-xs" style="color:var(--text-tertiary);">${beltIcons[n.belt]} ${beltNames[n.belt]} · ${catLabels[n.group]}</div>
+        </div>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-tertiary);flex-shrink:0;"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </button>
+    `;
+  });
+  html += `</div>`;
+  return html;
+}
+
+// 🆕 Переключение вида вкладки "О карте"
+window.setInfoAboutView = (view) => {
+  infoAboutView = view;
+  renderInfoModal();
+  triggerHaptic('light');
+};
+
+// 🆕 Открытие техники из списка в модалке "О карте"
+window.openTechniqueFromInfo = (nodeId) => {
+  toggleModal('infoModal');
+  setTimeout(() => {
+    network.focus(nodeId, { scale: 1.5, animation: { duration: 400, easingFunction: 'easeInOutQuad' } });
+    setTimeout(() => {
+      network.selectNodes([nodeId]);
+      renderNodeDetails(nodeId);
+    }, 400);
+  }, 300);
+  triggerHaptic('medium');
+};
+  
 function renderInfoModal() {
   const content = document.getElementById('infoContent');
   
@@ -5358,70 +5453,71 @@ function renderInfoModal() {
   const transitionsCount = bjjNodesData.filter(n => n.group === 'transition').length;
   
   const tabs = {
-    about: `
-      <div class="space-y-4">
-        <div class="p-4 rounded-xl" style="background:var(--accent-light);border:1px solid var(--accent-border);">
-          <h2 class="text-lg font-bold mb-2" style="color:var(--accent);">🥋 BJJ Map Pro</h2>
-          <p class="text-sm" style="color:var(--text-secondary);">Интерактивная карта техник бразильского джиу-джитсу. Все техники связаны в единую систему графа для удобного изучения и навигации.</p>
-        </div>
-        
-        <div class="p-4 rounded-xl" style="background:var(--bg-tertiary);border:1px solid var(--border-light);">
-          <h3 class="text-sm font-bold uppercase tracking-wider mb-3" style="color:var(--text-primary);">📊 Статистика базы</h3>
-          <div class="grid grid-cols-2 gap-2 text-xs">
-            <div class="p-2 rounded-lg" style="background:var(--bg-secondary);">
-              <div class="font-bold text-lg" style="color:var(--accent);">${totalTechniques}</div>
-              <div style="color:var(--text-secondary);">Всего техник</div>
-            </div>
-            <div class="p-2 rounded-lg" style="background:var(--bg-secondary);">
-              <div class="font-bold text-lg" style="color:#E91E63;">${systemsCount}</div>
-              <div style="color:var(--text-secondary);">Систем</div>
-            </div>
-            <div class="p-2 rounded-lg" style="background:var(--bg-secondary);">
-              <div class="font-bold" style="color:var(--text-primary);">${positionsCount}</div>
-              <div style="color:var(--text-secondary);">Позиций</div>
-            </div>
-            <div class="p-2 rounded-lg" style="background:var(--bg-secondary);">
-              <div class="font-bold" style="color:var(--text-primary);">${submissionsCount}</div>
-              <div style="color:var(--text-secondary);">Сабмишенов</div>
-            </div>
-            <div class="p-2 rounded-lg" style="background:var(--bg-secondary);">
-              <div class="font-bold" style="color:var(--text-primary);">${sweepsCount}</div>
-              <div style="color:var(--text-secondary);">Свипов</div>
-            </div>
-            <div class="p-2 rounded-lg" style="background:var(--bg-secondary);">
-              <div class="font-bold" style="color:var(--text-primary);">${passesCount}</div>
-              <div style="color:var(--text-secondary);">Проходов</div>
-            </div>
-            <div class="p-2 rounded-lg" style="background:var(--bg-secondary);">
-              <div class="font-bold" style="color:var(--text-primary);">${takedownsCount}</div>
-              <div style="color:var(--text-secondary);">Тейкдаунов</div>
-            </div>
-            <div class="p-2 rounded-lg" style="background:var(--bg-secondary);">
-              <div class="font-bold" style="color:var(--text-primary);">${escapesCount}</div>
-              <div style="color:var(--text-secondary);">Защит</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="p-4 rounded-xl" style="background:var(--bg-tertiary);border:1px solid var(--border-light);">
-          <h3 class="text-sm font-bold uppercase tracking-wider mb-3" style="color:var(--text-primary);"> Типы связей на графе</h3>
-          <div class="space-y-2 text-sm">
-            <div class="flex items-center gap-2"><div class="w-6 h-1 rounded" style="background:#ef4444"></div><span style="color:var(--text-primary);"><strong>Красные</strong> — атаки и сабмишены</span></div>
-            <div class="flex items-center gap-2"><div class="w-6 h-1 rounded" style="background:#f59e0b"></div><span style="color:var(--text-primary);"><strong>Оранжевые</strong> — свипы</span></div>
-            <div class="flex items-center gap-2"><div class="w-6 h-1 rounded" style="background:#8b5cf6"></div><span style="color:var(--text-primary);"><strong>Фиолетовые</strong> — переходы</span></div>
-            <div class="flex items-center gap-2"><div class="w-6 h-1 rounded" style="background:#10b981"></div><span style="color:var(--text-primary);"><strong>Зелёные</strong> — защиты</span></div>
-            <div class="flex items-center gap-2"><div class="w-6 h-1 rounded" style="background:#64748b"></div><span style="color:var(--text-primary);"><strong>Серые</strong> — сетапы</span></div>
-</div>
-<div class="mt-3 pt-3" style="border-top:1px dashed var(--border-light);">
-<div class="text-xs font-semibold uppercase tracking-wider mb-2" style="color:var(--text-tertiary);"> Узлы систем</div>
-<div class="flex items-center gap-2">
-<div class="w-6 h-6 flex items-center justify-center text-sm" style="color:#E91E63;">★</div>
-<span style="color:var(--text-primary);"><strong>Розовые звёзды</strong> — системы BJJ (пирамиды техник)</span>
-</div>
-</div>
-        </div>
+about: `
+<div class="space-y-4">
+${infoAboutView === 'stats' ? `
+  <div class="p-4 rounded-xl" style="background:var(--accent-light);border:1px solid var(--accent-border);">
+    <h2 class="text-lg font-bold mb-2" style="color:var(--accent);">🥋 BJJ Map Pro</h2>
+    <p class="text-sm" style="color:var(--text-secondary);">Интерактивная карта техник бразильского джиу-джитсу. Все техники связаны в единую систему графа для удобного изучения и навигации.</p>
+  </div>
+  <div class="p-4 rounded-xl" style="background:var(--bg-tertiary);border:1px solid var(--border-light);">
+    <h3 class="text-sm font-bold uppercase tracking-wider mb-3" style="color:var(--text-primary);">📊 Статистика базы</h3>
+    <p class="text-xs mb-3" style="color:var(--text-tertiary);">Нажмите на категорию, чтобы увидеть список техник</p>
+    <div class="grid grid-cols-2 gap-2 text-xs">
+      <button onclick="setInfoAboutView('list:all')" class="p-2 rounded-lg text-left transition" style="background:var(--bg-secondary);border:1px solid var(--border-light);">
+        <div class="font-bold text-lg" style="color:var(--accent);">${totalTechniques}</div>
+        <div style="color:var(--text-secondary);">Всего техник →</div>
+      </button>
+      <button onclick="setInfoAboutView('list:system')" class="p-2 rounded-lg text-left transition" style="background:var(--bg-secondary);border:1px solid var(--border-light);">
+        <div class="font-bold text-lg" style="color:#E91E63;">${systemsCount}</div>
+        <div style="color:var(--text-secondary);">Систем →</div>
+      </button>
+      <button onclick="setInfoAboutView('list:position')" class="p-2 rounded-lg text-left transition" style="background:var(--bg-secondary);border:1px solid var(--border-light);">
+        <div class="font-bold" style="color:var(--text-primary);">${positionsCount}</div>
+        <div style="color:var(--text-secondary);">Позиций →</div>
+      </button>
+      <button onclick="setInfoAboutView('list:submission')" class="p-2 rounded-lg text-left transition" style="background:var(--bg-secondary);border:1px solid var(--border-light);">
+        <div class="font-bold" style="color:var(--text-primary);">${submissionsCount}</div>
+        <div style="color:var(--text-secondary);">Сабмишенов →</div>
+      </button>
+      <button onclick="setInfoAboutView('list:sweep')" class="p-2 rounded-lg text-left transition" style="background:var(--bg-secondary);border:1px solid var(--border-light);">
+        <div class="font-bold" style="color:var(--text-primary);">${sweepsCount}</div>
+        <div style="color:var(--text-secondary);">Свипов →</div>
+      </button>
+      <button onclick="setInfoAboutView('list:guard_pass')" class="p-2 rounded-lg text-left transition" style="background:var(--bg-secondary);border:1px solid var(--border-light);">
+        <div class="font-bold" style="color:var(--text-primary);">${passesCount}</div>
+        <div style="color:var(--text-secondary);">Проходов →</div>
+      </button>
+      <button onclick="setInfoAboutView('list:takedown')" class="p-2 rounded-lg text-left transition" style="background:var(--bg-secondary);border:1px solid var(--border-light);">
+        <div class="font-bold" style="color:var(--text-primary);">${takedownsCount}</div>
+        <div style="color:var(--text-secondary);">Тейкдаунов →</div>
+      </button>
+      <button onclick="setInfoAboutView('list:escape')" class="p-2 rounded-lg text-left transition" style="background:var(--bg-secondary);border:1px solid var(--border-light);">
+        <div class="font-bold" style="color:var(--text-primary);">${escapesCount}</div>
+        <div style="color:var(--text-secondary);">Защит →</div>
+      </button>
+    </div>
+  </div>
+  <div class="p-4 rounded-xl" style="background:var(--bg-tertiary);border:1px solid var(--border-light);">
+    <h3 class="text-sm font-bold uppercase tracking-wider mb-3" style="color:var(--text-primary);"> Типы связей на графе</h3>
+    <div class="space-y-2 text-sm">
+      <div class="flex items-center gap-2"><div class="w-6 h-1 rounded" style="background:#ef4444"></div><span style="color:var(--text-primary);"><strong>Красные</strong> — атаки и сабмишены</span></div>
+      <div class="flex items-center gap-2"><div class="w-6 h-1 rounded" style="background:#f59e0b"></div><span style="color:var(--text-primary);"><strong>Оранжевые</strong> — свипы</span></div>
+      <div class="flex items-center gap-2"><div class="w-6 h-1 rounded" style="background:#8b5cf6"></div><span style="color:var(--text-primary);"><strong>Фиолетовые</strong> — переходы</span></div>
+      <div class="flex items-center gap-2"><div class="w-6 h-1 rounded" style="background:#10b981"></div><span style="color:var(--text-primary);"><strong>Зелёные</strong> — защиты</span></div>
+      <div class="flex items-center gap-2"><div class="w-6 h-1 rounded" style="background:#64748b"></div><span style="color:var(--text-primary);"><strong>Серые</strong> — сетапы</span></div>
+    </div>
+    <div class="mt-3 pt-3" style="border-top:1px dashed var(--border-light);">
+      <div class="text-xs font-semibold uppercase tracking-wider mb-2" style="color:var(--text-tertiary);"> Узлы систем</div>
+      <div class="flex items-center gap-2">
+        <div class="w-6 h-6 flex items-center justify-center text-sm" style="color:#E91E63;">★</div>
+        <span style="color:var(--text-primary);"><strong>Розовые звёзды</strong> — системы BJJ (пирамиды техник)</span>
       </div>
-    `,
+    </div>
+  </div>
+` : renderInfoAboutList(infoAboutView)}
+</div>
+`,
     
     safety: `
       <div class="space-y-4">
@@ -5684,6 +5780,7 @@ function renderInfoModal() {
 
 window.switchInfoTab = (tab) => {
   currentInfoTab = tab;
+  if (tab === 'about') infoAboutView = 'stats';   // 🆕 сброс при возврате к "О карте"
   renderInfoModal();
   triggerHaptic('light');
 };
