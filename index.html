@@ -5984,7 +5984,7 @@ window.renderWorkoutModal = () => {
       <!-- 🎲 КНОПКИ -->
       <div class="flex gap-2">
         <button onclick="generateWorkout()" class="btn-primary flex items-center justify-center gap-2">
-          <span>🎲</span><span>Сгенерировать</span>
+          <span></span><span>Сгенерировать</span>
         </button>
       </div>
 
@@ -6216,10 +6216,10 @@ window.generateWorkout = () => {
     </div>`;
   }
   
-  // 🏃 РАЗМИНКА
+  //  РАЗМИНКА
   html += `<div class="mb-4">
     <div class="flex items-center gap-2 mb-2">
-      <span class="text-xl">🏃</span>
+      <span class="text-xl"></span>
       <h3 class="text-sm font-bold uppercase tracking-wider" style="color:var(--warning);">Разминка · ${warmupDuration} мин</h3>
     </div>
     <div class="p-3 rounded-lg" style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2)">
@@ -6237,10 +6237,10 @@ window.generateWorkout = () => {
   });
   html += `</div></div></div>`;
   
-  // 🎯 ОСНОВНАЯ ЧАСТЬ (с дриллами!)
+  //  ОСНОВНАЯ ЧАСТЬ (с дриллами!)
   html += `<div class="mb-4">
     <div class="flex items-center gap-2 mb-2">
-      <span class="text-xl">🎯</span>
+      <span class="text-xl"></span>
       <h3 class="text-sm font-bold uppercase tracking-wider" style="color:var(--accent);">Основная часть · ${mainDuration} мин</h3>
     </div>
     <div class="space-y-2">`;
@@ -6268,8 +6268,8 @@ window.generateWorkout = () => {
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2 mb-1 flex-wrap">
             <div class="font-semibold text-sm" style="color:var(--text-primary);">${tech.label}</div>
-            ${isCritical ? '<span class="text-xs px-1.5 py-0.5 rounded" style="background:rgba(239,68,68,0.15);color:#ef4444;">⚠️ Критично</span>' : ''}
-            ${isMedium && !isCritical ? '<span class="text-xs px-1.5 py-0.5 rounded" style="background:rgba(245,158,11,0.15);color:#f59e0b;">⚡ Средний риск</span>' : ''}
+            ${isCritical ? '<span class="text-xs px-1.5 py-0.5 rounded" style="background:rgba(239,68,68,0.15);color:#ef4444;">‼️ Критично</span>' : ''}
+            ${isMedium && !isCritical ? '<span class="text-xs px-1.5 py-0.5 rounded" style="background:rgba(245,158,11,0.15);color:#f59e0b;">❗ Средний риск</span>' : ''}
           </div>
           <div class="text-xs mb-2" style="color:var(--text-secondary);">
             ${catLabels[tech.group]} · ${beltIcons[tech.belt]} ${beltNames[tech.belt]} · ⭐ ${'⭐'.repeat(tech.difficulty || 1)}
@@ -6285,7 +6285,7 @@ window.generateWorkout = () => {
           ${details.drills ? `
             <div class="mt-2 p-2 rounded" style="background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.2);">
               <div class="text-xs font-bold mb-1 flex items-center gap-1" style="color:#8b5cf6;">
-                <span>🏋️</span><span>ДРИЛЛЫ (${timePerDrill} мин)</span>
+                <span></span><span>ДРИЛЛЫ (${timePerDrill} мин)</span>
               </div>
               <div class="text-xs leading-relaxed whitespace-pre-line" style="color:var(--text-primary);">${details.drills}</div>
             </div>
@@ -6311,10 +6311,10 @@ window.generateWorkout = () => {
   
   html += `</div></div>`;
   
-  // 🧘 ЗАМИНКА
+  //  ЗАМИНКА
   html += `<div class="mb-4">
     <div class="flex items-center gap-2 mb-2">
-      <span class="text-xl">🧘</span>
+      <span class="text-xl"></span>
       <h3 class="text-sm font-bold uppercase tracking-wider" style="color:var(--success);">Заминка · ${cooldownDuration} мин</h3>
     </div>
     <div class="p-3 rounded-lg" style="background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2)">
