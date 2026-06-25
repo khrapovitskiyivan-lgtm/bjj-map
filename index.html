@@ -7744,14 +7744,8 @@ triggerHaptic('medium');
 
 // === ЗАПУСК ===
 (async () => {
-  await initApp();
-  // Загружаем фильтры связей и систем
-  const savedEdgeFilter = await loadSetting('bjj_edge_filter', null);
-  if (savedEdgeFilter) activeEdgeTypes = { ...activeEdgeTypes, ...savedEdgeFilter };
-  const savedSystemFilter = await loadSetting('bjj_system_filter', null);
-  if (savedSystemFilter) activeSystems = { ...activeSystems, ...savedSystemFilter };
-  // Применяем после инициализации графа
-  setTimeout(() => applyEdgeFilters(), 500);
+    await initApp();
+    // ✅ Фильтры уже загружены в initApp() — дубль удалён
 })();
 
 // Гарантированный вызов applyAllFilters через 2 секунды
