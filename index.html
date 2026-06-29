@@ -7635,7 +7635,6 @@ if (e.key === 'Escape') { searchInput.value = ''; searchResults.classList.add('h
 
 network.on('click', function(params) { if (params.nodes.length) renderNodeDetails(params.nodes[0]); });
 
-const networkEl = document.getElementById('mynetwork');
 networkEl.addEventListener('touchmove', function(e) { e.preventDefault(); }, { passive: false });
 networkEl.addEventListener('wheel', function(e) { e.preventDefault(); }, { passive: false });
 
