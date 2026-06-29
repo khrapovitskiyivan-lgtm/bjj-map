@@ -4990,25 +4990,102 @@ smooth: { type: 'continuous', roundness: 0.3 }
 });
 
 // === ИНИЦИАЛИЗАЦИЯ ГРАФА ===
+// === 🌳 ИНИЦИАЛИЗАЦИЯ ГРАФА (ИЕРАРХИЧЕСКОЕ ДЕРЕВО) ===
+
+// Уровни иерархии по типу узла
+const groupLevels = {
+    system: 0,
+    position: 1,
+    takedown: 2,
+    sweep: 2,
+    guard_pass: 2,
+    escape: 3,
+    transition: 3,
+    submission: 4
+};
+
 const nodes = new vis.DataSet(bjjNodesData.map(n => ({
-id: n.id, label: n.label, group: n.group, title: n.title, desc: n.desc,
-belt: n.belt, gi: n.gi, noGi: n.noGi,
-legal_ibjjf_gi: n.legal_ibjjf_gi, legal_ibjjf_nogi: n.legal_ibjjf_nogi, legal_adcc: n.legal_adcc,
-points: n.points, tags: n.tags, difficulty: n.difficulty || 1,
-setup_from: n.setup_from || [], chain_to: n.chain_to || []
+    id: n.id, label: n.label, group: n.group, title: n.title, desc: n.desc,
+    belt: n.belt, gi: n.gi, noGi: n.noGi,
+    legal_ibjjf_gi: n.legal_ibjjf_gi, legal_ibjjf_nogi: n.legal_ibjjf_nogi, legal_adcc: n.legal_adcc,
+    points: n.points, tags: n.tags, difficulty: n.difficulty || 1,
+    setup_from: n.setup_from || [], chain_to: n.chain_to || [],
+    // 🆕 Уровень иерархии
+    level: groupLevels[n.group] !== undefined ? groupLevels[n.group] : 2
 })));
 const edges = new vis.DataSet(edgesWithColors);
+// 🆕 ИЕРАРХИЧЕСКИЙ LAYOUT — без физики, без стабилизации
 const network = new vis.Network(document.getElementById('mynetwork'), { nodes, edges }, {
-groups,
-nodes: { size: window.innerWidth < 768 ? 28 : 22, font: { size: window.innerWidth < 768 ? 14 : 12, color: '#ffffff', strokeWidth: 3, strokeColor: '#000000' } },
-edges: { font: { size: 0 }, selectionWidth: 3, hoverWidth: 2 },
-physics: {
-solver: 'forceAtlas2Based',
-forceAtlas2Based: { gravitationalConstant: -80, centralGravity: 0.005, springLength: 200, springConstant: 0.04, damping: 0.4 },
-stabilization: { iterations: 200 }
-},
-interaction: { hover: true, dragNodes: true, dragView: true, zoomView: true, navigationButtons: false, keyboard: false }
+    groups,
+    layout: {
+        hierarchical: {
+            enabled: true,
+            direction: 'UD',           // UD = сверху вниз
+            sortMethod: 'directed',     // по направлению рёбер
+            levelSeparation: 180,       // расстояние между уровнями
+            nodeSpacing: 140,           // расстояние между узлами на уровне
+            treeSpacing: 200,           // расстояние между деревьями
+            blockShifting: true,
+            edgeMinimization: true,
+            parentCentralization: true,
+            shakeTowards: 'roots'
+        }
+    },
+    nodes: { 
+        size: window.innerWidth < 768 ? 26 : 20, 
+        font: { 
+            size: window.innerWidth < 768 ? 12 : 11, 
+            color: '#ffffff', 
+            strokeWidth: 3, 
+            strokeColor: '#000000',
+            face: '-apple-system, BlinkMacSystemFont, Inter, sans-serif'
+        },
+        shadow: false,
+        borderWidth: 1.5,
+        borderWidthSelected: 2.5
+    },
+    edges: { 
+        font: { size: 0 }, 
+        width: 1.2,
+        selectionWidth: 2, 
+        hoverWidth: 1.5,
+        shadow: false,
+        smooth: {
+            type: 'cubicBezier',
+            forceDirection: 'vertical',
+            roundness: 0.4
+        },
+        arrows: {
+            to: { enabled: true, scaleFactor: 0.4 }
+        },
+        color: {
+            opacity: 0.6
+        }
+    },
+    physics: false,  // 🆕 ФИЗИКА ПОЛНОСТЬЮ ОТКЛЮЧЕНА
+    interaction: { 
+        hover: false,
+        dragNodes: false,  // 🆕 В иерархии перетаскивание узлов не нужно
+        dragView: true, 
+        zoomView: true, 
+        navigationButtons: false, 
+        keyboard: false,
+        multiselect: false
+    },
+    animation: false
 });
+
+// 🆕 Показываем граф сразу (layout вычисляется мгновенно)
+const networkEl = document.getElementById('mynetwork');
+const loader = document.getElementById('graphLoader');
+if (networkEl) networkEl.style.opacity = '1';
+if (loader) {
+    loader.style.opacity = '0';
+    setTimeout(() => loader.remove(), 300);
+}
+setTimeout(() => {
+    network.fit({ animation: false });
+}, 100);
 
 // === ПРОГРЕСС ===
 const STORAGE_KEY = 'bjj_learned_v4';
